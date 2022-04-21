@@ -1890,12 +1890,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     KeyBinding.onTick(k);
                 }
 
-                // uwu
-                for(Module m : ModuleManager.modules){
-                    if(m.getKey() == k){
-                        m.toggle();
-                    }
-                }
+
 
                 if (this.debugCrashKeyPressTime > 0L)
                 {
@@ -1929,6 +1924,12 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     }
                     else
                     {
+                        // uwu
+                        for(Module m : ModuleManager.modules){
+                            if(m.getKey() == k){
+                                m.toggle();
+                            }
+                        }
                         if (k == 1)
                         {
                             this.displayInGameMenu();

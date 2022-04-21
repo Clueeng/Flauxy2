@@ -4,6 +4,7 @@ import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import org.lwjgl.opengl.Display;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.movement.Fly;
 import uwu.flauxy.module.impl.visuals.HUD;
 import uwu.flauxy.utils.font.FontManager;
 
@@ -22,6 +23,7 @@ public class Flauxy {
         fmgr = new FontManager();
         Display.setTitle(name + " - " + version);
         mgr.getModule(HUD.class).toggle();
+        mgr.getModule(Fly.class).toggle();
         EventManager.register(this);
     }
 

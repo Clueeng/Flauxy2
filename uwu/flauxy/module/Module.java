@@ -3,6 +3,7 @@ package uwu.flauxy.module;
 import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import uwu.flauxy.module.setting.Setting;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class Module {
     protected Category category;
     @Getter@Setter
     protected boolean toggled;
+    @Getter
+    protected Minecraft mc = Minecraft.getMinecraft();
 
     @Getter
     @Setter
