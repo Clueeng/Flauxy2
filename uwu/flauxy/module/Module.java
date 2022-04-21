@@ -3,6 +3,7 @@ package uwu.flauxy.module;
 import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.utils.Methods;
 
@@ -22,6 +23,8 @@ public class Module implements Methods {
 
     @Getter @Setter
     protected boolean toggled;
+    @Getter
+    protected Minecraft mc = Minecraft.getMinecraft();
 
     @Getter
     private ArrayList<Setting> settings = new ArrayList<>();
