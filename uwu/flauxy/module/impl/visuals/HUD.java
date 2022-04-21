@@ -7,6 +7,7 @@ import uwu.flauxy.event.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 
@@ -15,9 +16,8 @@ public class HUD extends Module {
 
     @EventTarget
     public void onRender(EventRender2D ev){
-        //FontManager.auxy.drawString("Sex", 4, 4, -1);
-        Minecraft.getMinecraft().fontRendererObj.drawString("Sex", 4, 4, -1);
-        TTFFontRenderer font = Flauxy.instance.fmgr.getFont("auxy");
-        font.drawString("fuck", 4, 12, -1);
+        TTFFontRenderer font = Flauxy.instance.fmgr.getFont("auxy 21");
+        font.drawString(Flauxy.instance.getName(), 4, 4, -1);
+
     }
 }
