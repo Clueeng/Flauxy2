@@ -1,14 +1,11 @@
 package uwu.flauxy.utils.font;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import uwu.flauxy.utils.font.TTFFontRenderer;
+import uwu.flauxy.Flauxy;
 
 import java.awt.*;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.*;
 
 public class FontManager {
@@ -26,6 +23,10 @@ public class FontManager {
     private FontManager instance;
 
     private HashMap<String, TTFFontRenderer> fonts = new HashMap<>();
+
+    public static TTFFontRenderer getFont() {
+        return Flauxy.INSTANCE.fontManager.getFont("SFL 42");
+    }
 
     public FontManager() {
         instance = this;
@@ -63,6 +64,12 @@ public class FontManager {
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("SFB " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+            }
+            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Medium.otf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("SFM " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
             for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Medium.otf");

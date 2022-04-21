@@ -4,23 +4,28 @@ import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import lombok.Setter;
 import uwu.flauxy.module.setting.Setting;
+import uwu.flauxy.utils.Methods;
 
 import java.util.ArrayList;
 
 
-public class Module {
-    @Getter@Setter
+public class Module implements Methods {
+
+    @Getter @Setter
     protected String name, displayName;
-    @Getter@Setter
+
+    @Getter @Setter
     protected int key;
-    @Getter@Setter
+
+    @Getter @Setter
     protected Category category;
-    @Getter@Setter
+
+    @Getter @Setter
     protected boolean toggled;
 
     @Getter
-    @Setter
     private ArrayList<Setting> settings = new ArrayList<>();
+
     public Module(){
         final ModuleInfo featureInfo = getClass().getAnnotation(ModuleInfo.class);
 
@@ -44,8 +49,10 @@ public class Module {
         else onDisable();
     }
 
-    public final void addSetting(Setting setting) {
-        settings.add(setting);
+    public void addSettings(final Setting... settings) {
+        for (final Setting setting : settings) {
+            this.getSettings().add(setting);
+        }
     }
 
 
