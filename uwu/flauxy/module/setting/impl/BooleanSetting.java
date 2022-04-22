@@ -21,6 +21,10 @@ public class BooleanSetting extends Setting<Boolean> {
         this(name, enabled, () -> true);
     }
 
+    public boolean getValue(){
+        return enabled;
+    }
+
     public void toggle() {
         this.enabled = !this.enabled;
     }

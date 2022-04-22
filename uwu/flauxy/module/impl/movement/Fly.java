@@ -12,7 +12,7 @@ import uwu.flauxy.utils.Wrapper;
 @ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Fly extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "ok");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus");
 
     @EventTarget
     public void onMotion(EventMotion ev){

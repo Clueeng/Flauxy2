@@ -21,10 +21,10 @@ import java.util.List;
 public class ArrayList extends Module {
 
     public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default");
-    public BooleanSetting glow = new BooleanSetting("Glow", true);
+    //public BooleanSetting glow = new BooleanSetting("Glow", true);
 
     public ArrayList() {
-        addSettings(color, glow);
+        addSettings(color);
     }
 
     @EventTarget
@@ -76,20 +76,11 @@ public class ArrayList extends Module {
         for(Module m : getFontSortedModules(font, false)){
             double wi = sr.getScaledWidth();
 
-            if (glow.isEnabled()) {
-                float finalY = y;
-                int finalStringcolor = stringColor;
-                final float finalC = c;
-                final float finalCn = cn;
+            font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
+            //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
+            c+=font.getHeight(m.getName())+retarded+1;
+            cn+=1;
 
-                GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int)(wi - font.getWidth(m.getDisplayName()) - 2 ) , (int) finalC + finalCn + retarded, finalStringcolor));
-            }else {
-
-                font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
-                //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
-                c+=font.getHeight(m.getName())+retarded+1;
-                cn+=1;
-            }
         }
     }
 
