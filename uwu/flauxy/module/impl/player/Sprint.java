@@ -7,7 +7,7 @@ import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 
-@ModuleInfo(name = "Sprint", displayName = "Sprint", key = Keyboard.KEY_B, cat = Category.PLAYER)
+@ModuleInfo(name = "Sprint", displayName = "Sprint", key = Keyboard.KEY_B, cat = Category.Player)
 public class Sprint extends Module {
 
     @EventTarget

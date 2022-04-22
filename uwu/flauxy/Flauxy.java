@@ -4,6 +4,7 @@ import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import org.lwjgl.opengl.Display;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.display.ArrayList;
 import uwu.flauxy.module.impl.display.HUD;
 import uwu.flauxy.utils.font.FontManager;
 
@@ -22,6 +23,7 @@ public enum Flauxy {
         fontManager = new FontManager();
         Display.setTitle(name + " - " + version);
         moduleManager.getModule(HUD.class).toggle();
+        moduleManager.getModule(ArrayList.class).toggle();
         EventManager.register(this);
     }
 

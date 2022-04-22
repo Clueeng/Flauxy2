@@ -72,6 +72,12 @@ public class FontManager {
                 fonts.put("SFM " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
             for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/neverlose.otf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("NL " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+            }
+            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Medium.otf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);

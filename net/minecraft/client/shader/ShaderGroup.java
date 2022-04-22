@@ -26,7 +26,7 @@ import org.lwjgl.util.vector.Matrix4f;
 
 public class ShaderGroup
 {
-    private Framebuffer mainFramebuffer;
+    public Framebuffer mainFramebuffer;
     private IResourceManager resourceManager;
     private String shaderGroupName;
     private final List<Shader> listShaders = Lists.<Shader>newArrayList();
@@ -49,6 +49,10 @@ public class ShaderGroup
         this.shaderGroupName = p_i1050_4_.toString();
         this.resetProjectionMatrix();
         this.parseGroup(p_i1050_1_, p_i1050_4_);
+    }
+
+    public List<Shader> getListShaders() {
+        return listShaders;
     }
 
     public void parseGroup(TextureManager p_152765_1_, ResourceLocation p_152765_2_) throws JsonException, IOException, JsonSyntaxException

@@ -6,18 +6,18 @@ import uwu.flauxy.event.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
-import uwu.flauxy.module.setting.impl.ModeValue;
+import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.utils.Wrapper;
 
-@ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.MOVEMENT)
+@ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Fly extends Module {
 
-    public ModeValue mode = new ModeValue("Mode", this,  new String[]{"Vanilla", "ok"});
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "ok");
 
     @EventTarget
     public void onMotion(EventMotion ev){
         //if(!this.isToggled()) return;
-        switch(mode.getCurrMode()){
+        switch(mode.getMode()){
             case "Vanilla":{
                 getMc().thePlayer.motionY = 0;
                 getMc().thePlayer.onGround = true;

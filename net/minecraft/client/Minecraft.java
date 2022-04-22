@@ -187,6 +187,7 @@ import org.lwjgl.util.glu.GLU;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.utils.shader.impl.GlowUtil;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
@@ -1707,6 +1708,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         {
             this.entityRenderer.updateShaderGroupSize(this.displayWidth, this.displayHeight);
         }
+
+        GlowUtil.onFrameBufferResize(this.displayWidth, this.displayHeight);
     }
 
     public MusicTicker func_181535_r()
