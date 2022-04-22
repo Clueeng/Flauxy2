@@ -35,75 +35,11 @@ public class FontManager {
         ConcurrentLinkedQueue<fr.flailyclient.utils.fonts.TextureData> textureQueue = new ConcurrentLinkedQueue<>();
         defaultFont = new TTFFontRenderer(executorService, textureQueue, new Font("Verdana", Font.PLAIN, 18));
         try {
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Regular.otf");
+            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30}) {
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/auxy.otf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFR " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/Comfortaa.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("Cum " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/Astomero.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("Astomero " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/sfui.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFUI " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Bold.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFB " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Medium.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFM " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/neverlose.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("NL " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Medium.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFM " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/SF-UI-Display-Light.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("SFL " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/Jigsaw-Regular.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("JIGR " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/ttf/Insidious1-Regular.otf");
-                Font myFont = Font.createFont(Font.PLAIN, istream);
-                myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("Ins " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-            }
-            for(int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}){
-
-                fonts.put("Verdana " + i, new TTFFontRenderer(executorService, textureQueue, new Font("Verdana", Font.PLAIN, i)));
+                fonts.put("auxy " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
 
             fonts.put("Verdana Bold 16", new TTFFontRenderer(executorService, textureQueue, new Font("Verdana Bold", Font.PLAIN, 16)));

@@ -10,10 +10,12 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
+import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
 import uwu.flauxy.utils.shader.impl.GlowUtil;
 
 import java.util.Comparator;
+import java.util.List;
 
 @ModuleInfo(name = "ArrayList", displayName = "ArrayList", key = 0, cat = Category.Display)
 public class ArrayList extends Module {
@@ -40,7 +42,7 @@ public class ArrayList extends Module {
 
         mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getName())).reversed());
 
-        for (Module m : mods) {
+        /*for (Module m : mods) {
             if(m.isToggled()) {
                 int stringcolor = 0;
                 switch (color.getMode()) {
@@ -65,6 +67,52 @@ public class ArrayList extends Module {
                 count++;
                 y += 9.7;
             }
+        }*/
+        int c = 0;
+        int cn = 0;
+        TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
+        int retarded = 0;
+        int stringColor = -1;
+        for(Module m : getFontSortedModules(font, false)){
+            double wi = sr.getScaledWidth();
+
+            if (glow.isEnabled()) {
+                float finalY = y;
+                int finalStringcolor = stringColor;
+                final float finalC = c;
+                final float finalCn = cn;
+
+                GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int)(wi - font.getWidth(m.getDisplayName()) - 2 ) , (int) finalC + finalCn + retarded, finalStringcolor));
+            }else {
+
+                font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
+                //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
+                c+=font.getHeight(m.getName())+retarded+1;
+                cn+=1;
+            }
         }
+    }
+
+    private static java.util.List<Module> getFontSortedModules(TTFFontRenderer fr, boolean lowerCase) {
+        java.util.List<Module> sortedList = getActiveModules();
+        sortedList.sort(Comparator.comparingDouble(e -> lowerCase ? -fr.getWidth(e.getDisplayName().toLowerCase()) : -fr.getWidth(e.getDisplayName())));
+        return sortedList;
+    }
+
+    public static java.util.List<Module> getActiveModules() {
+        java.util.List<Module> modds = new java.util.ArrayList<>();
+        for (Module mod : Flauxy.INSTANCE.getModuleManager().modules) {
+            if (mod.isToggled()) {
+                modds.add(mod);
+            }
+        }
+        return modds;
+    }
+    public static java.util.List<Module> getModules() {
+        List<Module> modds = new java.util.ArrayList<>();
+        for (Module mod : Flauxy.INSTANCE.getModuleManager().modules) {
+            modds.add(mod);
+        }
+        return modds;
     }
 }

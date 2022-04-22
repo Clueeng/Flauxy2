@@ -20,7 +20,10 @@ import uwu.flauxy.utils.render.RenderUtil;
 import uwu.flauxy.utils.shader.impl.GlowUtil;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static uwu.flauxy.utils.font.FontManager.getFont;
 
@@ -81,15 +84,20 @@ public class HUD extends Module {
                 break;
         }
 
-        String bps = String.format("%.2f", Math.hypot(mc.thePlayer.posX - mc.thePlayer.prevPosX, mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * mc.timer.timerSpeed * 20.0D);
+
+        final double xz = (Math.hypot(mc.thePlayer.posX - mc.thePlayer.prevPosX, mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * mc.timer.timerSpeed) * 20;
+        final DecimalFormat bpsFormat = new DecimalFormat("#.##");
+        final String bps = bpsFormat.format(xz);
         String drawBPS = "Blocks/sec: " + EnumChatFormatting.GRAY + bps;
         if (glow.isEnabled()) {
-            GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawStringWithShadow(drawBPS, 0, sr.getScaledHeight() - 24, -1));
+            GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 24, -1));
         }else {
-            Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawStringWithShadow(drawBPS, 0, sr.getScaledHeight() - 35, -1);
+            Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 0, sr.getScaledHeight() - 35, -1);
         }
 
     }
+
+
 
     @Override
     public void onEnable() {

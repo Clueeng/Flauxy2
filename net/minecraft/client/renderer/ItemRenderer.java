@@ -556,7 +556,7 @@ public class ItemRenderer
             {
                 if(animations.isToggled()) {
                     switch (animations.hit.getMode()) {
-                        case "Normal": {
+                        case "Vanilla": {
                             this.func_178105_d(f1);
                             this.transformFirstPersonItem(f, f1);
                         }
