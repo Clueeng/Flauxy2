@@ -1,29 +1,18 @@
 package uwu.flauxy.module.impl.display;
 
 import com.darkmagician6.eventapi.EventTarget;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
-import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
-import uwu.flauxy.utils.font.FontManager;
-import uwu.flauxy.utils.font.TTFFontRenderer;
-import uwu.flauxy.utils.render.ColorUtils;
 import uwu.flauxy.utils.render.RenderUtil;
-import uwu.flauxy.utils.shader.impl.GlowUtil;
 
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import static uwu.flauxy.utils.font.FontManager.getFont;
 
@@ -31,10 +20,10 @@ import static uwu.flauxy.utils.font.FontManager.getFont;
 public class HUD extends Module {
 
     public ModeSetting watermark = new ModeSetting("Watermark", "Flauxy", "Flauxy", "Onetap", "Skeet");
-    public BooleanSetting glow = new BooleanSetting("Glow", true);
+    //public BooleanSetting glow = new BooleanSetting("Glow", true);
 
     public HUD() {
-        addSettings(watermark, glow);
+        addSettings(watermark);
     }
 
     @EventTarget
@@ -43,28 +32,21 @@ public class HUD extends Module {
 
         switch (watermark.getMode()) {
             case "Flauxy":
-                if (glow.isEnabled()) {
-                    GlowUtil.drawAndBloom(() -> getFont().drawString("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB()));
-                }else {
-                    getFont().drawString("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
-                }
+                getFont().drawString("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
                 break;
             case "Onetap":
                 String server = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
                 String text = "Flauxy | " + mc.thePlayer.getName() + " | " + server;
-                float width = Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(text) + 6;
+                float width = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(text) + 6;
                 RenderUtil.drawRect(2, 2, width, 3, Color.ORANGE.getRGB());
-                RenderUtil.drawRect(2, 3, width, 13, new Color(67, 67, 67, 190).getRGB());
-                if (glow.isEnabled()) {
-                    GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(text, 4F, (float) (4.5 - 2), -1));
-                }else {
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(text, 4F, (float) (4.5 - 2), -1);
-                }
+                RenderUtil.drawRect(2, 3, width, 15, new Color(67, 67, 67, 190).getRGB());
+                Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString(text, 4F, (float) (4.5 - 2), -1);
+
                 break;
             case "Skeet":
                 String skeetserver = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
                 String skeettext = "Flauxy | " + mc.getDebugFPS() + " fps | " + skeetserver;
-                float skeetwidth = Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(skeettext) + 6;
+                float skeetwidth = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(skeettext) + 6;
                 int height = 20;
                 int posX = 2;
                 int posY = 2;
@@ -75,11 +57,8 @@ public class HUD extends Module {
                 RenderUtil.drawGradientSideways(4, posY + 3, 4 + (skeetwidth / 3), posY + 4, new Color(81, 149, 219, 255).getRGB(), new Color(180, 49, 218, 255).getRGB());
                 RenderUtil.drawGradientSideways(4 + (skeetwidth / 3), posY + 3, 4 + ((skeetwidth / 3) * 2), posY + 4, new Color(180, 49, 218, 255).getRGB(), new Color(236, 93, 128, 255).getRGB());
                 RenderUtil.drawGradientSideways(4 + ((skeetwidth / 3) * 2), posY + 3, ((skeetwidth / 3) * 3) + 1, posY + 4, new Color(236, 93, 128, 255).getRGB(), new Color(167, 171, 90, 255).getRGB());
-                if (glow.isEnabled()) {
-                    GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(skeettext, (float) (4 + posX), (float) (8 + posY - 2.3), -1));
-                }else {
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(skeettext, (float) (4 + posX), (float) (8 + posY - 2.3), -1);
-                }
+
+                Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString(skeettext, (float) (4 + posX), (float) (8 + posY - 2.3), -1);
 
                 break;
         }
@@ -89,11 +68,8 @@ public class HUD extends Module {
         final DecimalFormat bpsFormat = new DecimalFormat("#.##");
         final String bps = bpsFormat.format(xz);
         String drawBPS = "Blocks/sec: " + EnumChatFormatting.GRAY + bps;
-        if (glow.isEnabled()) {
-            GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 24, -1));
-        }else {
-            Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 0, sr.getScaledHeight() - 35, -1);
-        }
+        Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 25, -1);
+
 
     }
 

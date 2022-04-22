@@ -9,7 +9,7 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 @ModuleInfo(name = "ClickGUI", displayName = "ClickGui", key = Keyboard.KEY_RSHIFT, cat = Category.Display)
 public class ClickGUI extends Module {
 
-
+    uwu.flauxy.ui.dropdown.ClickGUI clickgui;
     public static NumberSetting red = new NumberSetting("R", 180, 1, 250, 1);
     public static NumberSetting green = new NumberSetting("G", 10, 1, 250, 1);
     public static NumberSetting blue = new NumberSetting("B", 120, 1, 250, 1);
@@ -19,7 +19,7 @@ public class ClickGUI extends Module {
 
     @Override
     public void onEnable() {
-        mc.displayGuiScreen(new uwu.flauxy.ui.dropdown.ClickGUI());
+        mc.displayGuiScreen(clickgui == null ? clickgui = new uwu.flauxy.ui.dropdown.ClickGUI() : clickgui);
         toggle();
         super.onEnable();
     }

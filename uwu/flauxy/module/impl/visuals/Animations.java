@@ -10,8 +10,8 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 @ModuleInfo(name = "Animations", displayName = "Animations", key = 0, cat = Category.Visuals)
 public class Animations extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Old", "Swank", "Swong", "Exhibition", "Stella", "Smooth", "Sigma", "Ethernal", "Dortware", "Mega", "Punch", "Plain", "Up", "Skid", "Jello", "Flux", "Astolfo", "Old Sigma", "Autumn", "Slide", "Rare", "Jigsaw", "Luna");
-    public ModeSetting hit = new ModeSetting("Hit", "Vanilla", "Vanilla", "Smooth");
+    public ModeSetting mode = new ModeSetting("Mode", "Swank", "Vanilla", "Old", "Swank", "Swong", "Exhibition", "Stella", "Smooth", "Sigma", "Ethernal", "Dortware", "Mega", "Punch", "Plain", "Up", "Skid", "Jello", "Flux", "Astolfo", "Old Sigma", "Autumn", "Slide", "Rare", "Jigsaw", "Luna");
+    public ModeSetting hit = new ModeSetting("Hit", "Smooth", "Vanilla", "Smooth");
     public NumberSetting scale = new NumberSetting("Scale", 1, 0.5, 2, 0.05);
 
     public Animations() {

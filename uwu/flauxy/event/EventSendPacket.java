@@ -1,10 +1,15 @@
 package uwu.flauxy.event;
 
 import com.darkmagician6.eventapi.events.Event;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.network.Packet;
 
 public class EventSendPacket implements Event {
     public Packet packet;
+
+    @Getter @Setter
+    public boolean cancelled;
 
     public EventSendPacket(Packet inputPacket) {
         this.packet = inputPacket;

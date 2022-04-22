@@ -1,6 +1,7 @@
 package uwu.flauxy.ui.dropdown.components.impl;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Mouse;
 import uwu.flauxy.Flauxy;
@@ -56,8 +57,8 @@ public class NumberComponent extends Component implements ColorHelper {
             }
         }
 
-        Flauxy.INSTANCE.getFontManager().getFont("auxy 8").drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) - 4.3 + 5), stringColor);
-
+        getFont().drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) - 4.3 + 5), stringColor);
+        GlStateManager.resetColor();
     }
 
     private double roundToPlace(double value, int places) {

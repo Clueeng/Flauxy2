@@ -44,7 +44,6 @@ import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import optfine.Config;
 import uwu.flauxy.event.EventRender2D;
-import uwu.flauxy.utils.shader.impl.GlowUtil;
 
 public class GuiIngame extends Gui
 {
@@ -149,7 +148,7 @@ public class GuiIngame extends Gui
             }
         }
 
-        GlowUtil.onRenderGameOverlay(scaledresolution, this.mc.getFramebuffer());
+        //GlowUtil.onRenderGameOverlay(scaledresolution, this.mc.getFramebuffer());
 
         if (this.mc.playerController.isSpectator())
         {

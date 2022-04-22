@@ -186,10 +186,13 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
         EventSendPacket event = new EventSendPacket(packetIn);
         EventManager.call(event);
+        if(event.isCancelled()) return;
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();
-            this.dispatchPacket(event.getPacket(), (GenericFutureListener <? extends Future <? super Void >> [])null);
+            if(!event.isCancelled()){
+                this.dispatchPacket(event.getPacket(), (GenericFutureListener <? extends Future <? super Void >> [])null);
+            }
         }
         else
         {

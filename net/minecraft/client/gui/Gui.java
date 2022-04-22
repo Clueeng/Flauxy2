@@ -47,18 +47,18 @@ public class Gui
     /**
      * Draws a solid color rectangle with the specified coordinates and color (ARGB format). Args: x1, y1, x2, y2, color
      */
-    public static void drawRect(int left, int top, int right, int bottom, int color)
+    public static void drawRect(float left, float top, float right, float bottom, int color)
     {
         if (left < right)
         {
-            int i = left;
+            float i = left;
             left = right;
             right = i;
         }
 
         if (top < bottom)
         {
-            int j = top;
+            float j = top;
             top = bottom;
             bottom = j;
         }

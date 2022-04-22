@@ -1,10 +1,13 @@
-package uwu.flauxy.module.impl;
+package uwu.flauxy.module.impl.combat;
 
 import com.darkmagician6.eventapi.EventTarget;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemSword;
+import net.minecraft.network.play.client.C02PacketUseEntity;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.EventMotion;
 import uwu.flauxy.module.Category;
@@ -13,15 +16,21 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.NumberUtil;
+import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.timer.Timer;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
 
-    NumberSetting cps = new NumberSetting("CPS", 1, 1, 1, 1);
-    NumberSetting reach = new NumberSetting("CPS", 1, 1, 1, 1);
+    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.5);
+    NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
     ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus");
+    ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
 
     BooleanSetting players = new BooleanSetting("Players", true);
     BooleanSetting mobs = new BooleanSetting("Mobs", true);
@@ -29,8 +38,40 @@ public class Killaura extends Module {
     BooleanSetting shop = new BooleanSetting("Shopkeepers", false);
     Timer timer = new Timer();
 
+    public Killaura(){
+        addSettings(cps, reach, rotations, players, mobs, animals, shop);
+    }
+
     @EventTarget
     public void onMotion(EventMotion event){
+        List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(Entity.class::isInstance).collect(Collectors.toList());
+        targets = targets.stream().filter(entity -> ((Entity) entity).getDistanceToEntity((Entity) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
+        targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
+        targets = targets.stream().filter(Entity.class::isInstance).collect((Collectors.toList()));
+
+        if(!targets.isEmpty()){
+            Entity target = targets.get(0);
+            if(isValid(target)){
+                switch(rotations.getMode()){
+                    case "Verus":{
+                        float yawGcd, pitchGcd;
+                        yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
+                        pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
+                        yaw(yawGcd, event);
+                        pitch(pitchGcd, event);
+                        break;
+                    }
+                    case "Instant":{
+                        yaw(getRotations(target)[0], event);
+                        pitch(getRotations(target)[1], event);
+                        break;
+                    }
+                }
+                if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
+                    attack(target);
+                }
+            }
+        }
 
     }
 
@@ -77,4 +118,14 @@ public class Killaura extends Module {
         }
         return new float[] {yaw, pitch};
     }
+
+    public void attack(Entity target){
+        mc.thePlayer.swingItem();
+        PacketUtil.packetNoEvent(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
+    }
+
+    public boolean isHoldingSword(){
+        return mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
+    }
+
 }

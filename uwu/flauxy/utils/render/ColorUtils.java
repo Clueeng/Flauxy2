@@ -9,7 +9,11 @@ public class ColorUtils {
     public static Color setAlpha(Color color, int alpha) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
-
+    public static int getRainbow(float seconds, float saturation, float brightness, long index) {
+        float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 750)) / (float)(seconds*750);
+        int color = java.awt.Color.HSBtoRGB(hue, saturation, brightness);
+        return color;
+    }
     public static int astolfo(float seconds, float saturation, float brightness, float index) {
         float speed = 3000f;
         float hue = (System.currentTimeMillis() % (int) (seconds * 1000)) + index;

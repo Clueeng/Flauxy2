@@ -1,6 +1,8 @@
 package net.minecraft.client.gui;
 
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,6 +33,10 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.alts.GuiAltManager;
+import uwu.flauxy.utils.font.TTFFontRenderer;
+import uwu.flauxy.utils.render.ColorUtils;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 {
@@ -211,7 +217,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options", new Object[0])));
         this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("menu.quit", new Object[0])));
-        this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
+        //this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
 
         synchronized (this.threadLock)
         {
@@ -234,7 +240,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     {
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer", new Object[0])));
-        this.buttonList.add(this.realmsButton = new GuiButton(14, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, I18n.format("menu.online", new Object[0])));
+        this.buttonList.add(new GuiButton(3, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Alt Manager"));
     }
 
     /**
@@ -281,6 +287,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         if (button.id == 14 && this.realmsButton.visible)
         {
             this.switchToRealms();
+        }
+
+        if(button.id == 3){
+            mc.displayGuiScreen(new GuiAltManager());
         }
 
         if (button.id == 4)
@@ -503,20 +513,26 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        Gui.drawRect(0, 0, 0, 1, 0);
         GlStateManager.disableAlpha();
-        this.renderSkybox(mouseX, mouseY, partialTicks);
+        //this.renderSkybox(mouseX, mouseY, partialTicks);
         GlStateManager.enableAlpha();
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         int i = 274;
         int j = this.width / 2 - i / 2;
         int k = 30;
-        this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
+        int col1 = ColorUtils.getGradientOffset(new Color(42, 14, 85), new Color(95, 45, 145), 4).getRGB();
+        Gui.drawRect(0, 0, width, height, new Color(95, 45, 145).getRGB());
+        this.drawGradientRect(0, height - 120, width, height, 0, col1);
+        /*this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
         this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
-        this.mc.getTextureManager().bindTexture(minecraftTitleTextures);
+        this.mc.getTextureManager().bindTexture(minecraftTitleTextures);*/
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if ((double)this.updateCounter < 1.0E-4D)
+        TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
+        font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
+        /*if ((double)this.updateCounter < 1.0E-4D)
         {
             this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 99, 44);
             this.drawTexturedModalRect(j + 99, k + 0, 129, 0, 27, 44);
@@ -528,7 +544,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         {
             this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 155, 44);
             this.drawTexturedModalRect(j + 155, k + 0, 0, 45, 155, 44);
-        }
+        }*/
 
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)(this.width / 2 + 90), 70.0F, 0.0F);
@@ -536,7 +552,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         float f = 1.8F - MathHelper.abs(MathHelper.sin((float)(Minecraft.getSystemTime() % 1000L) / 1000.0F * (float)Math.PI * 2.0F) * 0.1F);
         f = f * 100.0F / (float)(this.fontRendererObj.getStringWidth(this.splashText) + 32);
         GlStateManager.scale(f, f, f);
-        this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
+        //this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
         GlStateManager.popMatrix();
         String s = "Minecraft 1.8.8";
 

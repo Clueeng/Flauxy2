@@ -2,29 +2,32 @@ package uwu.flauxy.module.impl.display;
 
 import com.darkmagician6.eventapi.EventTarget;
 import net.minecraft.client.gui.ScaledResolution;
-import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
-import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
+import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
-import uwu.flauxy.utils.shader.impl.GlowUtil;
 
+import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 
 @ModuleInfo(name = "ArrayList", displayName = "ArrayList", key = 0, cat = Category.Display)
 public class ArrayList extends Module {
 
-    public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default");
+    public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom");
+
+    public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1);
+    public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1);
+    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
 
     public ArrayList() {
-        addSettings(color);
+        addSettings(color, red, green, blue);
     }
 
     @EventTarget
@@ -70,10 +73,25 @@ public class ArrayList extends Module {
         }*/
         int c = 0;
         int cn = 0;
+        int stringColor = -1;
+
         TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
         int retarded = 0;
-        int stringColor = -1;
         for(Module m : getFontSortedModules(font, false)){
+            switch(color.getMode()){
+                case "Astolfo":{
+                    stringColor = ColorUtils.astolfo(2, 0.8f, 1, cn * 152);
+                    break;
+                }
+                case "Rainbow":{
+                    stringColor = ColorUtils.getRainbow(2, 0.40f, 1, cn * 120);
+                    break;
+                }
+                case "Custom":{
+                    stringColor = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue()).getRGB();
+                    break;
+                }
+            }
             double wi = sr.getScaledWidth();
 
             font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);

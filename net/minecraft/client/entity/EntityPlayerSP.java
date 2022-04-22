@@ -55,6 +55,7 @@ import net.minecraft.world.World;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.CommandManager;
 import uwu.flauxy.event.EventMotion;
+import uwu.flauxy.event.EventUpdate;
 import uwu.flauxy.module.impl.player.Noslow;
 
 public class EntityPlayerSP extends AbstractClientPlayer
@@ -175,6 +176,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
             super.onUpdate();
+            EventManager.call(new EventUpdate());
 
             if (this.isRiding())
             {
@@ -796,7 +798,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
 
-        if (this.isUsingItem() && !this.isRiding() || Flauxy.INSTANCE.getModuleManager().getModule(Noslow.class).isToggled())
+        if (this.isUsingItem() && !this.isRiding() && !Flauxy.INSTANCE.getModuleManager().getModule(Noslow.class).isToggled())
         {
             this.movementInput.moveStrafe *= 0.2F;
             this.movementInput.moveForward *= 0.2F;
