@@ -1,0 +1,28 @@
+package uwu.flauxy;
+
+import org.lwjgl.input.Keyboard;
+import uwu.flauxy.module.Module;
+import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.exploit.Disabler;
+import uwu.flauxy.module.impl.movement.Fly;
+import uwu.flauxy.module.impl.movement.Speed;
+
+public class AutoBind {
+
+    public static void setKeyBinds(dev dev){
+        if(dev == AutoBind.dev.t9a){
+            Flauxy.INSTANCE.moduleManager.getModule(Speed.class).setKey(Keyboard.KEY_V);
+            Flauxy.INSTANCE.moduleManager.getModule(Fly.class).setKey(Keyboard.KEY_F);
+            Flauxy.INSTANCE.moduleManager.getModule(Disabler.class).setKey(Keyboard.KEY_O);
+        }
+        if(dev == AutoBind.dev.Flaily){
+            Flauxy.INSTANCE.moduleManager.getModule(Speed.class).setKey(Keyboard.KEY_X);
+            Flauxy.INSTANCE.moduleManager.getModule(Fly.class).setKey(Keyboard.KEY_G);
+        }
+    }
+
+    public static enum dev{
+        t9a, Flaily;
+    }
+
+}
