@@ -17,10 +17,6 @@ public class AutoBind {
             Flauxy.INSTANCE.moduleManager.getModule(Disabler.class).setKey(Keyboard.KEY_O);
             Flauxy.INSTANCE.moduleManager.getModule(Longjump.class).setKey(Keyboard.KEY_G);
         }
-        if(dev == AutoBind.dev.Flaily){
-            Flauxy.INSTANCE.moduleManager.getModule(Speed.class).setKey(Keyboard.KEY_X);
-            Flauxy.INSTANCE.moduleManager.getModule(Fly.class).setKey(Keyboard.KEY_G);
-        }
     }
 
     public static enum dev{

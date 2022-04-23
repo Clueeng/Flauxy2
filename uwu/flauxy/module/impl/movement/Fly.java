@@ -10,7 +10,7 @@ import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
 
-@ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.Movement)
+@ModuleInfo(name = "Fly", displayName = "Fly", key = 0, cat = Category.Movement)
 public class Fly extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus");
