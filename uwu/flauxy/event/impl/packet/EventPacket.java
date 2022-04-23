@@ -17,8 +17,6 @@ public class EventPacket extends Event<EventPacket> {
         this.packet = packet;
     }
 
-
-
     public Packet getPacket() {
         return packet;
     }
