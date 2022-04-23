@@ -24,15 +24,15 @@ public class Fly extends Module {
         //if(!this.isToggled()) return;
         switch(mode.getMode()){
             case "Vanilla":{
-                if(!mc.gameSettings.keyBindJump.pressed && !mc.gameSettings.keyBindSneak.pressed){
-                    mc.thePlayer.motionY = 0;
-                }else if(mc.gameSettings.keyBindSneak.pressed && !mc.gameSettings.keyBindJump.pressed){
-                    mc.thePlayer.motionY = -0.42f;
+                mc.thePlayer.motionY = 0;
+                if(mc.gameSettings.keyBindSneak.pressed && !mc.gameSettings.keyBindJump.pressed){
+                    mc.thePlayer.motionY -= 0.42f;
                 }else if(mc.gameSettings.keyBindJump.pressed && !mc.gameSettings.keyBindSneak.pressed){
-                    mc.thePlayer.motionY = 0.42f;
+                    mc.thePlayer.motionY += 0.42f;
                 }
+
                 if(mc.thePlayer.isMoving()){
-                    MoveUtils.strafe(0.65f);
+                    MoveUtils.strafe(1.45f);
                 } else {
                     mc.thePlayer.motionX = 0;
                     mc.thePlayer.motionZ = 0;
