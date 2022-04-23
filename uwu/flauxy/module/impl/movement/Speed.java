@@ -29,12 +29,10 @@ public class Speed extends Module {
             switch(mode.getMode()){
                 case "Vanilla":{
                     MoveUtils.strafe(speed.getValue());
-                    if (mc.thePlayer.onGround) {
+                    if (mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
                         mc.thePlayer.jump();
-                        Wrapper.instance.log("Jump");
-
                     }
-                    if (!mc.gameSettings.keyBindForward.isKeyDown() && !mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown() && !mc.gameSettings.keyBindBack.isKeyDown()) {
+                    if (!mc.thePlayer.isMoving()) {
                         MoveUtils.motionreset();
                     }
                 }
