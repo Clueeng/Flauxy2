@@ -2,9 +2,11 @@ package uwu.flauxy.module.impl.combat;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.*;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import org.lwjgl.input.Keyboard;
@@ -45,31 +47,33 @@ public class Killaura extends Module {
     public void onEvent(Event ev){
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
-            List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(Entity.class::isInstance).collect(Collectors.toList());
-            targets = targets.stream().filter(entity -> ((Entity) entity).getDistanceToEntity((Entity) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
-            targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
-            targets = targets.stream().filter(Entity.class::isInstance).collect((Collectors.toList()));
+            if(shouldRun()){
+                List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
+                targets = targets.stream().filter(entity -> ((EntityLivingBase) entity).getDistanceToEntity((EntityLivingBase) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
+                targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
+                targets = targets.stream().filter(EntityLivingBase.class::isInstance).collect((Collectors.toList()));
 
-            if(!targets.isEmpty()){
-                Entity target = targets.get(0);
-                if(isValid(target)){
-                    switch(rotations.getMode()){
-                        case "Verus":{
-                            float yawGcd, pitchGcd;
-                            yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
-                            pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
-                            yaw(yawGcd, event);
-                            pitch(pitchGcd, event);
-                            break;
+                if(!targets.isEmpty()){
+                    Entity target = targets.get(0);
+                    if(isValid(target)){
+                        switch(rotations.getMode()){
+                            case "Verus":{
+                                float yawGcd, pitchGcd;
+                                yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
+                                pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
+                                yaw(yawGcd, event);
+                                pitch(pitchGcd, event);
+                                break;
+                            }
+                            case "Instant":{
+                                yaw(getRotations(target)[0], event);
+                                pitch(getRotations(target)[1], event);
+                                break;
+                            }
                         }
-                        case "Instant":{
-                            yaw(getRotations(target)[0], event);
-                            pitch(getRotations(target)[1], event);
-                            break;
+                        if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
+                            attack(target);
                         }
-                    }
-                    if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
-                        attack(target);
                     }
                 }
             }
@@ -85,6 +89,10 @@ public class Killaura extends Module {
     public void pitch(float pitch, EventMotion e){
         mc.thePlayer.rotationPitchHead = pitch;
         e.setPitch(pitch);
+    }
+
+    public boolean shouldRun(){
+        return mc.thePlayer.ticksExisted > 10 && mc.thePlayer != null && mc.theWorld != null;
     }
 
     public boolean isValid(Entity e){

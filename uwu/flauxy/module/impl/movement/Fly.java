@@ -13,9 +13,19 @@ import uwu.flauxy.utils.MoveUtils;
 public class Fly extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus");
-
+    int ticks = 0;
     public Fly(){
         addSettings(mode);
+    }
+
+    @Override
+    public void onEnable() {
+        ticks = 0;
+    }
+
+    @Override
+    public void onDisable() {
+
     }
 
     @Override
@@ -23,6 +33,26 @@ public class Fly extends Module {
         //if(!this.isToggled()) return;
         if(ev instanceof EventMotion){
             switch(mode.getMode()){
+                case "Verus":{
+                    if(ticks <= 1){
+                        MoveUtils.damage(MoveUtils.Bypass.VERUS);
+                        mc.thePlayer.motionY = 0.42f;
+                    }else{
+                        if(ticks < 50){
+                            mc.thePlayer.motionY = -0.08f;
+                            MoveUtils.strafe(3f);
+                        }else{
+                            if(ticks <=  51) MoveUtils.strafe(0);
+                            float fallDistance = mc.gameSettings.keyBindJump.pressed ? 0.25f : 1.15f;
+                            if(mc.thePlayer.fallDistance > fallDistance){
+                                mc.thePlayer.jump();
+                                mc.thePlayer.fallDistance = 0;
+                            }
+                        }
+                    }
+                    ticks++;
+                    break;
+                }
                 case "Vanilla":{
                     mc.thePlayer.motionY = 0;
                     if(mc.gameSettings.keyBindSneak.pressed && !mc.gameSettings.keyBindJump.pressed){
