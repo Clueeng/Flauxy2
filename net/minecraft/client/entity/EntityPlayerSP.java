@@ -1,6 +1,5 @@
 package net.minecraft.client.entity;
 
-import com.darkmagician6.eventapi.EventManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSoundMinecartRiding;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -54,8 +53,9 @@ import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.CommandManager;
-import uwu.flauxy.event.EventMotion;
-import uwu.flauxy.event.EventUpdate;
+import uwu.flauxy.event.EventType;
+import uwu.flauxy.event.impl.EventMotion;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.impl.player.Noslow;
 
 public class EntityPlayerSP extends AbstractClientPlayer
@@ -176,7 +176,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
             super.onUpdate();
-            EventManager.call(new EventUpdate());
+            Flauxy.onEvent(new EventUpdate());
 
             if (this.isRiding())
             {
@@ -196,7 +196,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     public void onUpdateWalkingPlayer()
     {
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
-        EventManager.call(em);
+        Flauxy.onEvent(em);
+        em.setType(EventType.PRE);
         boolean flag = this.isSprinting();
 
         if (flag != this.serverSprintState)
@@ -280,6 +281,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.lastReportedPitch = em.getPitch();
             }
         }
+        em.setType(EventType.POST);
 
     }
 

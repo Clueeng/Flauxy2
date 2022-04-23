@@ -1,9 +1,10 @@
 package uwu.flauxy;
 
-import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import org.lwjgl.opengl.Display;
 import uwu.flauxy.alts.AltManager;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.display.ArrayList;
 import uwu.flauxy.module.impl.display.HUD;
@@ -18,12 +19,10 @@ public enum Flauxy {
 
     public String name = "Flauxy", version = "1.0";
     public ModuleManager moduleManager;
-    public EventManager eventManager;
     public FontManager fontManager;
     public AltManager altManager;
     public void init(){
         // inits shit
-        eventManager = new EventManager();
         moduleManager = new ModuleManager();
         fontManager = new FontManager();
         altManager = new AltManager();
@@ -33,7 +32,13 @@ public enum Flauxy {
         moduleManager.getModule(Noslow.class).toggle();
         moduleManager.getModule(Sprint.class).toggle();
         moduleManager.getModule(Animations.class).toggle();
-        EventManager.register(this);
     }
+
+    public static void onEvent(Event e){
+        for(Module m : ModuleManager.modules){
+            if(m.isToggled()) m.onEvent(e);
+        }
+    }
+
 
 }

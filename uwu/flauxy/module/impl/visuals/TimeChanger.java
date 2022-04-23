@@ -1,8 +1,8 @@
 package uwu.flauxy.module.impl.visuals;
 
-import com.darkmagician6.eventapi.EventTarget;
 import net.minecraft.network.play.server.S03PacketTimeUpdate;
-import uwu.flauxy.event.EventReceivePacket;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -16,11 +16,14 @@ public class TimeChanger extends Module {
         addSettings(time);
     }
 
-    @EventTarget
-    public void receivePacket(EventReceivePacket event){
-        if(event.getPacket() instanceof S03PacketTimeUpdate){
-            S03PacketTimeUpdate s03 = (S03PacketTimeUpdate) event.getPacket();
-            setWorldTime((long)time.getValue());
+    @Override
+    public void onEvent(Event e){
+        if(e instanceof EventReceivePacket){
+            EventReceivePacket event = (EventReceivePacket) e;
+            if(event.getPacket() instanceof S03PacketTimeUpdate){
+                S03PacketTimeUpdate s03 = (S03PacketTimeUpdate) event.getPacket();
+                setWorldTime((long)time.getValue());
+            }
         }
     }
 

@@ -524,7 +524,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         int k = 30;
         int col1 = ColorUtils.getGradientOffset(new Color(42, 14, 85), new Color(95, 45, 145), 4).getRGB();
         Gui.drawRect(0, 0, width, height, new Color(95, 45, 145).getRGB());
-        this.drawGradientRect(0, height - 120, width, height, 0, col1);
+        this.drawGradientRect(0, height / 2, width, height, 0, col1);
         /*this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
         this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
         this.mc.getTextureManager().bindTexture(minecraftTitleTextures);*/

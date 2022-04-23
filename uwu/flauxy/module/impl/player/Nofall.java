@@ -1,8 +1,8 @@
 package uwu.flauxy.module.impl.player;
 
-import com.darkmagician6.eventapi.EventTarget;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import uwu.flauxy.event.EventMotion;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -18,16 +18,19 @@ public class Nofall extends Module {
         addSettings(mode);
     }
 
-    @EventTarget
-    public void onMotion(EventMotion event){
-        switch(mode.getMode()){
-            case "Packet":{
-                if(mc.thePlayer.fallDistance > 2.5f) PacketUtil.packetNoEvent(new C03PacketPlayer(true));
-                break;
-            }
-            case "On Ground":{
-                event.onGround = true;
-                break;
+    @Override
+    public void onEvent(Event ev){
+        if(ev instanceof EventMotion){
+            EventMotion event = (EventMotion)ev;
+            switch(mode.getMode()){
+                case "Packet":{
+                    if(mc.thePlayer.fallDistance > 2.5f) PacketUtil.packetNoEvent(new C03PacketPlayer(true));
+                    break;
+                }
+                case "On Ground":{
+                    event.onGround = true;
+                    break;
+                }
             }
         }
     }

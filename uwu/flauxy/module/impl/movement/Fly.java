@@ -1,14 +1,13 @@
 package uwu.flauxy.module.impl.movement;
 
-import com.darkmagician6.eventapi.EventTarget;
 import org.lwjgl.input.Keyboard;
-import uwu.flauxy.event.EventMotion;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Fly extends Module {
@@ -19,25 +18,27 @@ public class Fly extends Module {
         addSettings(mode);
     }
 
-    @EventTarget
-    public void onMotion(EventMotion ev){
+    @Override
+    public void onEvent(Event ev){
         //if(!this.isToggled()) return;
-        switch(mode.getMode()){
-            case "Vanilla":{
-                mc.thePlayer.motionY = 0;
-                if(mc.gameSettings.keyBindSneak.pressed && !mc.gameSettings.keyBindJump.pressed){
-                    mc.thePlayer.motionY -= 0.42f;
-                }else if(mc.gameSettings.keyBindJump.pressed && !mc.gameSettings.keyBindSneak.pressed){
-                    mc.thePlayer.motionY += 0.42f;
-                }
+        if(ev instanceof EventMotion){
+            switch(mode.getMode()){
+                case "Vanilla":{
+                    mc.thePlayer.motionY = 0;
+                    if(mc.gameSettings.keyBindSneak.pressed && !mc.gameSettings.keyBindJump.pressed){
+                        mc.thePlayer.motionY -= 0.42f;
+                    }else if(mc.gameSettings.keyBindJump.pressed && !mc.gameSettings.keyBindSneak.pressed){
+                        mc.thePlayer.motionY += 0.42f;
+                    }
 
-                if(mc.thePlayer.isMoving()){
-                    MoveUtils.strafe(1.45f);
-                } else {
-                    mc.thePlayer.motionX = 0;
-                    mc.thePlayer.motionZ = 0;
+                    if(mc.thePlayer.isMoving()){
+                        MoveUtils.strafe(1.45f);
+                    } else {
+                        mc.thePlayer.motionX = 0;
+                        mc.thePlayer.motionZ = 0;
+                    }
+                    break;
                 }
-                break;
             }
         }
     }

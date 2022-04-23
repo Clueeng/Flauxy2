@@ -1,7 +1,8 @@
-package uwu.flauxy.event;
+package uwu.flauxy.event.impl;
 
 import com.darkmagician6.eventapi.events.Event;
 import net.minecraft.network.Packet;
+import uwu.flauxy.event.Event;
 
 public class EventReceivePacket implements Event {
     public Packet packet;

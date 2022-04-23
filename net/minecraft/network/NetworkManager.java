@@ -1,6 +1,5 @@
 package net.minecraft.network;
 
-import com.darkmagician6.eventapi.EventManager;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;
@@ -33,8 +32,6 @@ import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.crypto.SecretKey;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.CryptManager;
@@ -51,8 +48,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import uwu.flauxy.event.EventReceivePacket;
-import uwu.flauxy.event.EventSendPacket;
 
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
@@ -153,15 +148,10 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception
     {
-        EventReceivePacket event = new EventReceivePacket(p_channelRead0_2_);
-        if(Minecraft.getMinecraft().thePlayer != null && Minecraft.getMinecraft().thePlayer.ticksExisted > 2) {
-            EventManager.call(event);
-        }
         if (this.channel.isOpen())
         {
             try
             {
-                if(event.isCancelled()) return;
                 p_channelRead0_2_.processPacket(this.packetListener);
             }
             catch (ThreadQuickExitException var4)
@@ -184,32 +174,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
     public void sendPacket(Packet packetIn)
     {
-        EventSendPacket event = new EventSendPacket(packetIn);
-        EventManager.call(event);
-        if(event.isCancelled()) return;
-        if (this.isChannelOpen())
-        {
-            this.flushOutboundQueue();
-            if(!event.isCancelled()){
-                this.dispatchPacket(event.getPacket(), (GenericFutureListener <? extends Future <? super Void >> [])null);
-            }
-        }
-        else
-        {
-            this.field_181680_j.writeLock().lock();
-
-            try
-            {
-                this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(event.getPacket(), (GenericFutureListener[])null));
-            }
-            finally
-            {
-                this.field_181680_j.writeLock().unlock();
-            }
-        }
-    }
-    public void sendPacketNoEvent(Packet packetIn)
-    {
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();
@@ -229,6 +193,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
             }
         }
     }
+
     public void sendPacket(Packet packetIn, GenericFutureListener <? extends Future <? super Void >> listener, GenericFutureListener <? extends Future <? super Void >> ... listeners)
     {
         if (this.isChannelOpen())

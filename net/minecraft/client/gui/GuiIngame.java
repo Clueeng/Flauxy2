@@ -1,6 +1,5 @@
 package net.minecraft.client.gui;
 
-import com.darkmagician6.eventapi.EventManager;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -43,7 +42,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import optfine.Config;
-import uwu.flauxy.event.EventRender2D;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventRender2D;
 
 public class GuiIngame extends Gui
 {
@@ -348,7 +348,7 @@ public class GuiIngame extends Gui
             this.overlayPlayerList.renderPlayerlist(i, scoreboard, scoreobjective1);
         }
 
-        EventManager.call(new EventRender2D(partialTicks));
+        Flauxy.onEvent(new EventRender2D(partialTicks));
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableLighting();

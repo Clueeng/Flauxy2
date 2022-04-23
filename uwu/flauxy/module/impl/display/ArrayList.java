@@ -1,9 +1,10 @@
 package uwu.flauxy.module.impl.display;
 
-import com.darkmagician6.eventapi.EventTarget;
+
 import net.minecraft.client.gui.ScaledResolution;
 import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.EventRender2D;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -30,20 +31,20 @@ public class ArrayList extends Module {
         addSettings(color, red, green, blue);
     }
 
-    @EventTarget
-    public void onRender(EventRender2D event) {
+    public void onEvent(Event event) {
 
-        ScaledResolution sr = new ScaledResolution(mc);
-        java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
+        if(event instanceof EventRender2D){
+            ScaledResolution sr = new ScaledResolution(mc);
+            java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
 
-        float y = 1;
-        int count = 0;
+            float y = 1;
+            int count = 0;
 
-        for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-            mods.add(m);
-        }
+            for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
+                mods.add(m);
+            }
 
-        mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getName())).reversed());
+            mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getName())).reversed());
 
         /*for (Module m : mods) {
             if(m.isToggled()) {
@@ -71,34 +72,35 @@ public class ArrayList extends Module {
                 y += 9.7;
             }
         }*/
-        int c = 0;
-        int cn = 0;
-        int stringColor = -1;
+            int c = 0;
+            int cn = 0;
+            int stringColor = -1;
 
-        TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
-        int retarded = 0;
-        for(Module m : getFontSortedModules(font, false)){
-            switch(color.getMode()){
-                case "Astolfo":{
-                    stringColor = ColorUtils.astolfo(2, 0.8f, 1, cn * 152);
-                    break;
+            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
+            int retarded = 0;
+            for(Module m : getFontSortedModules(font, false)){
+                switch(color.getMode()){
+                    case "Astolfo":{
+                        stringColor = ColorUtils.astolfo(2, 0.8f, 1, cn * 152);
+                        break;
+                    }
+                    case "Rainbow":{
+                        stringColor = ColorUtils.getRainbow(2, 0.40f, 1, cn * 120);
+                        break;
+                    }
+                    case "Custom":{
+                        stringColor = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue()).getRGB();
+                        break;
+                    }
                 }
-                case "Rainbow":{
-                    stringColor = ColorUtils.getRainbow(2, 0.40f, 1, cn * 120);
-                    break;
-                }
-                case "Custom":{
-                    stringColor = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue()).getRGB();
-                    break;
-                }
+                double wi = sr.getScaledWidth();
+
+                font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
+                //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
+                c+=font.getHeight(m.getName())+retarded+1;
+                cn+=1;
+
             }
-            double wi = sr.getScaledWidth();
-
-            font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
-            //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
-            c+=font.getHeight(m.getName())+retarded+1;
-            cn+=1;
-
         }
     }
 

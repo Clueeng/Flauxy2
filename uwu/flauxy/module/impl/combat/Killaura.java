@@ -1,6 +1,5 @@
 package uwu.flauxy.module.impl.combat;
 
-import com.darkmagician6.eventapi.EventTarget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -9,7 +8,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import org.lwjgl.input.Keyboard;
-import uwu.flauxy.event.EventMotion;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -42,33 +42,35 @@ public class Killaura extends Module {
         addSettings(cps, reach, rotations, players, mobs, animals, shop);
     }
 
-    @EventTarget
-    public void onMotion(EventMotion event){
-        List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(Entity.class::isInstance).collect(Collectors.toList());
-        targets = targets.stream().filter(entity -> ((Entity) entity).getDistanceToEntity((Entity) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
-        targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
-        targets = targets.stream().filter(Entity.class::isInstance).collect((Collectors.toList()));
+    public void onEvent(Event ev){
+        if(ev instanceof  EventMotion){
+            EventMotion event =(EventMotion)ev;
+            List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(Entity.class::isInstance).collect(Collectors.toList());
+            targets = targets.stream().filter(entity -> ((Entity) entity).getDistanceToEntity((Entity) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
+            targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
+            targets = targets.stream().filter(Entity.class::isInstance).collect((Collectors.toList()));
 
-        if(!targets.isEmpty()){
-            Entity target = targets.get(0);
-            if(isValid(target)){
-                switch(rotations.getMode()){
-                    case "Verus":{
-                        float yawGcd, pitchGcd;
-                        yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
-                        pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
-                        yaw(yawGcd, event);
-                        pitch(pitchGcd, event);
-                        break;
+            if(!targets.isEmpty()){
+                Entity target = targets.get(0);
+                if(isValid(target)){
+                    switch(rotations.getMode()){
+                        case "Verus":{
+                            float yawGcd, pitchGcd;
+                            yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
+                            pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
+                            yaw(yawGcd, event);
+                            pitch(pitchGcd, event);
+                            break;
+                        }
+                        case "Instant":{
+                            yaw(getRotations(target)[0], event);
+                            pitch(getRotations(target)[1], event);
+                            break;
+                        }
                     }
-                    case "Instant":{
-                        yaw(getRotations(target)[0], event);
-                        pitch(getRotations(target)[1], event);
-                        break;
+                    if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
+                        attack(target);
                     }
-                }
-                if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
-                    attack(target);
                 }
             }
         }

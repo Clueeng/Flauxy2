@@ -1,9 +1,9 @@
 package uwu.flauxy.module;
 
-import com.darkmagician6.eventapi.EventManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+import uwu.flauxy.event.Event;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.utils.Methods;
 
@@ -39,11 +39,10 @@ public class Module implements Methods {
     }
 
     public void onEnable() {
-        EventManager.register(this);
     }
 
     public void onDisable() {
-        EventManager.unregister(this);
+
     }
 
     public void toggle(){
@@ -51,6 +50,8 @@ public class Module implements Methods {
         if(toggled) onEnable();
         else onDisable();
     }
+
+    public void onEvent(Event e){}
 
     public void addSettings(final Setting... settings) {
         for (final Setting setting : settings) {
