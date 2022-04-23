@@ -9,41 +9,39 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.Wrapper;
 
-@ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
-public class Speed extends Module {
+@ModuleInfo(name = "Longjump", displayName = "Longjump", key = Keyboard.KEY_G, cat = Category.Movement)
+public class Longjump extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus Damage");
+    public ModeSetting mode = new ModeSetting("Mode", "Verus", "Verus");
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1);
 
 
-    public Speed(){
+    public Longjump(){
         addSettings(mode, speed);
     }
 
+    public void onEnable() {
+        switch(mode.getMode()){
+            case "Verus":{
+                MoveUtils.damage(MoveUtils.Bypass.VERUS);
+            }
+        }
+    }
+    public void onDisable() {
+        MoveUtils.motionreset();
+    }
     @Override
     public void onEvent(Event ev){
         //if(!this.isToggled()) return;
         if(ev instanceof EventMotion){
             switch(mode.getMode()){
-                case "Vanilla":{
+                case "Verus":{
                     MoveUtils.strafe(speed.getValue());
-                    if (mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
+                    if (mc.thePlayer.onGround) {
                         mc.thePlayer.jump();
                     }
-                    if (!mc.thePlayer.isMoving()) {
-                        MoveUtils.motionreset();
-                    }
-                    break;
-                }
-                case "Verus Damage":{
-                    MoveUtils.strafe(speed.getValue());
-
-                    if(mc.thePlayer.onGround){
-                        mc.thePlayer.jump();
-                        MoveUtils.damage(MoveUtils.Bypass.VERUS);
-                    }
+                    mc.thePlayer.motionY = 0.1;
                     break;
                 }
             }
