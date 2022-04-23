@@ -68,6 +68,11 @@ public class MoveUtils {
         if (mc.thePlayer.moveStrafing < 0f) rotationYaw += 90f * forward;
         return Math.toRadians(rotationYaw);
     }
+    public static double motionreset(){
+        Minecraft.getMinecraft().thePlayer.motionX = 0;
+        Minecraft.getMinecraft().thePlayer.motionZ = 0;
+        return 0;
+    }
     public static void strafe(double speed){
         Minecraft mc = Minecraft.getMinecraft();
         if(!mc.thePlayer.isMoving()) return;

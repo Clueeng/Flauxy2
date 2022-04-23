@@ -31,6 +31,7 @@ public class Killaura extends Module {
     NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.5);
     NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
+
     ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus");
     ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
 
