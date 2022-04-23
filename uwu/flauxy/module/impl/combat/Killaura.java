@@ -20,6 +20,7 @@ import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.PacketUtil;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.timer.Timer;
 import java.util.Comparator;
 import java.util.List;
@@ -73,6 +74,9 @@ public class Killaura extends Module {
                             }
                         }
                         if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
+                            if(event.isPre()){
+                                Wrapper.instance.log(event.getType() + "");
+                            }
                             attack(target);
                         }
                     }

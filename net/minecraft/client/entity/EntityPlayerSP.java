@@ -197,8 +197,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     public void onUpdateWalkingPlayer()
     {
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
-        Flauxy.onEvent(em);
         em.setType(EventType.PRE);
+        Flauxy.onEvent(em);
         boolean flag = this.isSprinting();
 
         if (flag != this.serverSprintState)
@@ -283,6 +283,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
         }
         em.setType(EventType.POST);
+        Flauxy.onEvent(em);
 
     }
 
