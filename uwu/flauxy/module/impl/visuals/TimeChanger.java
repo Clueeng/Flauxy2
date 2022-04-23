@@ -3,6 +3,8 @@ package uwu.flauxy.module.impl.visuals;
 import net.minecraft.network.play.server.S03PacketTimeUpdate;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventReceivePacket;
+import uwu.flauxy.event.impl.EventTime;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -21,13 +23,21 @@ public class TimeChanger extends Module {
         if(e instanceof EventReceivePacket){
             EventReceivePacket event = (EventReceivePacket) e;
             if(event.getPacket() instanceof S03PacketTimeUpdate){
-                S03PacketTimeUpdate s03 = (S03PacketTimeUpdate) event.getPacket();
-                setWorldTime((long)time.getValue());
+                event.setCancelled(true);
             }
+        }
+        if(e instanceof EventUpdate){
+            setWorldTime((long)time.getValue());
+        }
+        if(e instanceof EventTime){
+            EventTime et = (EventTime) e;
+            et.setTime((int) time.getValue());
+            //mc.theWorld.setWorldTime(et.getTime());
         }
     }
 
     public void setWorldTime(long time){
+        if(mc.theWorld == null || mc.thePlayer == null || mc.thePlayer.ticksExisted < 2) return;
         mc.theWorld.setWorldTime(time);
         mc.thePlayer.worldObj.setWorldTime(time);
     }

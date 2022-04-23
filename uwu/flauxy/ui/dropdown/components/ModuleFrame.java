@@ -95,9 +95,7 @@ public class ModuleFrame implements ColorHelper {
 
         if(opened) {
             for (Component component : this.components) {
-                if (isHidden(component.getSetting()))
-                    continue;
-
+                if(!component.getSetting().getCanShow().test(this.module)) continue;
                 component.setX(x);
                 component.setY(y + moduleHeight + offset - 7);
 

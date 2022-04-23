@@ -2,11 +2,15 @@ package uwu.flauxy.module.setting;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+import uwu.flauxy.module.Module;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@Accessors(chain = true)
 public class Setting<T> {
 
     private Supplier<Boolean> dependency;
@@ -25,6 +29,16 @@ public class Setting<T> {
     @Getter
     public Setting parent;
 
+    @Getter @Setter
+    public boolean shown = true;
+
+    @Getter
+    private Predicate<Module> canShow = (module) -> true;
+
+    public <E> E setCanShow(Predicate<Module> predicate) {
+        this.canShow = predicate;
+        return (E) this;
+    }
 
     public Setting(String label, T value, Supplier<Boolean> dependency) {
         this.valueChangeListeners = new ArrayList<ValueChangeListener<T>>();

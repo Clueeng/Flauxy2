@@ -13,6 +13,9 @@ import java.util.ArrayList;
 public class Module implements Methods {
 
     @Getter @Setter
+    private boolean settingsShown = true;
+
+    @Getter @Setter
     protected String name, displayName;
 
     @Getter @Setter
@@ -52,11 +55,16 @@ public class Module implements Methods {
     }
 
     public void onEvent(Event e){}
+    public void onEventIgnore(Event e){}
 
     public void addSettings(final Setting... settings) {
         for (final Setting setting : settings) {
             this.getSettings().add(setting);
         }
+    }
+
+    public void addSetting(final Setting setting){
+        this.getSettings().add(setting);
     }
 
 

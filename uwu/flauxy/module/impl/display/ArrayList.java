@@ -25,18 +25,25 @@ public class ArrayList extends Module {
 
     public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom");
 
-    public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1);
-    public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1);
-    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1);
+    public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
+    public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
+    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
+    public BooleanSetting outline = new BooleanSetting("Outline", true);
 
-    public BooleanSetting barLeft = new BooleanSetting("Left Bar", true);
-    public BooleanSetting barRight = new BooleanSetting("Right Bar", true);
+    public BooleanSetting barLeft = new BooleanSetting("Left Bar", true).setCanShow((m) -> !outline.getValue());
+    public BooleanSetting barRight = new BooleanSetting("Right Bar", true).setCanShow((m) -> !outline.getValue());
+
 
     public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
     public ArrayList() {
-        addSettings(color, red, green, blue, barLeft, barRight, line_width, customfont);
+        addSettings(color, line_width, customfont, outline, red, green, blue, barLeft, barRight);
+    }
+
+    @Override
+    public void onEventIgnore(Event e) {
+
     }
 
     public void onEvent(Event event) {
@@ -86,7 +93,32 @@ public class ArrayList extends Module {
 
             TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
             int retarded = 0;
+            /*for (Module moduleToDraw : modules) {
+                double posX = width - fontRenderer.getStringWidth(moduleToDraw.getDisplayName()) - 2;
+                drawRect(posX, posY, width - posX, 20);
+                drawString......
+                //outline
+                drawRect(posX, posY, 1, 20);
+                if (lastPos != null) {
+                    drawRect(lastPosX , posY, width - posX, 1);
+                }
+                lastPosX = posX;
+                posY += 20;
+            }*/
+
+            double posY = 0;
+            double posX = 0;
+            double oldX = 0;
+            double oldY = 0;
             for(Module m : getFontSortedModules(font, false)){
+                // pre values set
+                oldY = c;
+                oldX = posX;
+                posX = sr.getScaledWidth() - font.getWidth(m.getDisplayName()) - 2;
+                double wi = sr.getScaledWidth();
+                int placeX = 0;
+
+                // Color
                 switch(color.getMode()){
                     case "Astolfo":{
                         stringColor = ColorUtils.astolfo(5, 0.8f, 1, cn * 20L);
@@ -101,28 +133,32 @@ public class ArrayList extends Module {
                         break;
                     }
                 }
-                double wi = sr.getScaledWidth();
-                int placeX = 0;
-                if(barRight.getValue()){
-                    Gui.drawRect((float) (wi - (float)line_width.getValue()), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
-                    placeX = 2;
-                }
-                if(barLeft.getValue()){
-                    float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6 - placeX;
-                    Gui.drawRect(wa, (float) c, (float) wa + (float)line_width.getValue(), c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+
+                // outline
+                if(!outline.getValue()){
+                    if(barRight.getValue()){
+                        Gui.drawRect((float) (wi - (float)line_width.getValue()), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                        placeX = 2;
+                    }
+                    if(barLeft.getValue()){
+                        float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6 - placeX;
+                        Gui.drawRect(wa, (float) c, (float) wa + (float)line_width.getValue(), c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                    }
+                }else{
+                    Gui.drawRect((float) wi - font.getWidth(m.getDisplayName()) - 6 - placeX , (float) c, (float) oldX, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+
                 }
 
-                if (customfont.isEnabled()) {
-                    font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
-                } else {
-                    mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
-                }
-                //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
+                // outline end
 
+                // text
+                if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
+                else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
+                // values changing
                 c+=font.getHeight(m.getDisplayName())+retarded+1;
                 cn+=1;
+                // color reset
                 GlStateManager.resetColor();
-
             }
         }
     }

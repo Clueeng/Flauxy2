@@ -32,9 +32,6 @@ public class ModeComponent extends Component implements ColorHelper {
 
         getFont().drawString(((ModeSetting) getSetting()).getMode(), x + defaultWidth - getFont().getWidth(((ModeSetting) getSetting()).getMode()) , y + (getOffset() / 2F - (getFont().getHeight("A") / 2F))  + 4, -1);
         getFont().drawString(getSetting().name, x + 5, y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 4, -1);
-
-
-
     }
 
     @Override
@@ -65,6 +62,12 @@ public class ModeComponent extends Component implements ColorHelper {
 
     @Override
     public int getOffset() {
-        return 15;
+        int offset = 0;
+        if(this.getSetting().getCanShow().test(null)){
+            offset = 20;
+        }else{
+            offset = 0;
+        }
+        return offset;
     }
 }

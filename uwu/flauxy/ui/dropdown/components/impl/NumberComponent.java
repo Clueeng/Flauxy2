@@ -100,6 +100,12 @@ public class NumberComponent extends Component implements ColorHelper {
 
     @Override
     public int getOffset() {
-        return 21;
+        int offset = 0;
+        if(this.getSetting().getCanShow().test(null)){
+            offset = 21;
+        }else{
+            offset = 0;
+        }
+        return offset;
     }
 }

@@ -14,6 +14,18 @@ public class MoveUtils {
     public static enum Bypass{
         VANILLA, VERUS;
     }
+    public static double getSpeed() {
+        Minecraft mc = Minecraft.getMinecraft();
+        // nigga hypot heavy
+        return Math.hypot(mc.thePlayer.motionX, mc.thePlayer.motionZ);
+    }
+
+    /**
+     * Sets current speed to itself make strafe
+     */
+    public static void strafe() {
+        strafe(getSpeed());
+    }
 
     public static void damage(Bypass by){
         Minecraft mc = Minecraft.getMinecraft();

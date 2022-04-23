@@ -1,6 +1,8 @@
 package uwu.flauxy.module.impl.display;
 
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -20,8 +22,13 @@ public class ClickGUI extends Module {
     @Override
     public void onEnable() {
         mc.displayGuiScreen(clickgui == null ? clickgui = new uwu.flauxy.ui.dropdown.ClickGUI() : clickgui);
-        toggle();
         super.onEnable();
     }
 
+    @Override
+    public void onEvent(Event e) {
+        if(e instanceof EventUpdate){
+            if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) this.toggle();
+        }
+    }
 }

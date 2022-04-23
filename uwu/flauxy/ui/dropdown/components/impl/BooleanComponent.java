@@ -76,10 +76,15 @@ public class BooleanComponent extends Component implements ColorHelper {
     {
 
     }
-
     @Override
-    public int getOffset()
-    {
-        return 20;
+    public int getOffset() {
+        int offset = 0;
+
+        if(this.getSetting().getCanShow().test(null)){
+            offset = 20;
+        }else{
+            offset = 0;
+        }
+        return offset;
     }
 }
