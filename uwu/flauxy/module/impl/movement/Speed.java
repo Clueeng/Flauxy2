@@ -9,6 +9,7 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
+import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
@@ -28,6 +29,14 @@ public class Speed extends Module {
             switch(mode.getMode()){
                 case "Vanilla":{
                     MoveUtils.strafe(speed.getValue());
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.jump();
+                        Wrapper.instance.log("Jump");
+
+                    }
+                    if (!mc.gameSettings.keyBindForward.isKeyDown() && !mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown() && !mc.gameSettings.keyBindBack.isKeyDown()) {
+                        MoveUtils.motionreset();
+                    }
                 }
             }
         }
