@@ -1,13 +1,16 @@
 package uwu.flauxy.module.impl.display;
 
 
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.font.TTFFontRenderer;
@@ -27,8 +30,11 @@ public class ArrayList extends Module {
     public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
 
+    public BooleanSetting barLeft = new BooleanSetting("Left Bar", true);
+    public BooleanSetting barRight = new BooleanSetting("Right Bar", true);
+
     public ArrayList() {
-        addSettings(color, red, green, blue);
+        addSettings(color, red, green, blue, barLeft, barRight);
     }
 
     public void onEvent(Event event) {
@@ -81,11 +87,11 @@ public class ArrayList extends Module {
             for(Module m : getFontSortedModules(font, false)){
                 switch(color.getMode()){
                     case "Astolfo":{
-                        stringColor = ColorUtils.astolfo(2, 0.8f, 1, cn * 152);
+                        stringColor = ColorUtils.astolfo(5, 0.8f, 1, cn * 20L);
                         break;
                     }
                     case "Rainbow":{
-                        stringColor = ColorUtils.getRainbow(2, 0.40f, 1, cn * 120);
+                        stringColor = ColorUtils.getRainbow(3, 0.40f, 1, cn * 180L);
                         break;
                     }
                     case "Custom":{
@@ -94,11 +100,22 @@ public class ArrayList extends Module {
                     }
                 }
                 double wi = sr.getScaledWidth();
+                int placeX = 0;
+                if(barRight.getValue()){
+                    Gui.drawRect((float) (wi - 2), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                    placeX = 2;
+                }
+                if(barLeft.getValue()){
+                    float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6 - placeX;
+                    Gui.drawRect(wa, (float) c, (float) wa + 2, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                }
 
-                font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ), c, stringColor);
+                font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
                 //Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
-                c+=font.getHeight(m.getName())+retarded+1;
+
+                c+=font.getHeight(m.getDisplayName())+retarded+1;
                 cn+=1;
+                GlStateManager.resetColor();
 
             }
         }

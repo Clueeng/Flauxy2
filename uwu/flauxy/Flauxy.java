@@ -34,7 +34,7 @@ public enum Flauxy {
         moduleManager.getModule(Animations.class).toggle();
 
         // Binds
-        AutoBind.setKeyBinds(AutoBind.dev.t9a);
+        AutoBind.setKeyBinds(AutoBind.dev.Flaily);
     }
 
     public static void onEvent(Event e){

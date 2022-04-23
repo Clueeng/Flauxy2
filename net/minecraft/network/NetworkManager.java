@@ -48,6 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventSendPacket;
 
@@ -151,12 +152,14 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception
     {
         EventReceivePacket event = new EventReceivePacket(p_channelRead0_2_);
+        Flauxy.onEvent(event);
         if (this.channel.isOpen())
         {
             try
             {
-                if(event.isCancelled()) return;
-                p_channelRead0_2_.processPacket(this.packetListener);
+                if(!event.isCancelled()){
+                    p_channelRead0_2_.processPacket(this.packetListener);
+                }
             }
             catch (ThreadQuickExitException var4)
             {

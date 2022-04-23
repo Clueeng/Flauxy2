@@ -11,6 +11,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -20,6 +21,7 @@ import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.PacketUtil;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.timer.Timer;
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +49,7 @@ public class Killaura extends Module {
 
     public void onEvent(Event ev){
         if(ev instanceof  EventMotion){
-            EventMotion event =(EventMotion)ev;
+            EventMotion event = (EventMotion)ev;
             if(shouldRun()){
                 List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
                 targets = targets.stream().filter(entity -> ((EntityLivingBase) entity).getDistanceToEntity((EntityLivingBase) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
@@ -72,7 +74,7 @@ public class Killaura extends Module {
                                 break;
                             }
                         }
-                        if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
+                        if((timer.hasTimeElapsed(cps.getValue() + Math.random() / 1000, true))){
                             attack(target);
                         }
                     }

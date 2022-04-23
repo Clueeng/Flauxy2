@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.utils.StringUtils;
 
 public final class GuiAltLogin
 extends GuiScreen {
@@ -31,6 +32,29 @@ extends GuiScreen {
             case 0: {
                 this.thread = new AltLoginThread(this.username.getText(), this.password.getText());
                 this.thread.start();
+                break;
+            }
+            case 2:{
+                // Clipboard
+                String clipboardContents = StringUtils.getTrimmedClipboardContents();
+                String[] split = clipboardContents.split(":");
+                if(split[0] != null) username.setText(split[0]);
+                if(split.length > 1) password.setText(split[1]);
+                this.thread = new AltLoginThread(this.username.getText(), this.password.getText());
+                this.thread.start();
+
+                break;
+            }
+            case 3:{
+                // Random
+                String text = StringUtils.generateRandomStringName(3);
+                this.username.setText(text);
+                this.password.setText("");
+                this.thread = new AltLoginThread(this.username.getText(), this.password.getText());
+                this.username.setText("");
+                this.password.setText("");
+                this.thread.start();
+
             }
         }
     }
@@ -43,7 +67,7 @@ extends GuiScreen {
         this.drawCenteredString(this.mc.fontRendererObj, "Alt Login", width / 2, 20, -1);
         this.drawCenteredString(this.mc.fontRendererObj, this.thread == null ? (Object)((Object)EnumChatFormatting.GRAY) + "Idle..." : this.thread.getStatus(), width / 2, 29, -1);
         if (this.username.getText().isEmpty()) {
-            this.drawString(this.mc.fontRendererObj, "Username / E-Mail", width / 2 - 96, 66, -7829368);
+            this.drawString(this.mc.fontRendererObj, "E-mail", width / 2 - 96, 66, -7829368);
         }
         if (this.password.getText().isEmpty()) {
             this.drawString(this.mc.fontRendererObj, "Password", width / 2 - 96, 106, -7829368);
@@ -56,6 +80,8 @@ extends GuiScreen {
         int var3 = height / 4 + 24;
         this.buttonList.add(new GuiButton(0, width / 2 - 100, var3 + 72 + 12, "Login"));
         this.buttonList.add(new GuiButton(1, width / 2 - 100, var3 + 72 + 12 + 24, "Back"));
+        this.buttonList.add(new GuiButton(2, width / 2 - 100, var3 + 72 + 12 + 48, "Clipboard"));
+        this.buttonList.add(new GuiButton(3, width / 2 - 100, var3 + 72 + 12 + 48 + 24, "Random"));
         this.username = new GuiTextField(var3, this.mc.fontRendererObj, width / 2 - 100, 60, 200, 20);
         this.password = new PasswordField(this.mc.fontRendererObj, width / 2 - 100, 100, 200, 20);
         this.username.setFocused(true);

@@ -57,6 +57,7 @@ import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.impl.player.Noslow;
+import uwu.flauxy.utils.Wrapper;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {

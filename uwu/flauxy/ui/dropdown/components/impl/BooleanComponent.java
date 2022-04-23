@@ -48,6 +48,8 @@ public class BooleanComponent extends Component implements ColorHelper {
 
             GlStateManager.resetColor();
             GL11.glColor4f(1, 1, 1, 1);
+            GlStateManager.resetColor();
+            GlStateManager.color(1f ,1f, 1f);
         }
     }
 
