@@ -34,8 +34,9 @@ public class ArrayList extends Module {
     public BooleanSetting barLeft = new BooleanSetting("Left Bar", true);
     public BooleanSetting barRight = new BooleanSetting("Right Bar", true);
 
+    public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
     public ArrayList() {
-        addSettings(color, red, green, blue, barLeft, barRight, customfont);
+        addSettings(color, red, green, blue, barLeft, barRight, line_width, customfont);
     }
 
     public void onEvent(Event event) {
@@ -103,12 +104,12 @@ public class ArrayList extends Module {
                 double wi = sr.getScaledWidth();
                 int placeX = 0;
                 if(barRight.getValue()){
-                    Gui.drawRect((float) (wi - 2), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                    Gui.drawRect((float) (wi - (float)line_width.getValue()), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
                     placeX = 2;
                 }
                 if(barLeft.getValue()){
                     float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6 - placeX;
-                    Gui.drawRect(wa, (float) c, (float) wa + 2, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+                    Gui.drawRect(wa, (float) c, (float) wa + (float)line_width.getValue(), c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
                 }
 
                 if (customfont.isEnabled()) {

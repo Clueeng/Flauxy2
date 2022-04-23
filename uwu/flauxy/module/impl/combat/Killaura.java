@@ -10,6 +10,7 @@ import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
@@ -33,16 +34,15 @@ public class Killaura extends Module {
     NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
 
-    ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus");
+    ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None");
     ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
-    ModeSetting pattern = new ModeSetting("Pattern", "Pre", "Post", "Pre");
+    ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
 
     BooleanSetting players = new BooleanSetting("Players", true);
     BooleanSetting mobs = new BooleanSetting("Mobs", true);
     BooleanSetting animals = new BooleanSetting("Animals", true);
     BooleanSetting shop = new BooleanSetting("Shopkeepers", false);
     Timer timer = new Timer();
-    boolean patternmode;
 
     public Killaura(){
         addSettings(cps, reach, rotations, players, mobs, animals, shop);
@@ -52,41 +52,49 @@ public class Killaura extends Module {
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
             if(shouldRun()){
-                if (event.isPre()) {
-                    Wrapper.instance.log(String.valueOf(patternmode));
-                    List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
-                    targets = targets.stream().filter(entity -> ((EntityLivingBase) entity).getDistanceToEntity((EntityLivingBase) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
-                    targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
-                    targets = targets.stream().filter(EntityLivingBase.class::isInstance).collect((Collectors.toList()));
+                List<Entity> targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
+                targets = targets.stream().filter(entity -> ((EntityLivingBase) entity).getDistanceToEntity((EntityLivingBase) this.mc.thePlayer) < reach.getValue() && entity != this.mc.thePlayer && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
+                targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
+                targets = targets.stream().filter(EntityLivingBase.class::isInstance).collect((Collectors.toList()));
 
-                    if(!targets.isEmpty()){
-                        Entity target = targets.get(0);
-                        if(isValid(target)){
-                            switch(rotations.getMode()){
-                                case "Verus":{
-                                    if(mc.thePlayer.ticksExisted % 2 == 0){
-                                        yaw(getRotations(target)[0], event);
-                                        pitch(getRotations(target)[1], event);
-                                    }
-                                    break;
-                                }
-                                case "Instant":{
-                                    yaw(getRotations(target)[0], event);
-                                    pitch(getRotations(target)[1], event);
-                                    break;
-                                }
-                            }
-                            if(timer.hasTimeElapsed(cps.getValue() / 1000, true)){
-                                attack(target);
+                if(!targets.isEmpty()){
+                    Entity target = targets.get(0);
+                    if(isValid(target)){
+                        switch(autoblock.getMode()){
+                            case "Hold":{
+                                if(isHoldingSword()) mc.gameSettings.keyBindUseItem.pressed = true;
+                                break;
                             }
                         }
+                        switch(rotations.getMode()){
+                            case "Verus":{
+                                float yawGcd, pitchGcd;
+                                yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
+                                pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
+                                yaw(yawGcd, event);
+                                pitch(pitchGcd, event);
+                                break;
+                            }
+                            case "Instant":{
+                                yaw(getRotations(target)[0], event);
+                                pitch(getRotations(target)[1], event);
+                                break;
+                            }
+                        }
+                        if(timer.hasTimeElapsed(1000 / cps.getValue(), true)){
+                            if(type.is("Post") && event.isPost()) attack(target);
+                            if(type.is("Pre") && event.isPre()) attack(target);
+
+                        }
                     }
+                }
+                if(targets.isEmpty() || !shouldRun()){
+                    mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
                 }
             }
         }
 
     }
-
 
     public void yaw(float yaw, EventMotion e){
         mc.thePlayer.rotationYawHead = yaw;

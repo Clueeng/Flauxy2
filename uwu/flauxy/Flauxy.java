@@ -32,7 +32,7 @@ public enum Flauxy {
         moduleManager.getModule(Noslow.class).toggle();
         moduleManager.getModule(Sprint.class).toggle();
         moduleManager.getModule(Animations.class).toggle();
-        AutoBind.setKeyBinds(AutoBind.dev.t9a);
+        AutoBind.setKeyBinds(AutoBind.dev.Flaily);
     }
 
     public static void onEvent(Event e){

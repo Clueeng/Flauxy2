@@ -42,7 +42,7 @@ public class NumberComponent extends Component implements ColorHelper {
         double max = slide.getMaximum();
         double diff = Math.min(defaultWidth + 5, Math.max(0, mouseX - (this.x)));
         double renderWidth = defaultWidth * (slide.getValue() - min) / (max - min);
-        Gui.drawRect(x, y + 15, x + (int) renderWidth, y + getOffset() - 10 + 5 + 4, new Color((int) ClickGUI.red.getValue(), (int) ClickGUI.green.getValue(), (int) ClickGUI.blue.getValue()).getRGB());
+        Gui.drawRect(x, y + 18, x + (int) renderWidth, y + getOffset() - 10 + 5 + 4, new Color((int) ClickGUI.red.getValue(), (int) ClickGUI.green.getValue(), (int) ClickGUI.blue.getValue()).getRGB());
 
 
         if(drag)
@@ -57,7 +57,7 @@ public class NumberComponent extends Component implements ColorHelper {
             }
         }
 
-        getFont().drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) - 4.3 + 5), stringColor);
+        getFont().drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) - 4.3 + 6), stringColor);
         GlStateManager.resetColor();
     }
 
@@ -100,6 +100,6 @@ public class NumberComponent extends Component implements ColorHelper {
 
     @Override
     public int getOffset() {
-        return 15;
+        return 21;
     }
 }

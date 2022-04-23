@@ -15,7 +15,7 @@ public interface ColorHelper {
     int outlineWidth = 1;
     int categoryNameHeight = 20;
 
-    int moduleHeight = 15;
+    int moduleHeight = 21;
 
     boolean hoveredColor = false;
 }

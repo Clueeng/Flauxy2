@@ -99,7 +99,7 @@ public class ModuleFrame implements ColorHelper {
                     continue;
 
                 component.setX(x);
-                component.setY(y + moduleHeight + offset - 3);
+                component.setY(y + moduleHeight + offset - 7);
 
                 component.drawScreen(mouseX, mouseY);
 
