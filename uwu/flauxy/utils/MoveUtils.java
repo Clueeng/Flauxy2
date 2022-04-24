@@ -1,19 +1,32 @@
 package uwu.flauxy.utils;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.MathHelper;
 
 public class MoveUtils {
 
     public static enum Bypass{
         VANILLA, VERUS;
     }
+
+    public static void stopMoving(){
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.thePlayer.motionX = 0;
+        mc.thePlayer.motionZ = 0;
+
+    }
+
     public static double getSpeed() {
         Minecraft mc = Minecraft.getMinecraft();
         // nigga hypot heavy
@@ -92,4 +105,25 @@ public class MoveUtils {
         mc.thePlayer.motionX = -Math.sin(yaw) * speed;
         mc.thePlayer.motionZ = Math.cos(yaw) * speed;
     }
+
+    public static boolean isOnLiquid() {
+        Minecraft mc = Minecraft.getMinecraft();
+        boolean onLiquid = false;
+        final AxisAlignedBB playerBB = mc.thePlayer.getEntityBoundingBox();
+        final WorldClient world = mc.theWorld;
+        final int y = (int) playerBB.offset(0.0, -0.01, 0.0).minY;
+        for (int x = MathHelper.floor_double(playerBB.minX); x < MathHelper.floor_double(playerBB.maxX) + 1; ++x) {
+            for (int z = MathHelper.floor_double(playerBB.minZ); z < MathHelper.floor_double(playerBB.maxZ) + 1; ++z) {
+                final Block block = world.getBlockState(new BlockPos(x, y, z)).getBlock();
+                if (block != null && !(block instanceof BlockAir)) {
+                    if (!(block instanceof BlockLiquid)) {
+                        return false;
+                    }
+                    onLiquid = true;
+                }
+            }
+        }
+        return onLiquid;
+    }
+
 }

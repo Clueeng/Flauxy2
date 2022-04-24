@@ -1,6 +1,5 @@
 package uwu.flauxy.module.impl.combat;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -36,28 +35,38 @@ public class Killaura extends Module {
 
 
     ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None");
-    ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
+    //ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
     ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post", "Mix");
 
     BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
+    NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
-    BooleanSetting players = new BooleanSetting("Players", true);
-    BooleanSetting mobs = new BooleanSetting("Mobs", true);
-    BooleanSetting animals = new BooleanSetting("Animals", true);
-    BooleanSetting shop = new BooleanSetting("Shopkeepers", false);
+    BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use").setCanShow(m -> autoblock.getValue());
+    //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
+    BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
+
+    BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
+    BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
+    BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
+    BooleanSetting shop = new BooleanSetting("Shopkeepers", false).setCanShow(m -> showTargets.getValue());
     Timer timer = new Timer();
 
     public Killaura(){
-        addSettings(cps, reach, rotations, players, mobs, animals, shop, type, nosprint);
+        addSettings(cps, reach, rotations, autoblock, autoblockMode, nosprint, noSprintDelay, showTargets, players, mobs, animals, shop, type);
     }
 
     public void onUpdate() {
         if(nosprint.getValue()) {
-            mc.thePlayer.setSprinting(false);
+            if(mc.thePlayer.ticksExisted % noSprintDelay.getValue() == 0){
+                mc.thePlayer.setSprinting(false);
+            }else{
+                mc.thePlayer.setSprinting(true);
+            }
         }
     }
 
-        public void onEvent(Event ev){
+    public void onEvent(Event ev){
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
             if(shouldRun()){
@@ -69,10 +78,12 @@ public class Killaura extends Module {
                 if(!targets.isEmpty()){
                     Entity target = targets.get(0);
                     if(isValid(target)){
-                        switch(autoblock.getMode()){
-                            case "Hold":{
-                                if(isHoldingSword()) mc.gameSettings.keyBindUseItem.pressed = true;
-                                break;
+                        if(autoblock.getValue()){
+                            switch(autoblockMode.getMode()){
+                                case "Hold":{
+                                    if(isHoldingSword()) mc.gameSettings.keyBindUseItem.pressed = true;
+                                    break;
+                                }
                             }
                         }
                         switch(rotations.getMode()){
@@ -104,7 +115,6 @@ public class Killaura extends Module {
         }
 
     }
-
 
     public void yaw(float yaw, EventMotion e){
         mc.thePlayer.rotationYawHead = yaw;

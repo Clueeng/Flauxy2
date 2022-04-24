@@ -113,6 +113,13 @@ public class Longjump extends Module {
                             ticks++;
                             break;
                         }
+                        case "Highjump":{
+                            if(mc.thePlayer.onGround){
+                                mc.thePlayer.motionY += 0.21*2;
+                            }
+                            MoveUtils.strafe();
+                            break;
+                        }
                     }
                     break;
                 }

@@ -105,7 +105,7 @@ public class ModuleFrame implements ColorHelper {
             }
         }
 
-        this.setOffset(moduleHeight + offset);
+        this.setOffset(moduleHeight + offset + 80);
     }
 
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
@@ -149,7 +149,7 @@ public class ModuleFrame implements ColorHelper {
                if (isHidden(component.getSetting()))
                    continue;
 
-                offset += component.getOffset();
+                offset += component.getOffset() + 1;
             }
         }
 

@@ -23,22 +23,26 @@ import java.util.List;
 @ModuleInfo(name = "ArrayList", displayName = "ArrayList", key = 0, cat = Category.Display)
 public class ArrayList extends Module {
 
-    public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom");
+    public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom", "Blend");
 
-    public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
-    public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
-    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1).setCanShow((m) -> color.is("Custom"));
+    public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    public NumberSetting red2 = new NumberSetting("Red 2", 125, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    public NumberSetting green2 = new NumberSetting("Green 2", 185, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    public NumberSetting blue2 = new NumberSetting("Blue 2", 25, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
-    public BooleanSetting outline = new BooleanSetting("Outline", true);
+    public BooleanSetting outline = new BooleanSetting("Outline", false);
 
-    public BooleanSetting barLeft = new BooleanSetting("Left Bar", true).setCanShow((m) -> !outline.getValue());
+    public BooleanSetting barLeft = new BooleanSetting("Left Bar", false).setCanShow((m) -> !outline.getValue());
     public BooleanSetting barRight = new BooleanSetting("Right Bar", true).setCanShow((m) -> !outline.getValue());
 
 
     public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
     public ArrayList() {
-        addSettings(color, line_width, customfont, outline, red, green, blue, barLeft, barRight);
+        addSettings(color, line_width, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight);
     }
 
     @Override
@@ -120,8 +124,11 @@ public class ArrayList extends Module {
 
                 // Color
                 switch(color.getMode()){
-                    case "Astolfo":{
-                        stringColor = ColorUtils.astolfo(5, 0.8f, 1, cn * 20L);
+                    case "Blend":{
+                        Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
+                        Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
+                        int off = (int) (offset.getValue() * 75);
+                        stringColor = ColorUtils.blendThing(2F, (long) (cn * off), col1, col2);
                         break;
                     }
                     case "Rainbow":{
