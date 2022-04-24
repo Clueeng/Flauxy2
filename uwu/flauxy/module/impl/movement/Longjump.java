@@ -19,7 +19,7 @@ public class Longjump extends Module {
     public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft");
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> mode.is("Verus"));
 
-    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Normal").setCanShow((m) -> mode.is("Verus"));
+    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Simple", "Normal").setCanShow((m) -> mode.is("Verus"));
 
     double firstypos;
 
@@ -40,6 +40,9 @@ public class Longjump extends Module {
                         firstypos = mc.thePlayer.posY;
                         MoveUtils.strafe(0.334f);
                         mc.thePlayer.jump();
+                    case "Simple":{
+                        MoveUtils.damage(MoveUtils.Bypass.VERUS);
+                    }
                 }
             }
         }
@@ -85,6 +88,11 @@ public class Longjump extends Module {
                                 }
                             }
                             ticks++;
+                            break;
+                        }
+                        case "Simple":{
+                            mc.thePlayer.motionY = 0.10;
+                            MoveUtils.strafe(speed.getValue() * 2);
                             break;
                         }
                         case "Normal":{
