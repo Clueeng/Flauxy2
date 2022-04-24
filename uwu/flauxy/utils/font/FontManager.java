@@ -25,7 +25,7 @@ public class FontManager {
     private HashMap<String, TTFFontRenderer> fonts = new HashMap<>();
 
     public static TTFFontRenderer getFont() {
-        return Flauxy.INSTANCE.fontManager.getFont("SFL 42");
+        return Flauxy.INSTANCE.fontManager.getFont("auxy 18");
     }
 
     public FontManager() {
@@ -35,7 +35,7 @@ public class FontManager {
         ConcurrentLinkedQueue<fr.flailyclient.utils.fonts.TextureData> textureQueue = new ConcurrentLinkedQueue<>();
         defaultFont = new TTFFontRenderer(executorService, textureQueue, new Font("Verdana", Font.PLAIN, 18));
         try {
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30}) {
+            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30, 36}) {
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/auxy.otf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);

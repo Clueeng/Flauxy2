@@ -57,7 +57,7 @@ public class NumberComponent extends Component implements ColorHelper {
             }
         }
 
-        getFont().drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) - 4.3 + 6), stringColor);
+        getFont().drawString(getSetting().name + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
         GlStateManager.resetColor();
     }
 
@@ -102,7 +102,7 @@ public class NumberComponent extends Component implements ColorHelper {
     public int getOffset() {
         int offset = 0;
         if(this.getSetting().getCanShow().test(null)){
-            offset = 21;
+            offset = 18;
         }else{
             offset = 0;
         }

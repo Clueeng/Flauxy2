@@ -55,7 +55,9 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.CommandManager;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
+import uwu.flauxy.event.impl.EventPostMotionUpdate;
 import uwu.flauxy.event.impl.EventUpdate;
+import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.impl.player.Noslow;
 import uwu.flauxy.utils.Wrapper;
 
@@ -111,7 +113,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
     protected Minecraft mc;
 
     /**
-     * Used to tell if the player pressed forward twice. If this is at 0 and it's pressed (And they are allowed to
+     * Used to tell if the player
+     *
+     * ssed forward twice. If this is at 0 and it's pressed (And they are allowed to
      * sprint, aka enough food on the ground etc) it sets this to 7. If it's pressed and it's greater than 0 enable
      * sprinting.
      */
@@ -282,6 +286,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.lastReportedPitch = em.getPitch();
             }
         }
+        EventPostMotionUpdate emp = new EventPostMotionUpdate();
+        Flauxy.onEvent(emp);
+
         em.setType(EventType.POST);
         Flauxy.onEvent(em);
 
@@ -926,5 +933,19 @@ public class EntityPlayerSP extends AbstractClientPlayer
     }
     public boolean isMoving(){
         return moveForward != 0 || moveStrafing != 0;
+    }
+
+    @Override
+    public void moveEntity(double x, double y, double z) {
+        final EventMove moveEvent = new EventMove(x, y, z);
+        Flauxy.onEvent(moveEvent);
+
+        if (moveEvent.isCancelled()) return;
+
+        super.moveEntity(moveEvent.getX(), moveEvent.getY(), moveEvent.getZ());
+    }
+
+    public void moveEntityNoEvent(double x, double y, double z) {
+        super.moveEntity(x, y, z);
     }
 }

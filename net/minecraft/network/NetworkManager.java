@@ -182,6 +182,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     public void sendPacket(Packet packetIn)
     {
         EventSendPacket event = new EventSendPacket(packetIn);
+        Flauxy.onEvent(event);
         if (this.isChannelOpen())
         {
             if(event.isCancelled()) return;

@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.utils.Methods;
+import uwu.flauxy.utils.WorldUtil;
 
 import java.util.ArrayList;
 
@@ -54,7 +55,10 @@ public class Module implements Methods {
         else onDisable();
     }
 
-    public void onEvent(Event e){}
+    public void onEvent(Event e){
+
+        if(WorldUtil.shouldNotRun()) return;
+    }
     public void onEventIgnore(Event e){}
 
     public void addSettings(final Setting... settings) {

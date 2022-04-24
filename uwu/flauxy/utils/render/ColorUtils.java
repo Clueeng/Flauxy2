@@ -14,6 +14,20 @@ public class ColorUtils {
         int color = java.awt.Color.HSBtoRGB(hue, saturation, brightness);
         return color;
     }
+
+    public static Color blend(Color color1, Color color2, double offset) {
+        if (offset > 1) {
+            double left = offset % 1;
+            int off = (int) offset;
+            offset = off % 2 == 0 ? left : 1 - left;
+        }
+        double inverse_percent = 1 - offset;
+        int redPart = (int) (color1.getRed() * inverse_percent + color2.getRed() * offset);
+        int greenPart = (int) (color1.getGreen() * inverse_percent + color2.getGreen() * offset);
+        int bluePart = (int) (color1.getBlue() * inverse_percent + color2.getBlue() * offset);
+        return new Color(redPart, greenPart, bluePart);
+    }
+
     public static int astolfo(float seconds, float saturation, float brightness, float index) {
         float speed = 3000f;
         float hue = (System.currentTimeMillis() % (int) (seconds * 1000)) + index;
@@ -25,7 +39,15 @@ public class ColorUtils {
         hue += 0.5F;
         return Color.HSBtoRGB(hue, saturation, brightness);
     }
-
+    public static int blendThing(float seconds, long index, Color col1, Color col2) {
+        index += 40;
+        float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 1000)) / (seconds * 1000);
+        float hue2 = hue * 2;
+        if(hue2 > 1) {
+            hue2 = 2 - hue2;
+        }
+        return blend(col1, col2, hue2).getRGB();
+    }
     public static int rainbow(final int count, final float bright, final float st) {
         double v1 = Math.ceil((double)(System.currentTimeMillis() + count * 109)) / 5.0;
         return Color.getHSBColor(((float)((v1 %= 360.0) / 360.0) < 0.5) ? (-(float)(v1 / 360.0)) : ((float)(v1 / 360.0)), st, bright).getRGB();
