@@ -1,5 +1,6 @@
 package uwu.flauxy.module.impl.movement;
 
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.MovementInput;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
@@ -20,6 +21,7 @@ public class Longjump extends Module {
 
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Normal").setCanShow((m) -> mode.is("Verus"));
 
+    double firstypos;
 
     public Longjump(){
         addSettings(mode, verusMode, speed);
@@ -35,6 +37,7 @@ public class Longjump extends Module {
                         MoveUtils.damage(MoveUtils.Bypass.VERUS);
                         break;
                     case "Normal":
+                        firstypos = mc.thePlayer.posY;
                         MoveUtils.strafe(0.334f);
                         mc.thePlayer.jump();
                 }
@@ -74,7 +77,6 @@ public class Longjump extends Module {
                                 if(ticks < tik+1){
                                     MoveUtils.strafe(0.15f);
                                 }
-                                Wrapper.instance.log(mc.thePlayer.fallDistance  + "");
                                 if(((Math.round(mc.thePlayer.posY) * 100) / 100) == (int)mc.thePlayer.posY && mc.thePlayer.fallDistance > 0.75){
                                     MoveUtils.strafe(0.27f);
                                     mc.thePlayer.motionY = 0.42f;
@@ -86,6 +88,14 @@ public class Longjump extends Module {
                             break;
                         }
                         case "Normal":{
+                            if(mc.thePlayer.ticksExisted % 25 == 0) {
+                                mc.thePlayer.motionY = 0.25;
+                                mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+                                mc.thePlayer.setPosition(mc.thePlayer.posX, firstypos, mc.thePlayer.posZ);
+                                MoveUtils.damage(MoveUtils.Bypass.VERUS);
+                                MoveUtils.strafe(4);
+
+                            }
                             if(mc.thePlayer.ticksExisted % 4 == 0){
                                 mc.thePlayer.motionY = 0.42F;
                                 MoveUtils.strafe(0.34f);

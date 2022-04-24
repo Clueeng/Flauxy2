@@ -178,7 +178,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
         {
             super.onUpdate();
             Flauxy.onEvent(new EventUpdate());
-            Flauxy.onEventIgnore(new EventUpdate());
 
             if (this.isRiding())
             {

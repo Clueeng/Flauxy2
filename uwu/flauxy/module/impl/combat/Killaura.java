@@ -1,5 +1,6 @@
 package uwu.flauxy.module.impl.combat;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -36,7 +37,9 @@ public class Killaura extends Module {
 
     ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None");
     ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
-    ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
+    ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post", "Mix");
+
+    BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
 
     BooleanSetting players = new BooleanSetting("Players", true);
     BooleanSetting mobs = new BooleanSetting("Mobs", true);
@@ -45,10 +48,16 @@ public class Killaura extends Module {
     Timer timer = new Timer();
 
     public Killaura(){
-        addSettings(cps, reach, rotations, players, mobs, animals, shop);
+        addSettings(cps, reach, rotations, players, mobs, animals, shop, type, nosprint);
     }
 
-    public void onEvent(Event ev){
+    public void onUpdate() {
+        if(nosprint.getValue()) {
+            mc.thePlayer.setSprinting(false);
+        }
+    }
+
+        public void onEvent(Event ev){
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
             if(shouldRun()){
@@ -82,9 +91,9 @@ public class Killaura extends Module {
                             }
                         }
                         if(timer.hasTimeElapsed(1000 / cps.getValue(), true)){
-                            if(type.is("Post") && event.isPost()) attack(target);
+                            if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);
-
+                            if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
                         }
                     }
                 }
@@ -95,6 +104,7 @@ public class Killaura extends Module {
         }
 
     }
+
 
     public void yaw(float yaw, EventMotion e){
         mc.thePlayer.rotationYawHead = yaw;
