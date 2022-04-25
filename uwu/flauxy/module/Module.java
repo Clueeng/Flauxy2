@@ -33,6 +33,8 @@ public class Module implements Methods {
     @Getter
     private ArrayList<Setting> settings = new ArrayList<>();
 
+    public float xSlide = 0f, ySlide = 0f;
+
     public Module(){
         final ModuleInfo featureInfo = getClass().getAnnotation(ModuleInfo.class);
 

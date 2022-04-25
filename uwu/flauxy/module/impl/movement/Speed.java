@@ -18,7 +18,7 @@ public class Speed extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Hypixel");
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Float", "Damage", "Ground").setCanShow(m -> mode.is("Verus"));
-    NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow(m -> (mode.is("Vanilla") || (mode.is("Verus") && verusMode.is("Damage"))));
+    NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.025).setCanShow(m -> (mode.is("Vanilla") || (mode.is("Verus") && verusMode.is("Damage"))));
     NumberSetting speedLow = new NumberSetting("Speed", 1, 0, 5, 0.1).setCanShow(m -> ((mode.is("Verus") && verusMode.is("Low"))));
 
 

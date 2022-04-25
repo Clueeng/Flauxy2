@@ -7,6 +7,7 @@ import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
@@ -19,6 +20,7 @@ public class Fly extends Module {
     public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Vanilla");
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Normal", "BlocksMC").setCanShow((m) -> mode.is("Verus"));
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> (mode.is("Vanilla") || (mode.is("Verus") && verusMode.is("BlocksMC"))));
+    BooleanSetting motionReset = new BooleanSetting("Motion Reset", true);
 
     int ticks = 0;
     int stage =0;
@@ -114,19 +116,11 @@ public class Fly extends Module {
 
     @Override
     public void onDisable() {
-        mc.timer.timerSpeed = 1.0F;
-        switch(mode.getMode()){
-            case "Verus":{
-                switch(verusMode.getMode()){
-                    case "BlocksMC":{
-                        mc.thePlayer.motionX *= 0.1f;
-                        mc.thePlayer.motionZ *= 0.1f;
-                        break;
-                    }
-                }
-                break;
-            }
+        if(motionReset.getValue()){
+            mc.thePlayer.motionX *= 0.1f;
+            mc.thePlayer.motionZ *= 0.1f;
         }
+        mc.timer.timerSpeed = 1.0F;
     }
 
     public void airjump(){

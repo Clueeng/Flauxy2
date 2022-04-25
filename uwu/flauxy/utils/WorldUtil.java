@@ -6,7 +6,7 @@ public class WorldUtil {
 
     public static boolean shouldNotRun(){
         Minecraft mc = Minecraft.getMinecraft();
-        return mc.theWorld == null || mc.thePlayer == null || mc.thePlayer.ticksExisted <= 1;
+        return mc.theWorld == null || mc.thePlayer == null || mc.thePlayer.ticksExisted <= 5;
     }
 
 }
