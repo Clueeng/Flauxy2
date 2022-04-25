@@ -2,6 +2,7 @@ package uwu.flauxy.module.impl.player;
 
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
@@ -14,8 +15,7 @@ public class InventoryMove extends Module {
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventMotion) {
-            if(mc.currentScreen instanceof net.minecraft.client.gui.GuiChat || mc.currentScreen == null)
-                return;
+            if(mc.currentScreen instanceof net.minecraft.client.gui.GuiChat || mc.currentScreen == null) return;
             keyset(mc.gameSettings.keyBindForward);
             keyset(mc.gameSettings.keyBindLeft);
             keyset(mc.gameSettings.keyBindRight);
@@ -25,7 +25,7 @@ public class InventoryMove extends Module {
     }
 
     private void keyset(KeyBinding key){
-        key.pressed = GameSettings.isKeyDown(key);
+        key.pressed = Keyboard.isKeyDown(key.getKeyCode());
     }
 
 }

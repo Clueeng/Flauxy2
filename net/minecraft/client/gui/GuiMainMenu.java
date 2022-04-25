@@ -7,10 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -40,6 +38,8 @@ import uwu.flauxy.utils.render.ColorUtils;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 {
+    private int y = 0;
+
     private static final AtomicInteger field_175373_f = new AtomicInteger(0);
     private static final Logger logger = LogManager.getLogger();
     private static final Random RANDOM = new Random();
@@ -189,6 +189,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.backgroundTexture = this.mc.getTextureManager().getDynamicTextureLocation("background", this.viewportTexture);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
+        String added = "§a[§2+§a]§f";
+        String edited = "§e[§6+§e]§f";
+        String removed = "§c[§4-§c]§f";
+        //changelog.add(added + " Added my mom");
 
         if (calendar.get(2) + 1 == 12 && calendar.get(5) == 24)
         {
@@ -531,7 +535,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
+        TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
         font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
+
         /*if ((double)this.updateCounter < 1.0E-4D)
         {
             this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 99, 44);

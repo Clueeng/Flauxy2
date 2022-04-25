@@ -1,6 +1,8 @@
 package uwu.flauxy.module.impl.display;
 
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,9 +12,11 @@ import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.impl.movement.Speed;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
 
@@ -50,6 +54,8 @@ public class ArrayList extends Module {
 
     }
 
+    float wtf = 0;
+
     public void onEvent(Event event) {
 
         if(event instanceof EventRender2D){
@@ -59,68 +65,44 @@ public class ArrayList extends Module {
             float y = 1;
             int count = 0;
 
+
+
+
+            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-                mods.add(m);
-            }
-
-            mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getName())).reversed());
-
-        /*for (Module m : mods) {
-            if(m.isToggled()) {
-                int stringcolor = 0;
-                switch (color.getMode()) {
-                    case "Astolfo":
-                        stringcolor = ColorUtils.rainbow(count * -100, 1.0f, 0.47f);
-                        break;
-                    case "Default":
-                        stringcolor = -1;
-                        break;
+                if (m.isToggled()) {
+                    m.xSlide += 0.3f * (60F / (float) Minecraft.getDebugFPS());
+                    if (m.xSlide > 8) {
+                        m.xSlide = 8;
+                    }
                 }
+                if (!m.isToggled()) {
+                    m.xSlide -= .1f * (60F / (float) Minecraft.getDebugFPS());
+                    if (m.xSlide < 0) {
+                        m.xSlide = 0;
+                    }
 
-
-                float x = sr.getScaledWidth() - Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) - 3;
-                if (glow.isEnabled()) {
-                    float finalY = y;
-                    int finalStringcolor = stringcolor;
-                    GlowUtil.drawAndBloom(() -> Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x - Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) finalY, finalStringcolor));
-                }else {
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 40").drawString(m.getName(), (int) x  -Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(m.getName()) + 2 , (int) y, stringcolor);
+                    if(m.ySlide > 0) m.ySlide -= 0.02f;
+                    else m.ySlide = 0f;
                 }
-
-                count++;
-                y += 9.7;
+                if (m.xSlide > 0F) {
+                    if(m == Flauxy.INSTANCE.moduleManager.getModule(Speed.class)){
+                        //Wrapper.instance.log("hi");
+                    }
+                    mods.add(m);
+                }
             }
-        }*/
+            if(customfont.getValue()){
+                mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getDisplayName())).reversed());
+            }else{
+                mods.sort(Comparator.comparingInt(m ->  (int)mc.fontRendererObj.getStringWidth(((Module) m).getDisplayName())).reversed());
+            }
             int c = 0;
             int cn = 0;
             int stringColor = -1;
-
-            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
             int retarded = 0;
-            /*for (Module moduleToDraw : modules) {
-                double posX = width - fontRenderer.getStringWidth(moduleToDraw.getDisplayName()) - 2;
-                drawRect(posX, posY, width - posX, 20);
-                drawString......
-                //outline
-                drawRect(posX, posY, 1, 20);
-                if (lastPos != null) {
-                    drawRect(lastPosX , posY, width - posX, 1);
-                }
-                lastPosX = posX;
-                posY += 20;
-            }*/
-
-            double posY = 0;
-            double posX = 0;
-            double oldX = 0;
-            double oldY = 0;
-            for(Module m : getFontSortedModules(font, false)){
-                // pre values set
-                oldY = c;
-                oldX = posX;
-                posX = sr.getScaledWidth() - font.getWidth(m.getDisplayName()) - 2;
+            for(Module m : mods){
                 double wi = sr.getScaledWidth();
-                int placeX = 0;
 
                 // Color
                 switch(color.getMode()){
@@ -141,30 +123,51 @@ public class ArrayList extends Module {
                     }
                 }
 
-                // outline
-                if(!outline.getValue()){
-                    if(barRight.getValue()){
-                        Gui.drawRect((float) (wi - (float)line_width.getValue()), (float) c, (float) wi, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
-                        placeX = 2;
+                //actual arraylist
+                //if(m.isToggled()){
+                    // outline
+                    if(!outline.getValue()){
+                        if(barRight.getValue()){
+                            Gui.drawRect((float) (wi - (float)line_width.getValue()) - 6, (float) c + 8, (float) wi - 6, c + font.getHeight(m.getDisplayName())+retarded+9, stringColor);
+                        }
+                        if(barLeft.getValue()){
+                            float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6;
+                            Gui.drawRect(wa - m.xSlide, ((float) c + 8 + (font.getHeight(m.getDisplayName()))) - m.ySlide, (float) (wa + (float)line_width.getValue()) - m.xSlide, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+8) - m.ySlide, stringColor);
+                        }
                     }
-                    if(barLeft.getValue()){
-                        float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6 - placeX;
-                        Gui.drawRect(wa, (float) c, (float) wa + (float)line_width.getValue(), c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
+
+                    // outline end
+
+                    // text
+                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2) - m.xSlide, c + 6, stringColor);
+                    else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - 2  ), c + 6, stringColor);
+                    // values changing
+
+                    c+=m.ySlide;
+                    if(m.ySlide < font.getHeight(m.getDisplayName())+retarded+1){
+                        m.ySlide+=0.08f;
                     }
-                }else{
-                    Gui.drawRect((float) wi - font.getWidth(m.getDisplayName()) - 6 - placeX , (float) c, (float) oldX, c + font.getHeight(m.getDisplayName())+retarded+1, stringColor);
-
-                }
-
-                // outline end
-
-                // text
-                if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
-                else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - 2  ) - placeX, c, stringColor);
-                // values changing
-                c+=font.getHeight(m.getDisplayName())+retarded+1;
-                cn+=1;
-                // color reset
+                    if(m.ySlide > font.getHeight(m.getDisplayName())+retarded+1){
+                        m.ySlide -= 0.08f;
+                    }
+                    if(!m.isToggled()){
+                        if(m.ySlide > 0) m.ySlide -= 0.08f;
+                        else m.ySlide = 0f;
+                    }
+                    // X
+                    if(m.xSlide < (float) (wi - font.getWidth(m.getDisplayName()) - 16) - 18){
+                        m.xSlide+=0.002f;
+                    }
+                    if(m.xSlide > (float) (wi - font.getWidth(m.getDisplayName()) - 12)){
+                        m.xSlide = (float) (wi - font.getWidth(m.getDisplayName()) - 8);
+                    }
+                    if(!m.isToggled()){
+                        if(m.xSlide > 0) m.xSlide -= 0.02f;
+                        else m.ySlide = 0f;
+                    }
+                    cn+=1;
+                    // color reset
+                //}
                 GlStateManager.resetColor();
             }
         }
@@ -176,12 +179,18 @@ public class ArrayList extends Module {
         return sortedList;
     }
 
+    private static java.util.List<Module> getSortedModules(FontRenderer fr, boolean lowerCase) {
+        java.util.List<Module> sortedList = getActiveModules();
+        sortedList.sort(Comparator.comparingDouble(e -> lowerCase ? -fr.getStringWidth(e.getDisplayName().toLowerCase()) : -fr.getStringWidth(e.getDisplayName())));
+        return sortedList;
+    }
+
     public static java.util.List<Module> getActiveModules() {
         java.util.List<Module> modds = new java.util.ArrayList<>();
         for (Module mod : Flauxy.INSTANCE.getModuleManager().modules) {
-            if (mod.isToggled()) {
+            //if (mod.isToggled()) {
                 modds.add(mod);
-            }
+            //}
         }
         return modds;
     }
