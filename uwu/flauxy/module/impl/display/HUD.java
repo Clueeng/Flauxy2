@@ -36,7 +36,7 @@ public class HUD extends Module {
             switch (watermark.getMode()) {
                 case "Flauxy":
                     if(customfont.isEnabled()) {
-                        Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
+                        Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
                     } else {
                         mc.fontRendererObj.drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
                     }
