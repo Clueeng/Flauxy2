@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
 
-    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.5);
+    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001);
     NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
 
@@ -66,6 +66,7 @@ public class Killaura extends Module {
     BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
     ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Basic", "Basic").setCanShow(m -> targethud.getValue());
     Timer timer = new Timer();
+
 
     public Killaura(){
         addSettings(cps, reach, rotations, autoblock, autoblockMode, nosprint, noSprintDelay, showTargets, players, mobs, animals, shop, type, targethud, targetHudMode);
@@ -113,7 +114,7 @@ public class Killaura extends Module {
                     Entity target = targets.get(0);
                     currentTarget = target;
                     if(isValid(target, (float) reach.getValue())){
-                        fakeBlock = autoblockMode.is("Fake");
+                        fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
                                 case "Hold":{
@@ -125,11 +126,12 @@ public class Killaura extends Module {
 
                         switch(rotations.getMode()){
                             case "Verus":{
-                                float yawGcd, pitchGcd;
-                                yawGcd = ((getRotations(target)[0]) + NumberUtil.generateRandom(-12, 15)) * NumberUtil.generateRandomFloat(100, 115, 100);
-                                pitchGcd = ((getRotations(target)[1]) + NumberUtil.generateRandom(-15, 3));
-                                yaw(yawGcd, event);
-                                pitch(pitchGcd, event);
+                                double random = NumberUtil.generateRandomFloat(67565, 107450, 10000);
+                                //Wrapper.instance.log(String.valueOf(random));
+                                if(type.is("Pre") && event.isPre()){
+                                    yaw((float) (getRotations(target)[0] + random + 1 + Math.random()), event);
+                                    pitch((float) (getRotations(target)[1] + random + 1 + Math.random()), event);
+                                }
                                 break;
                             }
                             case "Instant":{
@@ -138,7 +140,7 @@ public class Killaura extends Module {
                                 break;
                             }
                         }
-                        if(timer.hasTimeElapsed(1000 / cps.getValue(), true)){
+                        if(timer.hasTimeElapsed(1000 / cps.getValue() + Math.random(), true)){
                             Criticals.isCrits = true;
                             if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);

@@ -34,14 +34,27 @@ public class ModeSetting extends Setting<String> {
         this.selected = this.modes.get(this.index);
     }
 
-    public void cycle() {
-        if (this.index < this.modes.size() - 1) {
-            ++this.index;
-            this.selected = this.modes.get(this.index);
-        } else {
-            this.index = 0;
+    public void cycle(int mb) {
+        if(mb == 0){
+
+            if (this.index < this.modes.size() - 1) {
+                ++this.index;
+                this.selected = this.modes.get(this.index);
+            } else {
+                this.index = 0;
+            }
+            this.selected = this.modes.get(0);
         }
-        this.selected = this.modes.get(0);
+        if(mb == 1){
+
+            if (this.index > 0) {
+                --this.index;
+                this.selected = this.modes.get(this.index);
+            } else {
+                this.index = this.modes.size()-1;
+            }
+            this.selected = this.modes.get(0);
+        }
     }
 
     public boolean is(final String mode) {

@@ -9,9 +9,9 @@ public class NumberUtil {
         return result;
     }
 
-    public static float generateRandomFloat(int min, int max, int divisor){
-        int thing = divisor * 10;
-        int resultToInt = ThreadLocalRandom.current().nextInt(min * thing, max * thing);
+    public static float generateRandomFloat(int min, int max, int divider){
+        int thing = divider * 10;
+        int resultToInt = ThreadLocalRandom.current().nextInt(min, max);
         float resultToFloat = (float)resultToInt / thing;
         return resultToFloat;
     }

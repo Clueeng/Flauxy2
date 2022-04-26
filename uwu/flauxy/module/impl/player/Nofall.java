@@ -46,7 +46,7 @@ public class Nofall extends Module {
                         removeBlock = true;
                     }
                     if(removeBlock){
-                        if(timer.hasTimeElapsed(150, true)){
+                        if(timer.hasTimeElapsed(200, true)){
                             mc.theWorld.setBlockToAir(oldPos);
                             removeBlock = false;
                         }

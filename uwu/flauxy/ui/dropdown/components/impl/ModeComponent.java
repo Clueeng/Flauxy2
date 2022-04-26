@@ -39,12 +39,7 @@ public class ModeComponent extends Component implements ColorHelper {
         if(RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, getOffset()))
         {
             ModeSetting enumValue = (ModeSetting) getSetting();
-
-
-            if(mouseButton == 0) {
-              enumValue.cycle();
-            }
-
+            enumValue.cycle(mouseButton);
             return true;
         }
         return false;
