@@ -15,7 +15,7 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.timer.Timer;
 
-@ModuleInfo(name = "Critical", displayName = "Critical", key = -1, cat = Category.Combat)
+@ModuleInfo(name = "Critical", displayName = "Criticals", key = -1, cat = Category.Combat)
 public class Criticals extends Module {
 
     public static ModeSetting mode = new ModeSetting("Mode", "Fake", "Fake", "Low", "Low2", "Jump");

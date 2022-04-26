@@ -4,17 +4,21 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 
 public class MoveUtils {
+
+    public static Minecraft mc = Minecraft.getMinecraft();
 
     public static enum Bypass{
         VANILLA, VERUS;
@@ -26,6 +30,29 @@ public class MoveUtils {
         mc.thePlayer.motionZ = 0;
 
     }
+
+
+    public static double getBaseSpeed() {
+        EntityPlayerSP player = mc.thePlayer;
+        double baseSpeed = player.isSneaking() ? 0.0663D : (mc.thePlayer.isSprinting() ? 0.2873D : 0.221D);
+        int amplifier = (mc.thePlayer.isPotionActive(Potion.moveSpeed) ? mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 : 0) - (mc.thePlayer.isPotionActive(Potion.moveSlowdown) ? mc.thePlayer.getActivePotionEffect(Potion.moveSlowdown).getAmplifier() + 1 : 0);
+        baseSpeed *= 1.0 + 0.2 * (amplifier + 1);
+        return baseSpeed;
+    }
+
+
+    public static float getSpeedMotion() {
+        return (float) Math.sqrt(Math.pow(mc.thePlayer.motionX, 2) + Math.pow(mc.thePlayer.motionZ, 2));
+    }
+
+    public static double getBaseSpeed(int speed, boolean sprinting) {
+        EntityPlayerSP player = mc.thePlayer;
+        double baseSpeed = player.isSneaking() ? 0.0663D : (sprinting ? 0.2873D : 0.221D);
+        int amplifier = speed - (mc.thePlayer.isPotionActive(Potion.moveSlowdown) ? mc.thePlayer.getActivePotionEffect(Potion.moveSlowdown).getAmplifier() + 1 : 0);
+        baseSpeed *= 1.0 + 0.2 * (amplifier + 1);
+        return baseSpeed;
+    }
+
 
     public static double getSpeed() {
         Minecraft mc = Minecraft.getMinecraft();

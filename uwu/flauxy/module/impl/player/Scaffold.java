@@ -88,6 +88,11 @@ public class Scaffold extends Module {
     }
 
     public void onEnable() {
+
+        if(mode.getMode().equalsIgnoreCase("Hypixel")){
+            mc.thePlayer.setSprinting(false);
+            Flauxy.INSTANCE.moduleManager.getModule("Sprint").toggle();
+        }
         sneakTicks = 0;
         placedBlocks = 0;
         ticks = 0;
@@ -115,6 +120,7 @@ public class Scaffold extends Module {
         oldY = mc.thePlayer.posY;
         if(mode.is("Hypixel")) {
             finalYaw = mc.thePlayer.rotationYaw - 180;
+
             finalPitch = (float) (80 + Math.random());
         }
     }
@@ -124,6 +130,7 @@ public class Scaffold extends Module {
         if(sneakTicks > 0) {
             mc.gameSettings.keyBindSneak.pressed = false;
         }
+        Flauxy.INSTANCE.moduleManager.getModule("Sprint").setToggled(true);
 
         mc.timer.timerSpeed = 1F;
         if(autoblock.is("Switch")) {
@@ -172,7 +179,7 @@ public class Scaffold extends Module {
 
         tower(e);
 
-        this.setDisplayName("Scaffold §7" + mode.getMode());
+        this.setDisplayName("Scaffold §f" + mode.getMode());
 
         if(e instanceof EventUpdate) {
             if(timer.getValue() != 1) {

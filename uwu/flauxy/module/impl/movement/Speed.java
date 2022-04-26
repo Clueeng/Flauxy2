@@ -27,6 +27,7 @@ public class Speed extends Module {
     }
 
     public boolean state;
+    public double moveSpeed;
     private int ticks = 0;
 
     @Override
@@ -45,6 +46,7 @@ public class Speed extends Module {
                 return;
             }
             EventMove em = (EventMove)ev;
+            this.setDisplayName("Speed §f" + mode.getMode());
             switch(mode.getMode()){
                 case "Verus":{
                     switch(verusMode.getMode()){
@@ -91,16 +93,17 @@ public class Speed extends Module {
             EventMotion em =(EventMotion)ev;
             switch(mode.getMode()){
                 case "Hypixel":{
-                    if(mc.thePlayer.onGround){
-                        MoveUtils.strafe(MoveUtils.getSpeed() * 0.92f);
-                        mc.thePlayer.jump();
-                    }else{
-                        MoveUtils.strafe();
-                        mc.thePlayer.speedInAir = 0.037f;
-                        mc.thePlayer.motionX *= 1.015f;
-                        mc.thePlayer.motionZ *= 1.015f;
+                    if(mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
+                        mc.thePlayer.motionY = 0.42F;
+                        moveSpeed = MoveUtils.getBaseSpeed() + 0.002;
+                    } else {
+                        moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
                     }
-                    break;
+                    MoveUtils.strafe(moveSpeed);
+
+
+
+                break;
                 }
                 case "Verus":{
                     switch(verusMode.getMode()){

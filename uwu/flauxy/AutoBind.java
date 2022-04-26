@@ -37,10 +37,24 @@ public class AutoBind {
             Flauxy.INSTANCE.moduleManager.getModule(Longjump.class).setKey(Keyboard.KEY_V);
             Flauxy.INSTANCE.moduleManager.getModule(Scaffold.class).setKey(Keyboard.KEY_W);
         }
+
+        if(dev == AutoBind.dev.teqhs){
+            Flauxy.INSTANCE.moduleManager.getModule(Speed.class).setKey(Keyboard.KEY_V);
+            Flauxy.INSTANCE.moduleManager.getModule(Fly.class).setKey(Keyboard.KEY_F);
+            Flauxy.INSTANCE.moduleManager.getModule(Disabler.class).setKey(Keyboard.KEY_NONE);
+            Flauxy.INSTANCE.moduleManager.getModule(Longjump.class).setKey(Keyboard.KEY_X);
+            Flauxy.INSTANCE.moduleManager.getModule(Phase.class).setKey(Keyboard.KEY_H);
+            Flauxy.INSTANCE.moduleManager.getModule(InventoryManager.class).setKey(Keyboard.KEY_O);
+            Flauxy.INSTANCE.moduleManager.getModule(Scaffold.class).setKey(Keyboard.KEY_G);
+            Flauxy.INSTANCE.moduleManager.getModule(Nofall.class).setKey(Keyboard.KEY_NONE);
+            Flauxy.INSTANCE.moduleManager.getModule(Longjump.class).setKey(Keyboard.KEY_X);
+            Flauxy.INSTANCE.moduleManager.getModule(Stealer.class).setKey(Keyboard.KEY_O);
+        }
+
     }
 
     public static enum dev{
-        t9a, Flaily;
+        t9a, Flaily, teqhs;
     }
 
 }

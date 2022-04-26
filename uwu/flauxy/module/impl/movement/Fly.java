@@ -1,5 +1,6 @@
 package uwu.flauxy.module.impl.movement;
 
+import com.mojang.realmsclient.gui.ChatFormatting;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
@@ -14,7 +15,7 @@ import uwu.flauxy.utils.MoveUtils;
 import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.Wrapper;
 
-@ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_G, cat = Category.Movement)
+@ModuleInfo(name = "Fly", displayName = "Fly", key = Keyboard.KEY_NONE, cat = Category.Movement)
 public class Fly extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Vanilla");
@@ -47,6 +48,7 @@ public class Fly extends Module {
     @Override
     public void onEvent(Event e) {
         if (e instanceof EventMotion) {
+            this.setDisplayName("Fly " + ChatFormatting.WHITE + mode.getMode());
             EventMotion event = (EventMotion) e;
             if(WorldUtil.shouldNotRun()) return;
             switch (mode.getMode()) {
