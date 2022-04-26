@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
+import uwu.flauxy.commands.impl.CommandBind;
 import uwu.flauxy.commands.impl.CommandSay;
 import uwu.flauxy.utils.Wrapper;
 
@@ -14,6 +15,7 @@ public class CommandManager {
 
     static {
         commands.add(new CommandSay());
+        commands.add(new CommandBind());
     }
 
     public static void onMessageSent(String message) {
