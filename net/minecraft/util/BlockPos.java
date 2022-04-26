@@ -2,6 +2,9 @@ package net.minecraft.util;
 
 import com.google.common.collect.AbstractIterator;
 import java.util.Iterator;
+
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 
 public class BlockPos extends Vec3i
@@ -211,6 +214,10 @@ public class BlockPos extends Vec3i
         int j = (int)(serialized << 64 - Y_SHIFT - NUM_Y_BITS >> 64 - NUM_Y_BITS);
         int k = (int)(serialized << 64 - NUM_Z_BITS >> 64 - NUM_Z_BITS);
         return new BlockPos(i, j, k);
+    }
+
+    public static Block getBlock(BlockPos pos){
+        return Minecraft.getMinecraft().theWorld.getBlockState(pos).getBlock();
     }
 
     public static Iterable<BlockPos> getAllInBox(BlockPos from, BlockPos to)

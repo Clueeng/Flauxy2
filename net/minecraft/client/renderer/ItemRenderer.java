@@ -27,6 +27,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
 import org.lwjgl.opengl.GL11;
+import uwu.flauxy.module.impl.combat.Killaura;
 import uwu.flauxy.module.impl.visuals.Animations;
 
 
@@ -336,7 +337,7 @@ public class ItemRenderer
             {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
             }
-            else if (abstractclientplayer.getItemInUseCount() > 0 )
+            else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock)
             {
                 EnumAction enumaction = this.itemToRender.getItemUseAction();
 

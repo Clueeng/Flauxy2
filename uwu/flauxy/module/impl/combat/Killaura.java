@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -29,6 +30,7 @@ import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.PacketUtil;
+import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.timer.Timer;
@@ -53,7 +55,7 @@ public class Killaura extends Module {
     NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
     BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use").setCanShow(m -> autoblock.getValue());
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
 
@@ -69,7 +71,10 @@ public class Killaura extends Module {
         addSettings(cps, reach, rotations, autoblock, autoblockMode, nosprint, noSprintDelay, showTargets, players, mobs, animals, shop, type, targethud, targetHudMode);
     }
 
+    public static boolean fakeBlock = false;
+
     public void onUpdate() {
+        if(WorldUtil.shouldNotRun()) return;
         if(nosprint.getValue()) {
             if(mc.thePlayer.ticksExisted % noSprintDelay.getValue() == 0){
                 mc.thePlayer.setSprinting(false);
@@ -108,6 +113,7 @@ public class Killaura extends Module {
                     Entity target = targets.get(0);
                     currentTarget = target;
                     if(isValid(target, (float) reach.getValue())){
+                        fakeBlock = autoblockMode.is("Fake");
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
                                 case "Hold":{
@@ -133,18 +139,29 @@ public class Killaura extends Module {
                             }
                         }
                         if(timer.hasTimeElapsed(1000 / cps.getValue(), true)){
+                            Criticals.isCrits = true;
                             if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
                         }
+                    }else{
+                        mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
+                        Killaura.fakeBlock = false;
                     }
                 }
                 if(targets.isEmpty() || !shouldRun() || mc.thePlayer.getDistanceToEntity(currentTarget) > reach.getValue()){
                     mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
+                    Killaura.fakeBlock = false;
                 }
             }
         }
 
+    }
+
+    @Override
+    public void onDisable() {
+        Killaura.fakeBlock = false;
+        mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
     }
 
     public void yaw(float yaw, EventMotion e){
@@ -220,10 +237,10 @@ public class Killaura extends Module {
                     if(currentTarget instanceof EntityPlayer){
                         drawHead( (AbstractClientPlayer)target, (x + 4) / thing, (y + 4) / thing, 44 / thing, 44 / thing);
                     }else{
-                        Gui.drawRect((x + 4) / thing, (y + 4) / thing, (x + 48) / thing, (y + 48) / thing, new Color(113, 243, 172, 136).getRGB());
+                        GuiInventory.drawEntityOnScreen(x + 20, y + 50, 25, target.rotationYaw, 0, (EntityLivingBase) target);
                     }
                     Gui.drawRect(x / thing, y / thing, (x + 192) / thing, (y +52) / thing, new Color(0, 0, 0, 90).getRGB());
-                    TTFFontRenderer tFont = Flauxy.INSTANCE.fontManager.getFont("auxy 21");
+                    TTFFontRenderer tFont = Flauxy.INSTANCE.fontManager.getFont("auxy " + (21 - offset));
                     tFont.drawStringWithShadow(currentTarget.getDisplayName().getFormattedText(), (x + 52) / thing, (y + 4) / thing, new Color(250, 250, 250, 255).getRGB());
                     Gui.drawRect((x + 52) / thing, (y + 32) / thing, ((x + 52) + (( ((EntityLivingBase)target).getHealth() / ((EntityLivingBase)target).getMaxHealth() ) * 132)) / thing, (y + 48) / thing, new Color(164, 36, 36, 225).getRGB());
                 }

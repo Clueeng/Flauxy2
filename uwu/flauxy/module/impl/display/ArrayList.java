@@ -31,10 +31,10 @@ public class ArrayList extends Module {
 
     public NumberSetting red = new NumberSetting("Red", 125, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting green = new NumberSetting("Green", 185, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting blue = new NumberSetting("Blue", 25, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting red2 = new NumberSetting("Red 2", 125, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting green2 = new NumberSetting("Green 2", 185, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting blue2 = new NumberSetting("Blue 2", 25, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    public NumberSetting blue = new NumberSetting("Blue", 249, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    public NumberSetting red2 = new NumberSetting("Red 2", 65, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    public NumberSetting green2 = new NumberSetting("Green 2", 65, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    public NumberSetting blue2 = new NumberSetting("Blue 2", 255, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
     public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);

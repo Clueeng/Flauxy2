@@ -399,6 +399,10 @@ public abstract class World implements IBlockAccess
     {
         return this.setBlockState(pos, Blocks.air.getDefaultState(), 3);
     }
+    public boolean setBlock(BlockPos pos, Block block)
+    {
+        return this.setBlockState(pos, block.getDefaultState(), 3);
+    }
 
     /**
      * Sets a block to air, but also plays the sound and particles and can spawn drops
