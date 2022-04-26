@@ -71,18 +71,19 @@ public class ArrayList extends Module {
             TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                 if (m.isToggled()) {
-                    m.xSlide += 0.3f * (60F / (float) Minecraft.getDebugFPS());
+                    m.xSlide += 0.3f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4);
                     if (m.xSlide > 8) {
                         m.xSlide = 8;
                     }
+
                 }
                 if (!m.isToggled()) {
-                    m.xSlide -= .1f * (60F / (float) Minecraft.getDebugFPS());
+                    m.xSlide -= .1f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4);
                     if (m.xSlide < 0) {
                         m.xSlide = 0;
                     }
 
-                    if(m.ySlide > 0) m.ySlide -= 0.02f;
+                    if(m.ySlide > 0) m.ySlide -= 0.02f * (font.getWidth(m.getDisplayName()) / 4);
                     else m.ySlide = 0f;
                 }
                 if (m.xSlide > 0F) {

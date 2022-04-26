@@ -56,9 +56,11 @@ import uwu.flauxy.commands.CommandManager;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventPostMotionUpdate;
+import uwu.flauxy.event.impl.EventUI;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.impl.player.Noslow;
+import uwu.flauxy.ui.dropdown.ClickGUI;
 import uwu.flauxy.utils.Wrapper;
 
 public class EntityPlayerSP extends AbstractClientPlayer
@@ -180,6 +182,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
+            if(mc.currentScreen instanceof ClickGUI){
+                Flauxy.onEvent(new EventUI());
+            }
             super.onUpdate();
             Flauxy.onEvent(new EventUpdate());
 

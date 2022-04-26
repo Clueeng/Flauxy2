@@ -1,7 +1,9 @@
 package uwu.flauxy.module.impl.display;
 
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventUI;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;

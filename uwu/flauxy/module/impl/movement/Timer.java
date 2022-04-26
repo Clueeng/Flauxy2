@@ -10,7 +10,7 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 @ModuleInfo(name = "Timer", displayName = "Timer", key = -1, cat = Category.Movement)
 public class Timer extends Module {
 
-    public NumberSetting speed = new NumberSetting("Speed", 1.0, 0.01, 50, 0.01);
+    public NumberSetting speed = new NumberSetting("Speed", 1.0, 0.01, 10, 0.01);
 
     public Timer(){
         addSettings(speed);
@@ -24,4 +24,8 @@ public class Timer extends Module {
         }
     }
 
+    @Override
+    public void onDisable() {
+        mc.timer.timerSpeed = 1.0F;
+    }
 }

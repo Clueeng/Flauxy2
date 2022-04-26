@@ -492,6 +492,14 @@ public class ItemRenderer
                                     float angle = (float) (Math.toDegrees((double) ((System.currentTimeMillis() / 200D) % (Math.PI * 2D))));
                                     GlStateManager.rotate(angle, 1F, 0F, 1F);
                                 }
+                                case "Mega": {
+                                    this.transformFirstPersonItem(f, 0);
+                                    this.func_178103_d();
+                                    float rot = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
+                                    GlStateManager.translate(-0.15F, 0.4F, 0.0F);
+                                    GlStateManager.rotate(-rot * 7.0F * rot * 4, -8.0F, -0.0F, 9.0F);
+                                    GlStateManager.rotate(-rot * 10.0F * rot * 4, 1.0F, -0.4F, -0.0F);
+                                }
                                 break;
                                 case "Old Sigma": {
                                     float rot = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);

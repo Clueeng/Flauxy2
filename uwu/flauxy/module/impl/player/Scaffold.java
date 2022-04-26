@@ -236,6 +236,11 @@ public class Scaffold extends Module {
 
     private void tower(Event event) {
         if(event instanceof EventUpdate) {
+            if(jump.getValue()){
+                if(mc.thePlayer.isCollidedVertically && mc.thePlayer.onGround){
+                    mc.thePlayer.jump();
+                }
+            }
             switch(tower.getMode()) {
                 case "Vanilla":
                     if(mc.gameSettings.keyBindJump.isKeyDown() && !mc.thePlayer.isMoving()) {
@@ -610,9 +615,15 @@ public class Scaffold extends Module {
 
             BlockPos pos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
 
-            if(!mc.thePlayer.onGround) {
-                pos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ);
+
+            if(Flauxy.INSTANCE.moduleManager.getModule(Speed.class).isToggled()) {
+                pos = new BlockPos(mc.thePlayer.posX, oldY - 1, mc.thePlayer.posZ);
+            }else{
+                if(!mc.thePlayer.onGround) {
+                    pos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ);
+                }
             }
+
             if(mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir) {
                 setBlockFacing(pos);
 

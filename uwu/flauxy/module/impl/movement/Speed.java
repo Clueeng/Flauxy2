@@ -16,14 +16,14 @@ import uwu.flauxy.utils.Wrapper;
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Hypixel");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP");
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Float", "Damage", "Ground").setCanShow(m -> mode.is("Verus"));
+    public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Hypixel", "Hypixel"," Funcraft1", "Funcraft").setCanShow(m -> mode.is("NCP"));
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.025).setCanShow(m -> (mode.is("Vanilla") || (mode.is("Verus") && verusMode.is("Damage"))));
     NumberSetting speedLow = new NumberSetting("Speed", 1, 0, 5, 0.1).setCanShow(m -> ((mode.is("Verus") && verusMode.is("Low"))));
 
-
     public Speed(){
-        addSettings(mode, verusMode, speedLow, speed);
+        addSettings(mode, verusMode, ncpMode, speedLow, speed);
     }
 
     public boolean state;
@@ -92,18 +92,37 @@ public class Speed extends Module {
         if(ev instanceof EventMotion){
             EventMotion em =(EventMotion)ev;
             switch(mode.getMode()){
-                case "Hypixel":{
-                    if(mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
-                        mc.thePlayer.motionY = 0.42F;
-                        moveSpeed = MoveUtils.getBaseSpeed() + 0.002;
-                    } else {
-                        moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
+                case "NCP":{
+                    Wrapper.instance.log(ncpMode.getMode());
+                    switch(ncpMode.getMode()){
+                        case "Hypixel":{
+                            if(mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
+                                mc.thePlayer.motionY = 0.42F;
+                                moveSpeed = MoveUtils.getBaseSpeed() + 0.002;
+                            } else {
+                                moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
+                            }
+                            MoveUtils.strafe(moveSpeed);
+                            break;
+                        }
+                        case "Funcraft1":{
+                            Wrapper.instance.log("oezk");
+                            if(mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                                moveSpeed = MoveUtils.getBaseSpeed() + 0.01;
+                                MoveUtils.strafe(MoveUtils.getMotion() / 1.45f);
+                            }else{
+                                moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
+                                mc.thePlayer.speedInAir = 0.024f;
+                                mc.thePlayer.motionX *= 1.012f;
+                                mc.thePlayer.motionZ *= 1.012f;
+
+                                MoveUtils.strafe(moveSpeed);
+                            }
+                            break;
+                        }
                     }
-                    MoveUtils.strafe(moveSpeed);
-
-
-
-                break;
+                    break;
                 }
                 case "Verus":{
                     switch(verusMode.getMode()){
@@ -124,6 +143,7 @@ public class Speed extends Module {
                             break;
                         }
                     }
+                    MoveUtils.strafe(moveSpeed);
                     break;
                 }
                 case "Vanilla":{

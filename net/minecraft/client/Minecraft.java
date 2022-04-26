@@ -187,6 +187,7 @@ import org.lwjgl.util.glu.GLU;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import viamcp.utils.AttackOrder;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
@@ -1505,7 +1506,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         if (this.leftClickCounter <= 0)
         {
-            this.thePlayer.swingItem();
+            // VIAMCP
+            AttackOrder.sendConditionalSwing(this.objectMouseOver);
+            //this.thePlayer.swingItem();
 
             if (this.objectMouseOver == null)
             {
@@ -1521,7 +1524,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                 switch (this.objectMouseOver.typeOfHit)
                 {
                     case ENTITY:
-                        this.playerController.attackEntity(this.thePlayer, this.objectMouseOver.entityHit);
+                        AttackOrder.sendFixedAttack(this.thePlayer, this.objectMouseOver.entityHit);
                         break;
 
                     case BLOCK:

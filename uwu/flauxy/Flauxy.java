@@ -12,6 +12,7 @@ import uwu.flauxy.module.impl.player.Noslow;
 import uwu.flauxy.module.impl.player.Sprint;
 import uwu.flauxy.module.impl.visuals.Animations;
 import uwu.flauxy.utils.font.FontManager;
+import viamcp.ViaMCP;
 
 @Getter
 public enum Flauxy {
@@ -22,6 +23,16 @@ public enum Flauxy {
     public FontManager fontManager;
     public AltManager altManager;
     public void init(){
+        try
+        {
+            ViaMCP.getInstance().start();
+            ViaMCP.getInstance().initAsyncSlider();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         // inits shit
         moduleManager = new ModuleManager();
         fontManager = new FontManager();
@@ -32,7 +43,7 @@ public enum Flauxy {
         moduleManager.getModule(Noslow.class).toggle();
         moduleManager.getModule(Sprint.class).toggle();
         moduleManager.getModule(Animations.class).toggle();
-        AutoBind.setKeyBinds(AutoBind.dev.teqhs);
+        AutoBind.setKeyBinds(AutoBind.dev.Flaily);
     }
 
     public static void onEvent(Event e){

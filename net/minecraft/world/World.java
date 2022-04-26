@@ -54,6 +54,7 @@ import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventTime;
+import viamcp.utils.FixedSoundEngine;
 
 public abstract class World implements IBlockAccess
 {
@@ -409,7 +410,7 @@ public abstract class World implements IBlockAccess
      */
     public boolean destroyBlock(BlockPos pos, boolean dropBlock)
     {
-        IBlockState iblockstate = this.getBlockState(pos);
+        /*IBlockState iblockstate = this.getBlockState(pos);
         Block block = iblockstate.getBlock();
 
         if (block.getMaterial() == Material.air)
@@ -426,7 +427,8 @@ public abstract class World implements IBlockAccess
             }
 
             return this.setBlockState(pos, Blocks.air.getDefaultState(), 3);
-        }
+        }*/
+        return FixedSoundEngine.destroyBlock(this, pos, dropBlock);
     }
 
     /**

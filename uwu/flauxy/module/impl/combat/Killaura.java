@@ -15,6 +15,7 @@ import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -22,6 +23,7 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventRender2D;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -88,6 +90,16 @@ public class Killaura extends Module {
     public Entity currentTarget;
 
     public void onEvent(Event ev){
+        if(ev instanceof EventUpdate){
+            // World
+            World currWorld = mc.theWorld;
+            if(mc.thePlayer.ticksExisted % 10 == 0){
+                if(currWorld != mc.theWorld){
+                    Wrapper.instance.log("Disabled aura");
+                    this.toggle();
+                }
+            }
+        }
         if(ev instanceof EventRender2D){
             EventRender2D event = (EventRender2D) ev;
             if(currentTarget != null){
@@ -113,7 +125,7 @@ public class Killaura extends Module {
                 if(!targets.isEmpty()){
                     Entity target = targets.get(0);
                     currentTarget = target;
-                    if(isValid(target, (float) reach.getValue())){
+                    if(isValid(target, (float) reach.getValue())) {
                         fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
@@ -147,6 +159,7 @@ public class Killaura extends Module {
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
                         }
                     }else{
+                        targets.remove(target);
                         mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
                         Killaura.fakeBlock = false;
                     }
