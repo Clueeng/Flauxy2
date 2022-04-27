@@ -206,8 +206,14 @@ public class ModelBiped extends ModelBase {
                     this.bipedLeftArm.rotateAngleY = -1.25F;
                 }
             }
+            if(emote.isToggled() && emote.mode.is("Jerk")){
 
-          /*  if (emote.isToggled() && emote.mode.is("Hi")) {
+                if ((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0)) {
+                    this.bipedRightArm.rotateAngleX = -50;
+
+                }
+            }
+          if (emote.isToggled() && emote.mode.is("Hi")) {
                 if ((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0)) {
                     if (emote.hithing > 40) {
                         if (timer.sleep(2)) {
@@ -241,8 +247,6 @@ public class ModelBiped extends ModelBase {
                 this.bipedHead.rotateAngleZ = 0f;
                 this.bipedHead.rotateAngleY = 0f;
             }
-
-           */
         }
 
         if (this.swingProgress > -9990.0F) {

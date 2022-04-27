@@ -10,12 +10,12 @@ public class Emote extends Module {
 
     public int heilY;
     public int hithing = 0;
-
     public ModeSetting mode = new ModeSetting("Mode", "Dab", "Dab", "Heil", "Jerk", "Hi");
 
     public Emote() {
         addSettings(mode);
     }
+    // ModelBiped.java
 
     @Override
     public void onEnable() {
