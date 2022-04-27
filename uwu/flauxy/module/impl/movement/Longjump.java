@@ -49,6 +49,8 @@ public class Longjump extends Module {
     }
     public void onDisable() {
         MoveUtils.motionreset();
+        mc.thePlayer.speedInAir = 0.02f;
+        mc.thePlayer.jumpMovementFactor = 0.02f;
         switch(mode.getMode()){
             case "Verus":{
                 switch(verusMode.getMode()){
@@ -61,11 +63,27 @@ public class Longjump extends Module {
             }
         }
     }
+    float speedFC = 0f;
     @Override
     public void onEvent(Event ev){
         //if(!this.isToggled()) return;
         if(ev instanceof EventMotion){
             switch(mode.getMode()){
+                case "Funcraft":{
+                    if(mc.thePlayer.isCollidedVertically){
+                        speedFC = 0.75f;
+                        mc.thePlayer.jump();
+                        mc.thePlayer.speedInAir = 0.27f;
+                        mc.thePlayer.jumpMovementFactor = 0.021f;
+                    }else{
+
+                        mc.thePlayer.motionX *= 0.75f;
+                        mc.thePlayer.motionZ *= 0.75f;
+                        MoveUtils.strafe();
+                    }
+
+                    break;
+                }
                 case "Verus":{
                     switch(verusMode.getMode()){
                         case "Damage":{

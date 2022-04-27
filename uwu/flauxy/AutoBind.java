@@ -1,8 +1,6 @@
 package uwu.flauxy;
 
 import org.lwjgl.input.Keyboard;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.exploit.Disabler;
 import uwu.flauxy.module.impl.movement.Fly;
 import uwu.flauxy.module.impl.movement.Longjump;

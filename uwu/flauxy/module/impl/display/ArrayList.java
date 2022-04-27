@@ -12,11 +12,9 @@ import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
-import uwu.flauxy.module.impl.movement.Speed;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
-import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
 
@@ -87,9 +85,6 @@ public class ArrayList extends Module {
                     else m.ySlide = 0f;
                 }
                 if (m.xSlide > 0F) {
-                    if(m == Flauxy.INSTANCE.moduleManager.getModule(Speed.class)){
-                        //Wrapper.instance.log("hi");
-                    }
                     mods.add(m);
                 }
             }

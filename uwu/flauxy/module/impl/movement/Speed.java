@@ -3,161 +3,84 @@ package uwu.flauxy.module.impl.movement;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
-import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
-
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP");
-    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Float", "Damage", "Ground").setCanShow(m -> mode.is("Verus"));
-    public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Hypixel", "Hypixel"," Funcraft1", "Funcraft").setCanShow(m -> mode.is("NCP"));
-    NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.025).setCanShow(m -> (mode.is("Vanilla") || (mode.is("Verus") && verusMode.is("Damage"))));
-    NumberSetting speedLow = new NumberSetting("Speed", 1, 0, 5, 0.1).setCanShow(m -> ((mode.is("Verus") && verusMode.is("Low"))));
+    public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Hypixel").setCanShow(m -> mode.is("NCP"));
+    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop").setCanShow(m -> mode.is("Verus"));
+    public NumberSetting speed = new NumberSetting("Speed", 0.6, 0.2, 2, 0.05).setCanShow(m -> mode.is("Vanilla"));
 
     public Speed(){
-        addSettings(mode, verusMode, ncpMode, speedLow, speed);
+        addSettings(mode, ncpMode, verusMode, speed);
     }
 
-    public boolean state;
-    public double moveSpeed;
-    private int ticks = 0;
+    public void onEvent(Event event){
+        if(event instanceof EventMotion){
+            switch(mode.getMode()){
+                case "NCP":{
+                    switch(ncpMode.getMode()){
+                        case "Funcraft":{
+                            mc.timer.timerSpeed = 1.25f;
+                            if(mc.thePlayer.onGround){
+                                MoveUtils.strafe(MoveUtils.getMotion() * 1.724);
+                                mc.thePlayer.motionY = 0.42f;
+                                float speed = 0.0320f;
+                                if(mc.thePlayer.speedInAir < speed){
+                                   // Wrapper.instance.log(mc.thePlayer.speedInAir + "");
+                                    if(mc.thePlayer.speedInAir < 0.025){
+                                        mc.thePlayer.speedInAir = (float) (0.025f + (Math.random() / 100));
+                                    }
+                                    mc.thePlayer.speedInAir += 0.0101f;
+                                }else{
+                                    mc.thePlayer.speedInAir = speed;
+                                }
+                                if(mc.thePlayer.jumpMovementFactor > 0.022){
+                                    mc.thePlayer.jumpMovementFactor -= 0.002f;
+                                }
+
+                            }else{
+                                mc.thePlayer.motionX *= 0.988f;
+                                mc.thePlayer.motionZ *= 0.988f;
+                                mc.thePlayer.speedInAir -= 0.00019f;
+                                if(mc.thePlayer.fallDistance > 0.4 && mc.thePlayer.fallDistance < 0.41){
+                                    mc.thePlayer.motionY -= 0.1f;
+                                }
+                                if(mc.thePlayer.hurtTime > 4){
+                                    mc.thePlayer.speedInAir+=0.006f;
+                                }
+                                MoveUtils.strafe();
+                            }
+                            break;
+                        }
+                        case "Hypixel":{
+                            if(mc.thePlayer.onGround){
+                                mc.thePlayer.motionY = 0.42f;
+                            }else{
+
+                            }
+
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     @Override
     public void onDisable() {
-        ticks = 0;
+
         mc.timer.timerSpeed = 1.0f;
+        mc.thePlayer.jumpMovementFactor = 0.02F;
         mc.thePlayer.speedInAir = 0.02F;
     }
-
-    @Override
-    public void onEvent(Event ev){
-
-        //if(!this.isToggled()) return;
-        if(ev instanceof EventMove){
-            if(WorldUtil.shouldNotRun()){
-                return;
-            }
-            EventMove em = (EventMove)ev;
-            this.setDisplayName("Speed §f" + mode.getMode());
-            switch(mode.getMode()){
-                case "Verus":{
-                    switch(verusMode.getMode()){
-                        case "Ground":{
-                            if(!mc.thePlayer.onGround) return;
-
-                            MoveUtils.strafe(0.425);
-                            if(mc.thePlayer.ticksExisted % 6 == 0){
-                                MoveUtils.strafe(-0.119f);
-                            }
-                            break;
-                        }
-                        case "Hop":{
-                            if(mc.thePlayer.onGround){
-
-                                MoveUtils.strafe(0.69);
-                                em.setY(mc.thePlayer.motionY = 0.42f);
-                            }else{
-                                float speed = 0.415f;
-                                if(mc.gameSettings.keyBindLeft.pressed || mc.gameSettings.keyBindRight.pressed) speed = 0.34f;
-                                if(mc.gameSettings.keyBindBack.pressed) speed = 0.34f;
-
-                                MoveUtils.strafe(speed);
-                            }
-                            break;
-                        }
-                        case "Low":{
-                            if(!mc.thePlayer.isMoving()) return;
-                            if(mc.thePlayer.onGround){
-                                mc.thePlayer.jump();
-                                MoveUtils.strafe(0.70 + (speedLow.getValue() / 10));
-                                mc.thePlayer.motionY = 0;
-                                em.setY(0.42F);
-                            }
-                            MoveUtils.strafe(0.41 + (speedLow.getValue() / 40));
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        if(ev instanceof EventMotion){
-            EventMotion em =(EventMotion)ev;
-            switch(mode.getMode()){
-                case "NCP":{
-                    Wrapper.instance.log(ncpMode.getMode());
-                    switch(ncpMode.getMode()){
-                        case "Hypixel":{
-                            if(mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
-                                mc.thePlayer.motionY = 0.42F;
-                                moveSpeed = MoveUtils.getBaseSpeed() + 0.002;
-                            } else {
-                                moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
-                            }
-                            MoveUtils.strafe(moveSpeed);
-                            break;
-                        }
-                        case "Funcraft1":{
-                            Wrapper.instance.log("oezk");
-                            if(mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.42f;
-                                moveSpeed = MoveUtils.getBaseSpeed() + 0.01;
-                                MoveUtils.strafe(MoveUtils.getMotion() / 1.45f);
-                            }else{
-                                moveSpeed = MoveUtils.getSpeedMotion() + 0.002;
-                                mc.thePlayer.speedInAir = 0.024f;
-                                mc.thePlayer.motionX *= 1.012f;
-                                mc.thePlayer.motionZ *= 1.012f;
-
-                                MoveUtils.strafe(moveSpeed);
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case "Verus":{
-                    switch(verusMode.getMode()){
-                        case "Float":{
-                            if (!mc.gameSettings.keyBindJump.isKeyDown()) {
-                                if (mc.thePlayer.isCollidedVertically) {
-                                    em.setOnGround(true);
-                                    MoveUtils.strafe(0.38f);
-                                    mc.thePlayer.motionY = 0.42F;
-                                    mc.timer.timerSpeed = 1.0f;
-
-                                } else {
-                                    mc.thePlayer.motionY = ticks % 10 == 0 ? -0.42f : 0;
-                                    MoveUtils.strafe(0.39f);
-                                }
-                                ticks++;
-                            }
-                            break;
-                        }
-                    }
-                    MoveUtils.strafe(moveSpeed);
-                    break;
-                }
-                case "Vanilla":{
-                    MoveUtils.strafe(speed.getValue());
-                    if (mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
-                        mc.thePlayer.jump();
-                    }
-                    if (!mc.thePlayer.isMoving()) {
-                        MoveUtils.motionreset();
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
 }
