@@ -185,6 +185,7 @@ import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventTick;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.utils.config.KeyLoader;
@@ -1727,6 +1728,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void runTick() throws IOException
     {
+        EventTick et = new EventTick();
+        Flauxy.onEvent(et);
+
         if (this.rightClickDelayTimer > 0)
         {
             --this.rightClickDelayTimer;

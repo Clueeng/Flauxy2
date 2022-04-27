@@ -940,6 +940,29 @@ public class EntityPlayerSP extends AbstractClientPlayer
         return moveForward != 0 || moveStrafing != 0;
     }
 
+    public double getRealMoveSpeed(boolean var1, double var2) {
+        double var4 = 0.28630206268501246D;
+        if(this.isPotionActive(Potion.moveSpeed)) {
+            int var6 = this.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 - (this.isPotionActive(Potion.moveSlowdown)?this.getActivePotionEffect(Potion.moveSlowdown).getAmplifier() + 1:0);
+            var4 *= 1.0D + var2 * (double)var6;
+        }
+
+        return var4;
+    }
+
+    public int getSlotByItem(Item item) {
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+
+            if (stack != null && stack.getItem() == item) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+
     @Override
     public void moveEntity(double x, double y, double z) {
         final EventMove moveEvent = new EventMove(x, y, z);

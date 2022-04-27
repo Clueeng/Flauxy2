@@ -24,11 +24,13 @@ public class PacketUtil {
     public static void packetNoEvent(Packet<?> packet) {
         mc.getNetHandler().addToSendQueueNoEvent(packet);
     }
+
+
     public static void sendSilentPacket(Packet<?> packet) {
 
     }
 
-    public static void packet(Packet<?> packet) {
+    public static void sendPacket(Packet<?> packet) {
         mc.getNetHandler().addToSendQueue(packet);
     }
 
@@ -36,7 +38,7 @@ public class PacketUtil {
         if (silent) {
             packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(x, y, z, ground));
         } else {
-            packet(new C03PacketPlayer.C04PacketPlayerPosition(x, y, z, ground));
+            sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(x, y, z, ground));
         }
     }
 }

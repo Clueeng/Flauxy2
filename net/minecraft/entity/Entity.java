@@ -1312,6 +1312,11 @@ public abstract class Entity implements ICommandSender
         return MathHelper.sqrt_float(f * f + f1 * f1 + f2 * f2);
     }
 
+
+    public double getLastTickDistance() {
+        return Math.hypot(this.posX - this.prevPosX, this.posZ - this.prevPosZ);
+    }
+
     /**
      * Gets the squared distance to the position. Args: x, y, z
      */

@@ -32,6 +32,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventCollide;
 
 public class Block
 {
@@ -486,12 +488,14 @@ public class Block
      */
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
-        AxisAlignedBB axisalignedbb = this.getCollisionBoundingBox(worldIn, pos, state);
-
+        AxisAlignedBB axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
+        EventCollide eventCollide = new EventCollide(collidingEntity, pos.getX(), pos.getY(), pos.getZ(), axisalignedbb, this);
+        Flauxy.onEvent(eventCollide);
+        axisalignedbb = eventCollide.getBoundingBox();
+        if (eventCollide.isCancelled())
+            return;
         if (axisalignedbb != null && mask.intersectsWith(axisalignedbb))
-        {
             list.add(axisalignedbb);
-        }
     }
 
     public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state)

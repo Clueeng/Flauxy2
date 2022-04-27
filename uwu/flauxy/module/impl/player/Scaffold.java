@@ -728,7 +728,7 @@ public class Scaffold extends Module {
     private boolean placeBlock(double negativeExpand) {
         if(autoblock.is("Spoof") ? mc.thePlayer.inventory.getStackInSlot(itemSpoofed) != null && mc.thePlayer.inventory.getStackInSlot(itemSpoofed).getItem() instanceof ItemBlock && negativeExpand(negativeExpand) : mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock && negativeExpand(negativeExpand)) {
             if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos, currentFacing) /*new Vec3(currentPos).addVector(0.5, 0.5, 0.5).add(new Vec3(currentFacing.getDirectionVec()).scale(0.5))*/)) {
-                PacketUtil.packet(new C0APacketAnimation());
+                PacketUtil.sendPacket(new C0APacketAnimation());
                 placedBlocks++;
                 return true;
             }

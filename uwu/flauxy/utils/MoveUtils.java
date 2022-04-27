@@ -185,4 +185,33 @@ public class MoveUtils {
         mc.thePlayer.motionZ = forward * moveSpeed * z - strafe * moveSpeed * x;
     }
 
+    public static void setMotion(final double speed) {
+        final MovementInput movementInput = mc.thePlayer.movementInput;
+        double forward = MovementInput.moveForward;
+        final MovementInput movementInput2 = mc.thePlayer.movementInput;
+        double strafe = MovementInput.moveStrafe;
+        float yaw = mc.thePlayer.rotationYaw;
+        if (forward == 0.0 && strafe == 0.0) {
+            mc.thePlayer.motionX = 0.0;
+            mc.thePlayer.motionZ = 0.0;
+        } else {
+            if (forward != 0.0) {
+                if (strafe > 0.0) {
+                    yaw += ((forward > 0.0) ? -45 : 45);
+                } else if (strafe < 0.0) {
+                    yaw += ((forward > 0.0) ? 45 : -45);
+                }
+                strafe = 0.0;
+                if (forward > 0.0) {
+                    forward = 1.0;
+                } else if (forward < 0.0) {
+                    forward = -1.0;
+                }
+            }
+            mc.thePlayer.motionX = forward * speed * Math.cos(Math.toRadians(yaw + 90.0f)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0f));
+            mc.thePlayer.motionZ = forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f));
+        }
+    }
+
+
 }
