@@ -3,6 +3,7 @@ package uwu.flauxy.module.impl.movement;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
+import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -15,7 +16,7 @@ import uwu.flauxy.utils.Wrapper;
 public class Speed extends Module {
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Hypixel").setCanShow(m -> mode.is("NCP"));
-    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop").setCanShow(m -> mode.is("Verus"));
+    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low").setCanShow(m -> mode.is("Verus"));
     public NumberSetting speed = new NumberSetting("Speed", 0.6, 0.2, 2, 0.05).setCanShow(m -> mode.is("Vanilla"));
 
     public Speed(){
@@ -23,8 +24,53 @@ public class Speed extends Module {
     }
 
     public void onEvent(Event event){
+        if(event instanceof EventMove){
+            EventMove e = (EventMove) event;
+            switch (mode.getMode()){
+                case "Verus":{
+                    switch(verusMode.getMode()){
+                        case "Low":{
+                            if(!mc.thePlayer.isMoving()) return;
+                            if(mc.thePlayer.onGround){
+                                mc.thePlayer.jump();
+                                MoveUtils.strafe(0.70);
+                                mc.thePlayer.motionY = 0;
+                                e.setY(0.42F);
+                            }
+                            MoveUtils.strafe(0.41);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+        }
         if(event instanceof EventMotion){
             switch(mode.getMode()){
+                case "Verus":{
+                    switch(verusMode.getMode()){
+                        case "Hop":{
+                            if(!mc.thePlayer.isCollidedHorizontally){
+                                if(mc.thePlayer.onGround){
+                                    if(mc.thePlayer.isMoving()){
+                                        //mc.gameSettings.keyBindJump.pressed = true;
+                                        mc.thePlayer.motionY = 0.42f;
+                                    }
+                                }else{
+                                    if(mc.thePlayer.moveForward > 0){
+                                        MoveUtils.strafe(0.377);
+                                    }else{
+                                        MoveUtils.strafe(0.335);
+                                    }
+                                    //mc.gameSettings.keyBindJump.pressed = false;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
                 case "NCP":{
                     switch(ncpMode.getMode()){
                         case "Funcraft":{
