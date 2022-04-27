@@ -187,6 +187,7 @@ import org.lwjgl.util.glu.GLU;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.utils.config.KeyLoader;
 import viamcp.utils.AttackOrder;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
@@ -1426,6 +1427,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void shutdown()
     {
+        Flauxy.INSTANCE.getConfigManager().save("Default");
+        KeyLoader.save(Flauxy.INSTANCE.getModuleManager().modules);
         this.running = false;
     }
 

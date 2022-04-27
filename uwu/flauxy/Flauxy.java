@@ -11,8 +11,12 @@ import uwu.flauxy.module.impl.display.HUD;
 import uwu.flauxy.module.impl.player.Noslow;
 import uwu.flauxy.module.impl.player.Sprint;
 import uwu.flauxy.module.impl.visuals.Animations;
+import uwu.flauxy.utils.config.ConfigUtil;
+import uwu.flauxy.utils.config.Folder;
 import uwu.flauxy.utils.font.FontManager;
 import viamcp.ViaMCP;
+
+import java.io.File;
 
 @Getter
 public enum Flauxy {
@@ -22,6 +26,8 @@ public enum Flauxy {
     public ModuleManager moduleManager;
     public FontManager fontManager;
     public AltManager altManager;
+    private ConfigUtil configManager;
+
     public void init(){
         try
         {
@@ -34,7 +40,9 @@ public enum Flauxy {
         }
 
         // inits shit
+        Folder.init();
         moduleManager = new ModuleManager();
+        configManager = new ConfigUtil();
         fontManager = new FontManager();
         altManager = new AltManager();
         Display.setTitle(name + " - " + version);
@@ -43,7 +51,10 @@ public enum Flauxy {
         moduleManager.getModule(Noslow.class).toggle();
         moduleManager.getModule(Sprint.class).toggle();
         moduleManager.getModule(Animations.class).toggle();
-        AutoBind.setKeyBinds(AutoBind.dev.Flaily);
+        File file = new File(Folder.auxware + "/Configs/Default.txt");
+        if (file.exists()) {
+            configManager.load("Default");
+        }
     }
 
     public static void onEvent(Event e){

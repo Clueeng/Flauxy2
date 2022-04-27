@@ -16,7 +16,7 @@ import uwu.flauxy.utils.Wrapper;
 public class Speed extends Module {
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Hypixel").setCanShow(m -> mode.is("NCP"));
-    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low").setCanShow(m -> mode.is("Verus"));
+    public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Fast").setCanShow(m -> mode.is("Verus"));
     public NumberSetting speed = new NumberSetting("Speed", 0.6, 0.2, 2, 0.05).setCanShow(m -> mode.is("Vanilla"));
 
     public Speed(){
@@ -40,9 +40,29 @@ public class Speed extends Module {
                             MoveUtils.strafe(0.41);
                             break;
                         }
+                        case "Fast": {
+                            if (!mc.thePlayer.isEating() && mc.thePlayer.isMoving() && !mc.thePlayer.isSneaking() && !mc.thePlayer.isCollidedHorizontally) {
+                                mc.thePlayer.setSprinting(true);
+                            }
+                            if (mc.thePlayer.onGround && mc.thePlayer.isMoving()) {
+                                mc.thePlayer.speedOnGround = 0.17f;
+                                mc.thePlayer.jump();
+                                MoveUtils.setSpeed( 0.41f);
+                            }
+                            if (mc.thePlayer.isMoving() && !mc.thePlayer.onGround) {
+                                if (mc.thePlayer.moveForward > 0) {
+                                    MoveUtils.setSpeed(mc.thePlayer.hurtTime != 0 ? 0.53f : 0.35f);
+                                } else {
+                                    MoveUtils.setSpeed(0.362f);
+                                }
+                                mc.thePlayer.speedInAir = 0.041f;
+                            }
+                            break;
+                        }
                     }
                     break;
                 }
+
             }
 
         }

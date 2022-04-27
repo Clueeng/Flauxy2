@@ -1,7 +1,9 @@
 package uwu.flauxy.module;
 
 import org.reflections.Reflections;
+import uwu.flauxy.utils.config.KeyLoader;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -20,6 +22,8 @@ public class ModuleManager {
                 e.printStackTrace();
             }
         }
+
+        try {KeyLoader.load(this);} catch (IOException e) {e.printStackTrace();}
     }
 
     public Module getModule(String name) {

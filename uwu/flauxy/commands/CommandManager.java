@@ -1,11 +1,14 @@
 package uwu.flauxy.commands;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
+import org.reflections.Reflections;
 import uwu.flauxy.commands.impl.CommandBind;
 import uwu.flauxy.commands.impl.CommandSay;
+import uwu.flauxy.module.Module;
 import uwu.flauxy.utils.Wrapper;
 
 public class CommandManager {
@@ -13,9 +16,17 @@ public class CommandManager {
     private static ArrayList<Command> commands = Lists.newArrayList();
     private static String commandPrefix = "."; // command prefix here make a getter and setter :p
 
-    static {
-        commands.add(new CommandSay());
-        commands.add(new CommandBind());
+    static  {
+        final Reflections reflections = new Reflections("uwu.flauxy.commands.impl");
+        final Set<Class<? extends Command>> classes = reflections.getSubTypesOf(Command.class);
+        for (Class<?> aClass : classes) {
+            try {
+                final Command mod = (Command) aClass.newInstance();
+                commands.add(mod);
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void onMessageSent(String message) {

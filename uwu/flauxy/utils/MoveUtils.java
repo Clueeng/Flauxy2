@@ -15,6 +15,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovementInput;
 
 public class MoveUtils {
 
@@ -151,6 +152,37 @@ public class MoveUtils {
             }
         }
         return onLiquid;
+    }
+
+    public static void setSpeed(final double moveSpeed) {
+        final float rotationYaw = mc.thePlayer.rotationYaw;
+        final double strafe = MovementInput.moveStrafe;
+        setSpeed(moveSpeed, rotationYaw, strafe, MovementInput.moveForward);
+    }
+
+    public static void setSpeed(final double moveSpeed, float yaw, double strafe, double forward) {
+        if (forward != 0.0) {
+            if (strafe > 0.0) {
+                yaw += ((forward > 0.0) ? -45 : 45);
+            } else if (strafe < 0.0) {
+                yaw += ((forward > 0.0) ? 45 : -45);
+            }
+            strafe = 0.0;
+            if (forward > 0.0) {
+                forward = 1.0;
+            } else if (forward < 0.0) {
+                forward = -1.0;
+            }
+        }
+        if (strafe > 0.0) {
+            strafe = 1.0;
+        } else if (strafe < 0.0) {
+            strafe = -1.0;
+        }
+        final double x = Math.cos(Math.toRadians(yaw + 90.0f));
+        final double z = Math.sin(Math.toRadians(yaw + 90.0f));
+        mc.thePlayer.motionX = forward * moveSpeed * x + strafe * moveSpeed * z;
+        mc.thePlayer.motionZ = forward * moveSpeed * z - strafe * moveSpeed * x;
     }
 
 }

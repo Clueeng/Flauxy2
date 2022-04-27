@@ -37,7 +37,7 @@ public class CommandBind extends Command {
                 if(Flauxy.INSTANCE.moduleManager.getModule(modName) != null){
                     Module mod = Flauxy.INSTANCE.moduleManager.getModule(modName);
                     mod.setKey(key);
-                    Wrapper.instance.log("Bound " + modName + " to " + args[1]);
+                    Wrapper.instance.log("Bound " + modName + " to " + args[2]);
                 }
             }
         }
