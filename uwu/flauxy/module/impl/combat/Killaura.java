@@ -5,6 +5,8 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -35,12 +37,17 @@ import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
+import uwu.flauxy.utils.render.RenderUtil;
 import uwu.flauxy.utils.timer.Timer;
 
 import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static uwu.flauxy.utils.render.ColorUtils.getGradientOffset;
+import static uwu.flauxy.utils.render.ColorUtils.getHealthColor;
+import static uwu.flauxy.utils.render.RenderUtil.drawFace;
 
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
@@ -64,14 +71,15 @@ public class Killaura extends Module {
     BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
-    BooleanSetting shop = new BooleanSetting("Shopkeepers", false).setCanShow(m -> showTargets.getValue());
+    BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
+    BooleanSetting wall = new BooleanSetting("Through Walls", true);
     BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
-    ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Basic", "Basic").setCanShow(m -> targethud.getValue());
+    ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Flaily", "Flaily", "Astolfo", "Rainbow").setCanShow(m -> targethud.getValue());
     Timer timer = new Timer();
 
 
     public Killaura(){
-        addSettings(cps, reach, rotations, autoblock, autoblockMode, nosprint, noSprintDelay, showTargets, players, mobs, animals, shop, type, targethud, targetHudMode);
+        addSettings(autoblockMode, type, rotations, cps, reach, autoblock, nosprint, noSprintDelay, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
     public static boolean fakeBlock = false;
@@ -106,9 +114,76 @@ public class Killaura extends Module {
                 if(autoblock.getValue()){
                     ScaledResolution sr = new ScaledResolution(mc);
                     switch (targetHudMode.getMode()){
-                        case "Basic":{
+                        case "Flaily":{
                             renderTargetHudBasic(ev, sr.getScaledWidth() / 2 + 35, sr.getScaledHeight() / 2 - 45);
                             break;
+                        }
+                        case "Rainbow": {
+                            TTFFontRenderer tFont = Flauxy.INSTANCE.fontManager.getFont("auxy " + (21));
+                            int FirstLetterColor =  getGradientOffset(new Color(255, 60, 234), new Color(27, 179, 255), (Math.abs(((System.currentTimeMillis()) / 10)) / 100D) + (3 / (tFont.getHeight("A") + 6 ) / 2)).getRGB();
+                            EntityLivingBase ent = (EntityLivingBase) currentTarget;
+                            if (ent != null && ent.getHealth() != 0) {
+                                float scaledWidth = (float) sr.getScaledWidth();
+                                float scaledHeight = (float) sr.getScaledHeight();
+                                String healthStr = String.valueOf((float) ((int) ent.getHealth()) / 2.0F * 10);
+                                if (ent instanceof EntityPlayer && ent != null) {
+                                    double hpPercentage = (ent.getHealth() / ent.getMaxHealth());
+
+                                    EntityPlayer player = (EntityPlayer) ent;
+                                    if (hpPercentage > 1.0D) {
+                                        hpPercentage = 1.0D;
+                                    } else if (hpPercentage < 0.0D) {
+                                        hpPercentage = 0.0D;
+                                    }
+                                    RenderUtil.drawUnfilledRectangle( (scaledWidth / 2.0F - 200.0F) - 0.5, (scaledHeight / 2.0F - 42.0F) - 0.8, (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10 + 0.5) : 105 + 0.5)), (scaledHeight / 2.0F - 2.0F) + 0.5, 2,  new Color(FirstLetterColor).getRGB());
+                                    RenderUtil.drawRect2((scaledWidth / 2.0F - 200.0F), (scaledHeight / 2.0F - 42.0F), (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10) : 105)), (scaledHeight / 2.0F - 2.0F),(new Color(0, 0, 0, 150)).getRGB());
+                                    drawFace((int) scaledWidth / 2 - 196, (int) (scaledHeight / 2.0F - 38.0F), 8.0F, 8.0F, 8, 8, 32, 32, 64.0F, 64.0F, (AbstractClientPlayer) player);
+                                    tFont.drawStringWithShadow(player.getName(), (scaledWidth / 2.0F - 196.0F + 40.0F), (float) ((scaledHeight / 2.0F - 36.0F) + 1 - 0.5), -1);
+                                    RenderUtil.drawRoundedRectangle((scaledWidth / 2.0F - 196.0F + 40.0F), (scaledHeight / 2.0F - 26.0F + 3), (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (scaledHeight / 2.0F - 14.0F), 2, getHealthColor(ent)); // hel bar
+                                    //      FontManager.small.drawString(healthStr + "%", (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (float) ((scaledHeight / 2.0F - 36.0F) + 12.5), getHealthColor(ent));
+
+                                }
+
+                            }
+                            break;
+                        }
+
+                        case "Astolfo": {
+                            EntityLivingBase target = (EntityLivingBase) this.currentTarget;
+                            if (target != null && target.getHealth() != 0) {
+
+
+                                float scaledWidth = (float) sr.getScaledWidth();
+                                float scaledHeight = (float) sr.getScaledHeight();
+                                float x = scaledWidth / 2.0F - 70.0F;
+                                float y = scaledHeight / 2.0F + 80.0F;
+                                int color, xHealthbar, yHealthbar;
+                                float add;
+                                double addX;
+                                int index;
+                                color = (new Color(16734296)).getRGB();
+                                drawRectB(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
+                                this.mc.fontRendererObj.drawStringWithShadow(target.getName(), (x + 31.0F), (y + 6.0F), -1);
+                                GL11.glPushMatrix();
+                                GlStateManager.translate(x, y, 1.0F);
+                                GL11.glScalef(2.0F, 2.0F, 2.0F);
+                                GlStateManager.translate(-x, -y, 1.0F);
+                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "❤", (x + 16.0F), (y + 13.0F), (new Color(color))
+                                        .darker().getRGB());
+                                GL11.glPopMatrix();
+                                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                                GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
+                                xHealthbar = 30;
+                                yHealthbar = 46;
+                                add = 120.0F;
+                                drawRectB(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
+                                drawRectB(x + xHealthbar, y + yHealthbar, target.getHealth() / target.getMaxHealth() * add, 8.0F, new Color(color));
+                                addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
+                                drawRectB((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
+                                for (index = 1; index < 5; index++) {
+                                    if (target.getEquipmentInSlot(index) == null) ;
+                                }
+                            }
                         }
                     }
                 }
@@ -154,6 +229,12 @@ public class Killaura extends Module {
                         }
                         if(timer.hasTimeElapsed(1000 / cps.getValue() + Math.random(), true)){
                             Criticals.isCrits = true;
+
+                            if (target instanceof EntityPlayer) { // idk i need to check if player bc it will crash and im to lazy to fix or find the error idc rn
+                                if (!mc.thePlayer.isInvisibleToPlayer((EntityPlayer) target) && !wall.isEnabled())
+                                    return;
+                            }
+
                             if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
@@ -280,5 +361,11 @@ public class Killaura extends Module {
         Minecraft.getMinecraft().getTextureManager().bindTexture(skin);
         Gui.drawScaledCustomSizeModalRect(x, y, 8.0f, 8.0f, 8, 8, width, height, 64.0f, 64.0f);
     }
+
+
+    public void drawRectB(float x, float y, float w, float h, Color color) {
+        Gui.drawRect(x, y, (x + w), (y + h), color.getRGB());
+    }
+
 
 }

@@ -16,12 +16,13 @@ import uwu.flauxy.utils.Wrapper;
 @ModuleInfo(name = "Longjump", displayName = "Longjump", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Longjump extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft");
+    public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Redesjy");
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> mode.is("Verus"));
 
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Simple", "Normal").setCanShow((m) -> mode.is("Verus"));
 
     double firstypos;
+    boolean LordExeos = false;
 
     public Longjump(){
         addSettings(mode, verusMode, speed);
@@ -82,6 +83,27 @@ public class Longjump extends Module {
                         MoveUtils.strafe();
                     }
 
+                    break;
+                }
+                case "Redesky": {
+                    this.mc.timer.timerSpeed = 1.0f;
+                    if (this.mc.thePlayer.onGround) {
+                        this.LordExeos = false;
+                        if (mc.thePlayer.isMoving()) {
+                            if (!this.mc.gameSettings.keyBindJump.isKeyDown())
+                                this.mc.thePlayer.jump();
+                            this.mc.thePlayer.motionY += 0.3;
+                            this.mc.thePlayer.motionX *= 1.2;
+                            this.mc.thePlayer.motionZ *= 1.2;
+                        }
+                        break;
+                    }
+                    if (this.LordExeos) {
+                        this.mc.thePlayer.speedInAir = 0.02f;
+                        break;
+                    }
+                    this.mc.thePlayer.speedInAir = 0.06f;
+                    this.LordExeos = true;
                     break;
                 }
                 case "Verus":{

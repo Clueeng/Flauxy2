@@ -74,17 +74,17 @@ public class Scaffold extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "NCP", "NCP", "UpdatedNCP", "Hypixel", "AAC4", "Redesky", "Verus", "Matrix");
     public ModeSetting tower = new ModeSetting("Tower", "NCP", "Vanilla", "NCP", "Quick Jump", "None");
-    public ModeSetting autoblock = new ModeSetting("Autoblock", "Switch", "None", "Switch", "Spoof");
+    public ModeSetting autoblock = new ModeSetting("Switch", "Slot", "None", "Slot", "Silent");
     public NumberSetting timer = new NumberSetting("Timer", 1, 0.5, 4, 0.1);
 
-    private BooleanSetting jump = new BooleanSetting("Jump", false);
+    public BooleanSetting jump = new BooleanSetting("Jump", false);
+    public BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
+    public NumberSetting vanillaTowerSpeed = new NumberSetting("Tower Speed", 0.42, 0.1, 1, 0.02).setCanShow(m -> tower.is("Vanilla"));
+    public BooleanSetting redeskyTimer = new BooleanSetting("Redesky timer", true).setCanShow(m -> mode.is("Redesky"));
 
-    private NumberSetting vanillaTowerSpeed = new NumberSetting("Vanilla Tower Speed", 0.42, 0.1, 1, 0.02);
-
-    private BooleanSetting redeskyTimer = new BooleanSetting("Redesky timer", true);
 
     public Scaffold() {
-        addSettings(mode, tower, vanillaTowerSpeed, autoblock, timer, redeskyTimer, jump);
+        addSettings(mode, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
 
     public void onEnable() {
@@ -100,13 +100,13 @@ public class Scaffold extends Module {
             if (mc.thePlayer.inventory.getStackInSlot(i) == null)
                 continue;
             if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && !blockBlacklist.contains(((ItemBlock) mc.thePlayer.inventory.getStackInSlot(i).getItem()).getBlock())) {
-                if(autoblock.is("Switch")) {
+                if(autoblock.is("Slot")) {
                     oldItem = mc.thePlayer.inventory.currentItem;
                     mc.thePlayer.inventory.currentItem = i;
                     itemSpoofed = i;
                     break;
                 }
-                if(autoblock.is("Spoof")) {
+                if(autoblock.is("Silent")) {
                     oldItem = mc.thePlayer.inventory.currentItem;
                     itemSpoofed = i;
                     break;
@@ -133,10 +133,10 @@ public class Scaffold extends Module {
         Flauxy.INSTANCE.moduleManager.getModule("Sprint").setToggled(true);
 
         mc.timer.timerSpeed = 1F;
-        if(autoblock.is("Switch")) {
+        if(autoblock.is("Slot")) {
             mc.thePlayer.inventory.currentItem = oldItem;
         }
-        if(autoblock.is("Spoof")) {
+        if(autoblock.is("Silent")) {
             PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
 
@@ -153,6 +153,12 @@ public class Scaffold extends Module {
         if(WorldUtil.shouldNotRun()){
             return;
         }
+
+        if (mc.thePlayer.isSprinting() && nosprint.isEnabled()) {
+            mc.thePlayer.setSprinting(false);
+        }
+
+
         switch(mode.getMode()) {
             case "NCP":
                 NCP(e);
@@ -222,7 +228,7 @@ public class Scaffold extends Module {
             PacketUtil.packetNoEvent(new C09PacketHeldItemChange(itemSpoofed));
         }
 
-        if(autoblock.is("Switch")) {
+        if(autoblock.is("Slot")) {
             for(int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) == null)
                     continue;
@@ -548,7 +554,7 @@ public class Scaffold extends Module {
             }
         } else if(event instanceof EventMotion) {
 
-            if(redeskyTimer.isEnabled()) {
+            if(redeskyTimer.isEnabled() && mode .is("Redesky")) {
                 mc.timer.timerSpeed = placedBlocks < 2 || placedBlocks % 9 == 0 ? 0.92F : mc.thePlayer.ticksExisted % 2 == 0 ? 1.18F : 1.6F;
             } else {
                 mc.timer.timerSpeed = 1F;

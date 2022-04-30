@@ -280,17 +280,49 @@ public class RenderUtil  {
         drawRect(left + (borderIncludedInBounds ? borderWidth : 0), top + (borderIncludedInBounds ? borderWidth : 0), right - ((borderIncludedInBounds ? borderWidth : 0)), bottom - ((borderIncludedInBounds ? borderWidth : 0)), insideColor);
     }
 
-    private static boolean isInViewFrustrum(AxisAlignedBB bb) {
-        Entity current = Minecraft.getMinecraft().getRenderViewEntity();
-        frustum.setPosition(current.posX, current.posY, current.posZ);
-        return frustum.isBoundingBoxInFrustum(bb);
+    public static void rectangle(double left, double top, double right, double bottom, final int color) {
+        if (left < right) {
+            final double var5 = left;
+            left = right;
+            right = var5;
+        }
+        if (top < bottom) {
+            final double var5 = top;
+            top = bottom;
+            bottom = var5;
+        }
+        final float var6 = (color >> 24 & 0xFF) / 255.0f;
+        final float var7 = (color >> 16 & 0xFF) / 255.0f;
+        final float var8 = (color >> 8 & 0xFF) / 255.0f;
+        final float var9 = (color & 0xFF) / 255.0f;
+        final WorldRenderer worldRenderer = Tessellator.getInstance().getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(var7, var8, var9, var6);
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(left, bottom, 0.0).endVertex();
+        worldRenderer.pos(right, bottom, 0.0).endVertex();
+        worldRenderer.pos(right, top, 0.0).endVertex();
+        worldRenderer.pos(left, top, 0.0).endVertex();
+        Tessellator.getInstance().draw();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
 
-    public static int drawHealth(final EntityLivingBase entityLivingBase) {
-        final float health = entityLivingBase.getHealth();
-        final float maxHealth = entityLivingBase.getMaxHealth();
-        return Color.HSBtoRGB(Math.max(0.0f, Math.min(health, maxHealth) / maxHealth) / 3.0f, 1.0f, 0.75f) | 0xFF000000;
+    public static void drawBorderedRectangle(final double x, final double y, final double x1, final double y1, final double width, final int internalColor, final int borderColor) {
+        rectangle(x + width, y + width, x1 - width, y1 - width, internalColor);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        rectangle(x + width, y, x1 - width, y + width, borderColor);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        rectangle(x, y, x + width, y1, borderColor);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        rectangle(x1 - width, y, x1, y1, borderColor);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        rectangle(x + width, y1 - width, x1 - width, y1, borderColor);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
 

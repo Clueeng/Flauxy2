@@ -44,7 +44,7 @@ public class ArrayList extends Module {
 
     public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
     public ArrayList() {
-        addSettings(color, line_width, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight);
+        addSettings(color, line_width, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight, outline);
     }
 
     @Override

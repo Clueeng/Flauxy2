@@ -8,9 +8,16 @@ import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.ModeSetting;
 
 @ModuleInfo(name = "InventoryMove", displayName = "Inventory Move", key = -1, cat = Category.Player)
 public class InventoryMove extends Module {
+
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Spoof");
+
+    public InventoryMove() {
+        addSettings(mode);
+    }
 
     @Override
     public void onEvent(Event e) {

@@ -239,13 +239,6 @@ public class ModelBiped extends ModelBase {
                     this.bipedHead.rotateAngleZ = -0.2f;
                 }
             }else {
-                if (timer.sleep(1)) emote.heilY += 0.1;
-                this.bipedLeftLeg.rotateAngleZ = 0;
-                this.bipedBody.rotateAngleX = 0f;
-                this.bipedBody.rotateAngleZ = 0f;
-                this.bipedHead.rotateAngleX = 0f;
-                this.bipedHead.rotateAngleZ = 0f;
-                this.bipedHead.rotateAngleY = 0f;
             }
         }
 

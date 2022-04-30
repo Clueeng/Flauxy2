@@ -60,7 +60,6 @@ public class Fly extends Module {
 
     public NumberSetting mushmc = (NumberSetting) new NumberSetting("Speed", 3,1,5,0.01).setCanShow(m -> mode.is("MushMC"));
 
-
     public NumberSetting Collisionspeed = (NumberSetting) new NumberSetting("Speed", 3,1,5,0.01).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisiontimer = (NumberSetting) new NumberSetting("Timer", 1,0.1,3,0.01).setCanShow(m -> mode.is("Collision"));
     public BooleanSetting Collisiondamage  = (BooleanSetting) new BooleanSetting("Damage", false).setCanShow(m -> mode.is("Collision"));
@@ -249,9 +248,9 @@ public class Fly extends Module {
             if (mode.is("Hycraft")) {
                 mc.timer.timerSpeed = 1;
                 if(mc.thePlayer.fallDistance > 0.0 && !done){
-                    PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY +3.25, mc.thePlayer.posZ, true));
-                    PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
-                    PacketUtil.sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
+                    mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY +3.25, mc.thePlayer.posZ, true));
+                    mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+                    mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
                     mc.timer.timerSpeed = 0.2f;
                     done = true;
                 }
@@ -377,11 +376,11 @@ public class Fly extends Module {
                 if (!damaged) {
                     stopWalk();
                     if (mc.thePlayer.ticksExisted - ticks == 3) {
-                        mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C05PacketPlayerLook(mc.thePlayer.rotationYaw, -89.5f, true));
-                        mc.getNetHandler().getNetworkManager().sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(0, 0, 0), EnumFacing.DOWN));
+                        PacketUtil.sendSilentPacket(new C03PacketPlayer.C05PacketPlayerLook(mc.thePlayer.rotationYaw, -89.5f, true));
+                        PacketUtil.sendSilentPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(0, 0, 0), EnumFacing.DOWN));
 
                         if (i != slotId) {
-                            mc.getNetHandler().getNetworkManager().sendPacket(new C09PacketHeldItemChange(slotId));
+                            PacketUtil.sendSilentPacket(new C09PacketHeldItemChange(slotId));
                         }
                     }
                 }
@@ -597,9 +596,9 @@ public class Fly extends Module {
                 if (this.ticks > 52) {
                     int i = 0;
                     while ((double)i <= 64.0) {
-                        mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
-                        mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
-                        mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, (double)i == 64.0));
+                        PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
+                        PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
+                        PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, (double)i == 64.0));
                         damaged = true;
                         i = (short)(i + 1);
                     }
@@ -708,10 +707,10 @@ public class Fly extends Module {
             } else {
                 slotId = mc.thePlayer.inventory.currentItem;
                 if (i != slotId) {
-                    mc.getNetHandler().getNetworkManager().sendPacket(new C09PacketHeldItemChange(i));
+                    PacketUtil.sendSilentPacket(new C09PacketHeldItemChange(i));
                 }
                 ticks = mc.thePlayer.ticksExisted;
-                mc.getNetHandler().getNetworkManager().sendPacket(new C08PacketPlayerBlockPlacement(itemStack));
+                PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement(itemStack));
             }
 
             if (damaged) {
@@ -748,9 +747,9 @@ public class Fly extends Module {
 
         if (mode.is("Collision")) {
             if (Collisiondamage.isEnabled()) {
-                PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.035D, mc.thePlayer.posZ, false));
-                PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
-                PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
+                mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY +3.25, mc.thePlayer.posZ, true));
+                mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+                mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
             }
         }
 
@@ -764,18 +763,16 @@ public class Fly extends Module {
 
         if (mode.is("Verus Funny")){
             mc.timer.timerSpeed = (float) funnytimer.getValue();
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 4, mc.thePlayer.posZ, false));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.05, mc.thePlayer.posZ, true));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 0.13, mc.thePlayer.posZ, true));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY +3.25, mc.thePlayer.posZ, true));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
         }
 
 
         if (mode.is("Verus")) {
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.035D, mc.thePlayer.posZ, false));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
-            PacketUtil.sendSilentPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY +3.25, mc.thePlayer.posZ, true));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+            mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true));
             damaged = true;
         }
 
@@ -790,7 +787,7 @@ public class Fly extends Module {
 
         if (mode.is("Blink")) {
             for (Packet p : blinkpackets) {
-                PacketUtil.sendPacket(p);
+                mc.getNetHandler().addToSendQueue(p);
             }
         }
 
@@ -841,7 +838,7 @@ public class Fly extends Module {
     }
 
     public void tp() {
-        PacketUtil.sendPacket((Packet) new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 50, mc.thePlayer.posZ, false));
+        mc.getNetHandler().addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 50, mc.thePlayer.posZ, false));
     }
 
 
