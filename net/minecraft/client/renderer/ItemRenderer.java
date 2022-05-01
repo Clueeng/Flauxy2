@@ -363,6 +363,20 @@ public class ItemRenderer
                                     this.func_178103_d();
                                 }
                                 break;
+                                case "Custom": {
+                                    if (animations.spin.isEnabled()) {
+                                        GlStateManager.rotate((float) (Minecraft.getSystemTime() % 360L), (float) animations.x.getValue(), (float) -animations.y.getValue(), 0);
+                                    }else {
+                                        GlStateManager.translate(animations.x.getValue(),  -animations.y.getValue(), 0);
+                                    }
+                                    this.transformFirstPersonItem(f + 1f, f1);
+                                    this.func_178103_d();
+                                    if (animations.smooth.isEnabled()) {
+                                        func_178103_d(0.2F);
+                                    }
+                                    GlStateManager.translate( -animations.scale.getValue(), 0.0f, animations.Zoom.getValue());
+                                }
+                                break;
                                 case "Swank": {
                                     this.transformFirstPersonItem(f / 2, f1);
                                     GlStateManager.rotate(cock * 30.0F / 2.0F, -cock, -0.0F, 9.0F);

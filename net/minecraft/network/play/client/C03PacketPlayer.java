@@ -13,7 +13,7 @@ public class C03PacketPlayer implements Packet<INetHandlerPlayServer>
     @Getter @Setter
     protected double x;
     @Getter @Setter
-    protected double y;
+    public double y;
     @Getter @Setter
     protected double z;
     @Getter @Setter

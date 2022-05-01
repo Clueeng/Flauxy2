@@ -12,7 +12,7 @@ public class C08PacketPlayerBlockPlacement implements Packet<INetHandlerPlayServ
     private static final BlockPos field_179726_a = new BlockPos(-1, -1, -1);
     private BlockPos position;
     private int placedBlockDirection;
-    private ItemStack stack;
+    public ItemStack stack;
     private float facingX;
     private float facingY;
     private float facingZ;

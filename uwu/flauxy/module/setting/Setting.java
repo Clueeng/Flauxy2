@@ -16,6 +16,8 @@ public class Setting<T> {
     private Supplier<Boolean> dependency;
     private List<ValueChangeListener<T>> valueChangeListeners;
     private T value;
+    public float animation = 0;
+    public float animationNow = 0;
 
     @Getter
     public String name;

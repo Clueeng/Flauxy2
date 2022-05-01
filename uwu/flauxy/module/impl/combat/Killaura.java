@@ -125,10 +125,8 @@ public class Killaura extends Module {
                             if (ent != null && ent.getHealth() != 0) {
                                 float scaledWidth = (float) sr.getScaledWidth();
                                 float scaledHeight = (float) sr.getScaledHeight();
-                                String healthStr = String.valueOf((float) ((int) ent.getHealth()) / 2.0F * 10);
                                 if (ent instanceof EntityPlayer && ent != null) {
                                     double hpPercentage = (ent.getHealth() / ent.getMaxHealth());
-
                                     EntityPlayer player = (EntityPlayer) ent;
                                     if (hpPercentage > 1.0D) {
                                         hpPercentage = 1.0D;
@@ -162,24 +160,23 @@ public class Killaura extends Module {
                                 double addX;
                                 int index;
                                 color = (new Color(16734296)).getRGB();
-                                drawRectB(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
+                                drawRect(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
                                 this.mc.fontRendererObj.drawStringWithShadow(target.getName(), (x + 31.0F), (y + 6.0F), -1);
                                 GL11.glPushMatrix();
                                 GlStateManager.translate(x, y, 1.0F);
                                 GL11.glScalef(2.0F, 2.0F, 2.0F);
                                 GlStateManager.translate(-x, -y, 1.0F);
-                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "❤", (x + 16.0F), (y + 13.0F), (new Color(color))
-                                        .darker().getRGB());
+                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "❤", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
                                 GL11.glPopMatrix();
                                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                                 GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
                                 xHealthbar = 30;
                                 yHealthbar = 46;
                                 add = 120.0F;
-                                drawRectB(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
-                                drawRectB(x + xHealthbar, y + yHealthbar, target.getHealth() / target.getMaxHealth() * add, 8.0F, new Color(color));
+                                drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
+                                drawRect(x + xHealthbar, y + yHealthbar, target.getHealth() / target.getMaxHealth() * add, 8.0F, new Color(color));
                                 addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
-                                drawRectB((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
+                                drawRect((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
                                 for (index = 1; index < 5; index++) {
                                     if (target.getEquipmentInSlot(index) == null) ;
                                 }
@@ -363,7 +360,7 @@ public class Killaura extends Module {
     }
 
 
-    public void drawRectB(float x, float y, float w, float h, Color color) {
+    public void drawRect(float x, float y, float w, float h, Color color) {
         Gui.drawRect(x, y, (x + w), (y + h), color.getRGB());
     }
 

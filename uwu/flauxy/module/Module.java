@@ -27,13 +27,16 @@ public class Module implements Methods {
 
     @Getter @Setter
     protected boolean toggled;
+
     @Getter
     protected Minecraft mc = Minecraft.getMinecraft();
 
     @Getter
-    private ArrayList<Setting> settings = new ArrayList<>();
+    public ArrayList<Setting> settings = new ArrayList<>();
 
     public float xSlide = 0f, ySlide = 0f, alpha = 1f;
+    public float animation = 0;
+    public float animationNow = 0;
 
     public Module(){
         final ModuleInfo featureInfo = getClass().getAnnotation(ModuleInfo.class);

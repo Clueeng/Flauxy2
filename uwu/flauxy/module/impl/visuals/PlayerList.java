@@ -1,6 +1,7 @@
 package uwu.flauxy.module.impl.visuals;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumChatFormatting;
+import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventRender2D;
@@ -49,17 +51,17 @@ public class PlayerList extends Module {
             setX(X.getValue());
             setY(Y.getValue());
 
-            drawRect(3 + getX(), -1 + getY(), 151 + getX(), 0 + getY(), getColor().getRGB());
+            Gui.drawRect((float) (3 + getX()), (float) (-1 + getY()), (float) (151 + getX()), (float) (0 + getY()), getColor().getRGB());
             if (Alpha.getValue() > 210) {
-                drawRect(3 + getX(), 0 + getY(), 151 + getX(), 17 + getY(), new Color(12, 12, 12, 255).getRGB());
+                Gui.drawRect((float) (3 + getX()), (float) (0 + getY()), (float) (151 + getX()), (float) (17 + getY()), new Color(12, 12, 12, 255).getRGB());
             } else {
-                drawRect(3 + getX(), 0 + getY(), 151 + getX(), 17 + getY(), new Color(12, 12, 12, (int) (Alpha.getValue() + 45)).getRGB());
+                Gui.drawRect((float) (3 + getX()), (float) (0 + getY()), (float) (151 + getX()), (float) (17 + getY()), new Color(12, 12, 12, (int) (Alpha.getValue() + 45)).getRGB());
             }
 
             Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawCenteredString("Players", (int) (148 / 2 + getX()), (int) (2.5 + getY()), -1);
 
             for (EntityPlayer entity : mc.theWorld.playerEntities) {
-
+                GlStateManager.resetColor();
                 if (validname.isEnabled()) {
                     if (entity.isInvisible()  || entity.getName().contains("(") || entity.getName().contains(")") || entity.getName().contains("-") || entity.getName().contains("§")) {
                         return;
@@ -69,7 +71,7 @@ public class PlayerList extends Module {
                 if (entity.isDead)
                     return;
 
-                drawRect(3 + getX(), 0 + getY() + offset, 151 + getX(), 17 + getY() + offset, new Color(20, 20, 20, (int) Alpha.getValue()).getRGB());
+                Gui.drawRect((float) (3 + getX()), (float) (0 + getY() + offset), (float) (151 + getX()), (float) (17 + getY() + offset), new Color(20, 20, 20, (int) Alpha.getValue()).getRGB());
                 if (entity.getName().equals(mc.thePlayer.getName())) {
                     Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawCenteredString(entity.getName() + EnumChatFormatting.GRAY + " [" + EnumChatFormatting.WHITE + "You" + EnumChatFormatting.GRAY + "]", (int) (148 / 2 + getX()), (int) (2.5 + offset + getY()), -1);
                 } else {
@@ -108,39 +110,5 @@ public class PlayerList extends Module {
         return y;
     }
 
-
-    public static void drawRect(double left, double top, double right, double bottom, int color) {
-        double j;
-        if (left < right) {
-            j = left;
-            left = right;
-            right = j;
-        }
-
-        if (top < bottom) {
-            j = top;
-            top = bottom;
-            bottom = j;
-        }
-
-        float f3 = (color >> 24 & 255) / 255.0F;
-        float f = (color >> 16 & 255) / 255.0F;
-        float f1 = (color >> 8 & 255) / 255.0F;
-        float f2 = (color & 255) / 255.0F;
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        GlStateManager.color(f, f1, f2, f3);
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-        worldrenderer.pos(left, bottom, 0.0D).endVertex();
-        worldrenderer.pos(right, bottom, 0.0D).endVertex();
-        worldrenderer.pos(right, top, 0.0D).endVertex();
-        worldrenderer.pos(left, top, 0.0D).endVertex();
-        tessellator.draw();
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-    }
 
 }

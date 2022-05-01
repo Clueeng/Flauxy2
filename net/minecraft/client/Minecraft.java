@@ -219,8 +219,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
     /** Instance of CrashReport. */
     private CrashReport crashReporter;
-    public int displayWidth;
-    public int displayHeight;
+    public static int displayWidth;
+    public static int displayHeight;
     private boolean field_181541_X = false;
     public Timer timer = new Timer(20.0F);
 

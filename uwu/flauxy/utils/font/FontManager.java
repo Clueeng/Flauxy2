@@ -25,7 +25,7 @@ public class FontManager {
     private HashMap<String, TTFFontRenderer> fonts = new HashMap<>();
 
     public static TTFFontRenderer getFont() {
-        return Flauxy.INSTANCE.fontManager.getFont("auxy 18");
+        return Flauxy.INSTANCE.fontManager.getFont("auxy 21");
     }
 
     public FontManager() {
@@ -40,6 +40,13 @@ public class FontManager {
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("auxy " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+            }
+
+            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30, 36}) { // japan font thing fpr Clickgui because normal font dont work
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Japan.ttf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("Japan " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
 
             fonts.put("Verdana Bold 16", new TTFFontRenderer(executorService, textureQueue, new Font("Verdana Bold", Font.PLAIN, 16)));
