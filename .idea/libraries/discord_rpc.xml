@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="discord-rpc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/main/java/srcout/production/Flauxy/libs/discord-rpc.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
