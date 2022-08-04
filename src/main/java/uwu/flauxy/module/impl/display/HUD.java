@@ -20,7 +20,7 @@ import static uwu.flauxy.utils.font.FontManager.getFont;
 @ModuleInfo(name = "HUD", displayName = "HUD", key = -1, cat = Category.Display)
 public class HUD extends Module {
 
-    public ModeSetting watermark = new ModeSetting("Watermark", "Flauxy", "Flauxy", "Onetap", "Skeet");
+    public ModeSetting watermark = new ModeSetting("Watermark", "Flauxy", "Flauxy", "Onetap", "Skeet", "Astolfo");
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
 
@@ -34,6 +34,12 @@ public class HUD extends Module {
             ScaledResolution sr = new ScaledResolution(mc);
 
             switch (watermark.getMode()) {
+                case "Astolfo":{
+                    Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString("Joe's Client", 5, 5, new Color(0, 0, 0, 150).getRGB());
+                    Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString("Joe's Client", 4, 4, new Color(148, 105, 187).getRGB());
+                    break;
+                }
+
                 case "Flauxy":
                     if(customfont.isEnabled()) {
                         Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
@@ -104,7 +110,7 @@ public class HUD extends Module {
             final DecimalFormat bpsFormat = new DecimalFormat("#.##");
             final String bps = bpsFormat.format(xz);
             String drawBPS = "Blocks/sec: " + EnumChatFormatting.GRAY + bps;
-            Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 25, -1);
+            Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 4 - Flauxy.INSTANCE.getFontManager().getFont("auxy 16").getHeight(drawBPS), -1);
         }
 
     }

@@ -70,25 +70,22 @@ public class ArrayList extends Module {
             float y = 1;
             int count = 0;
 
-
-
-
-            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 21");
+            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 19");
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                 if (m.isToggled()) {
-                    m.xSlide += 0.3f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4);
+                    m.xSlide += (0.9f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4));
                     if (m.xSlide > 8) {
                         m.xSlide = 8;
                     }
 
                 }
                 if (!m.isToggled()) {
-                    m.xSlide -= .1f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4);
+                    m.xSlide -= 0.28f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4);
                     if (m.xSlide < 0) {
                         m.xSlide = 0;
                     }
 
-                    if(m.ySlide > 0) m.ySlide -= 0.02f * (font.getWidth(m.getDisplayName()) / 4);
+                    if(m.ySlide > 0) m.ySlide -= 0.18f * (font.getWidth(m.getDisplayName()) / 4);
                     else m.ySlide = 0f;
                 }
                 if (m.xSlide > 0F) {
@@ -110,14 +107,14 @@ public class ArrayList extends Module {
             for(Module m : mods){
                 double wi = sr.getScaledWidth();
 
-                float wa = (float)wi - font.getWidth(m.getDisplayName()) - 6;
+                float wa = (float) ((float)wi - font.getWidth(m.getDisplayName()) - padding.getValue());
                 // background
                 if(background.getValue()){
                     if(customfont.getValue()){
-                        Gui.drawRect((float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 6 - 2, ((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide, (float) (wi) - m.xSlide - (float)padding.getValue() + 6, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
+                        Gui.drawRect((float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2, (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 2, (float) (wi) - m.xSlide - (float)padding.getValue() + 8, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
                     }else{
                         FontRenderer fonta = mc.fontRendererObj;
-                        Gui.drawRect((float) ((wi - fonta.getStringWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 6 - 2, ((float) c + (float)padding.getValue() + (fonta.FONT_HEIGHT)) - m.ySlide, (float) (wi) - m.xSlide - (float)padding.getValue() + 6, (c + (fonta.FONT_HEIGHT * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
+                        Gui.drawRect((float) ((wi - fonta.getStringWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2, ((float) c + (float)padding.getValue() + (fonta.FONT_HEIGHT)) - m.ySlide, (float) (wi) - m.xSlide - (float)padding.getValue() + 8, (c + (fonta.FONT_HEIGHT * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
                     }
                 }
 
@@ -139,6 +136,10 @@ public class ArrayList extends Module {
                         stringColor = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue()).getRGB();
                         break;
                     }
+                    case "Astolfo":{
+                        stringColor = ColorUtils.astolfo(3, 0.45f, 1, cn * 180L);
+                        break;
+                    }
                 }
 
                 //actual arraylist
@@ -147,14 +148,14 @@ public class ArrayList extends Module {
                     if(!outline.getValue()){
                         if(customfont.getValue()){
                             if(barRight.getValue()){
-                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - (float)padding.getValue()), (float) c + (float)padding.getValue() - 0.75f - 2.5f, (float) ((float) wi - padding.getValue()), (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide - 0, stringColor);
+                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - (float)padding.getValue()), (float) c + (float)padding.getValue() - 1, (float) ((float) wi - padding.getValue()), (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
                             }
                             if(barLeft.getValue()){
-                                Gui.drawRect(wa - m.xSlide, (float) (((float) c + padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide), (float) (wa + (float)line_width.getValue()) - m.xSlide, (float) ((c + (font.getHeight(m.getDisplayName()) * 2)+retarded+padding.getValue()) - m.ySlide), stringColor);
+                                Gui.drawRect(wa - m.xSlide + 4, (float) c + (float)padding.getValue() - 1, (float) (wa + (float)line_width.getValue()) - m.xSlide + 4, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
                             }
                         }else{
                             if(barRight.getValue()){ //                                                                                                       (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+8) - m.ySlide
-                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - padding.getValue()), (float) ((float) c + (float)padding.getValue()) - 0.75f - 1.5f, (float) ((float) wi - padding.getValue()), (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2, stringColor);
+                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - padding.getValue()), (float) ((float) c + (float)padding.getValue()) - 0.75f - 1.5f, (float) ((float) wi - padding.getValue()), (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
                             }
                             if(barLeft.getValue()){
                                 Gui.drawRect(wa - m.xSlide, ((float) c + 8 + (font.getHeight(m.getDisplayName()))) - m.ySlide, (float) (wa + (float)line_width.getValue()) - m.xSlide, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+8) - m.ySlide, stringColor);
@@ -165,30 +166,30 @@ public class ArrayList extends Module {
                     // outline end
 
                     // text
-                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 6 - m.xSlide, c + (float)padding.getValue() - 2, stringColor);
-                    else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 5 - m.xSlide, c + (float)padding.getValue() + 2, stringColor);
+                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide, c + (float)padding.getValue() + 0, stringColor);
+                    else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide, c + (float)padding.getValue() + 0, stringColor);
                     // values changing
 
-                    c+=m.ySlide;
+                    c+=m.ySlide - 0.12f;
                     if(m.ySlide < font.getHeight(m.getDisplayName())+retarded+1){
-                        m.ySlide+=0.08f;
+                        m.ySlide+=0.28f;
                     }
                     if(m.ySlide > font.getHeight(m.getDisplayName())+retarded+1){
                         m.ySlide -= 0.08f;
                     }
                     if(!m.isToggled()){
-                        if(m.ySlide > 0) m.ySlide -= 0.08f;
+                        if(m.ySlide > 0) m.ySlide -= 0.28f;
                         else m.ySlide = 0f;
                     }
                     // X
                     if(m.xSlide < (float) (wi - font.getWidth(m.getDisplayName()) - 16) - 18){
-                        m.xSlide+=0.002f;
+                        m.xSlide+=0.042f;
                     }
                     if(m.xSlide > (float) (wi - font.getWidth(m.getDisplayName()) - 12)){
                         m.xSlide = (float) (wi - font.getWidth(m.getDisplayName()) - 8);
                     }
                     if(!m.isToggled()){
-                        if(m.xSlide > 0) m.xSlide -= 0.02f;
+                        if(m.xSlide > 0) m.xSlide -= 0.09f;
                         else m.ySlide = 0f;
                     }
                     cn+=1;

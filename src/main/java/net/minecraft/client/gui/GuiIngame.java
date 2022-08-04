@@ -44,6 +44,7 @@ import net.minecraft.world.border.WorldBorder;
 import optfine.Config;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventRender2D;
+import uwu.flauxy.utils.render.ColorUtils;
 
 public class GuiIngame extends Gui
 {
@@ -594,12 +595,22 @@ public class GuiIngame extends Gui
             int l = k1 - k * this.getFontRenderer().FONT_HEIGHT;
             int i1 = p_180475_2_.getScaledWidth() - b0 + 2;
             drawRect(j - 2, l, i1, l + this.getFontRenderer().FONT_HEIGHT, 1342177280);
-            this.getFontRenderer().drawString(s1, j, l, 553648127);
+            int color = 553648127;
+            if(s1.contains(".net") || s1.contains(".com") || s1.contains("play.") || s1.contains(".fun") || (s1.contains(".lol") && !s1.equalsIgnoreCase("flauxy.lol")) || s1.contains(".club")){
+                String spaced = "";
+                for(int index = 0; index < i1; index++){
+                    spaced+=" ";
+                }
+                s1 = EnumChatFormatting.WHITE + "F" + EnumChatFormatting.WHITE + "lauxy." + EnumChatFormatting.RESET + "lol";
+                color = ColorUtils.getRainbow(9f, 0.4f, 1f, 8);
+            }
+            this.getFontRenderer().drawString(s1, j, l, color);
             this.getFontRenderer().drawString(s2, i1 - this.getFontRenderer().getStringWidth(s2), l, 553648127);
 
             if (k == arraylist1.size())
             {
                 String s3 = p_180475_1_.getDisplayName();
+
                 drawRect(j - 2, l - this.getFontRenderer().FONT_HEIGHT - 1, i1, l - 1, 1610612736);
                 drawRect(j - 2, l - 1, i1, l, 1342177280);
                 this.getFontRenderer().drawString(s3, j + i / 2 - this.getFontRenderer().getStringWidth(s3) / 2, l - this.getFontRenderer().FONT_HEIGHT, 553648127);

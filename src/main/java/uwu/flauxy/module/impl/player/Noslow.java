@@ -6,6 +6,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
@@ -31,6 +32,9 @@ public class Noslow extends Module {
 
     @Override
     public void onEvent(Event e) {
+        if(e instanceof EventUpdate){
+            this.setDisplayName("Noslow " + EnumChatFormatting.WHITE + "Mode: " + mode.getMode());
+        }
         switch(mode.getMode()){
             case "Reduced":{
                 if(e instanceof EventUpdate){

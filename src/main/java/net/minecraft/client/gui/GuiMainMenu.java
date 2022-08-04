@@ -4,12 +4,17 @@ import com.google.common.collect.Lists;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javazoom.jl.player.Player;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -33,12 +38,22 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.alts.GuiAltManager;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
+import uwu.flauxy.utils.render.RenderUtil;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 {
-    private int y = 0;
+    private int y, tickToGenerate, timeLeftInSeconds = 50, shouldAnimateTicks, soundTicks;
+    private boolean shouldAnimate = false, shouldDecreaseOpacity, shouldPlaySound, hasPlayedSound;
+    public boolean toggledAnimations = true;
+    private int imageID, availableBgs = 17 - 1, /* (-1 car sinon ca excede) */ checkOld;
+
+    private double opacity = 0;
+    private String curImg;
+    private ResourceLocation RL_Background;
+    private Random rand = new Random();
 
     private static final AtomicInteger field_175373_f = new AtomicInteger(0);
     private static final Logger logger = LogManager.getLogger();
@@ -183,8 +198,22 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
      * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
      * window resizes, the buttonList is cleared beforehand.
      */
+    private void generateImage(){
+        imageID = rand.nextInt(availableBgs + 1) + 1;
+        if(imageID == checkOld){
+            System.out.println("Same image generated, generating new image");
+            imageID = rand.nextInt(availableBgs + 1) + 1;
+        }
+        checkOld = imageID;
+        //System.out.println("Image ID: " + imageID);
+        curImg = "background/bg_" + imageID + ".png";
+        RL_Background = new ResourceLocation(curImg);
+    }
+
     public void initGui()
     {
+        tickToGenerate = 0;
+        generateImage();
         this.viewportTexture = new DynamicTexture(256, 256);
         this.backgroundTexture = this.mc.getTextureManager().getDynamicTextureLocation("background", this.viewportTexture);
         Calendar calendar = Calendar.getInstance();
@@ -219,8 +248,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             this.addSingleplayerMultiplayerButtons(j, 24);
         }
 
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 98, 20, I18n.format("menu.options", new Object[0])));
-        this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("menu.quit", new Object[0])));
+        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, j + 72 + 12, 200, 20, I18n.format("menu.options", new Object[0])));
+        //this.buttonList.add(new GuiButton(4, this.width / 2 + 2, j + 72 + 12, 98, 20, I18n.format("menu.quit", new Object[0])));
         //this.buttonList.add(new GuiButtonLanguage(5, this.width / 2 - 124, j + 72 + 12));
 
         synchronized (this.threadLock)
@@ -245,6 +274,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer", new Object[0])));
         this.buttonList.add(new GuiButton(3, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Alt Manager"));
+        this.buttonList.add(new GuiButton(40, 4, 4, 100, 20, "Change Background"));
     }
 
     /**
@@ -271,6 +301,12 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         if (button.id == 0)
         {
             this.mc.displayGuiScreen(new GuiOptions(this, this.mc.gameSettings));
+        }
+
+        if (button.id == 40)
+        {
+            generateImage();
+            tickToGenerate = 0;
         }
 
         if (button.id == 5)
@@ -480,6 +516,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         GlStateManager.colorMask(true, true, true, true);
     }
 
+
     /**
      * Renders the skybox in the main menu
      */
@@ -511,7 +548,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         worldrenderer.pos(0.0D, 0.0D, (double)this.zLevel).tex((double)(0.5F + f1), (double)(0.5F + f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
         tessellator.draw();
     }
-
+    private Player player = null;
     /**
      * Draws the screen and all the components in it. Args : mouseX, mouseY, renderPartialTicks
      */
@@ -528,15 +565,85 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         int k = 30;
         int col1 = ColorUtils.getGradientOffset(new Color(42, 14, 85), new Color(95, 45, 145), 4).getRGB();
         Gui.drawRect(0, 0, width, height, new Color(95, 45, 145).getRGB());
+        this.drawGradientRect(0, height / 3, width, height, 0, ColorUtils.getRainbow(10, 0.7f, 1, 100));
         this.drawGradientRect(0, height / 2, width, height, 0, col1);
         /*this.drawGradientRect(0, 0, this.width, this.height, -2130706433, 16777215);
         this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
         this.mc.getTextureManager().bindTexture(minecraftTitleTextures);*/
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        // display image background bg random
+        //mc.getTextureManager().bindTexture(RL_Background);
+        RenderUtil.drawImage(0, 0, width, height, RL_Background);
+        tickToGenerate++;
+        if(tickToGenerate % 100 * timeLeftInSeconds == 0){
+            opacity = 0;
+            shouldAnimate = true;
+            shouldAnimateTicks = 0;
+        }
+        if(shouldAnimateTicks == 1){
+            shouldPlaySound = true;
+        }
+        if(shouldPlaySound){
+            System.out.println("Playing sound");
+            new Thread(() -> {
+                try {
+                    player = new Player(Objects.requireNonNull(this.getClass().getResourceAsStream("/assets/minecraft/sounds/hover.mp3")));
+                    player.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            shouldPlaySound = false;
+        }
+        if(shouldAnimate && toggledAnimations){
+            shouldAnimateTicks++;
+            if(shouldAnimateTicks < 255 - opacity - 1){
+                opacity += 8;
+            }
+            if(opacity > 230){
+                generateImage();
+                shouldDecreaseOpacity = true;
+            }
+            if(shouldDecreaseOpacity){
+                int removeFactor = 16;
+                if(opacity <= removeFactor) opacity = removeFactor;
+                opacity -= removeFactor;
+                if(opacity <= removeFactor){
+                    shouldDecreaseOpacity = false;
+                    shouldAnimate = false;
+                }
+            }
+        }
 
+        this.drawGradientRect(0, 0, width, height, 0, new Color(0, 0, 0, (int)opacity).getRGB());
         TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
         TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
+        Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString("Flauxy Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
         font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
+
+        for(GuiButton b : buttonList){
+            int speed = 1;
+            int maxWidth = 200;
+            int length = 5;
+            switch(b.id){
+                case 40:
+                    maxWidth = 100;
+            }
+            if(mouseX >= b.xPosition && mouseX <= b.xPosition + b.width && mouseY >= b.yPosition && mouseY <= b.yPosition + b.height){
+                if(b.width >= maxWidth-length){
+                    b.width-=speed;
+                }else{
+                    b.width = maxWidth-(length + 1);
+                }
+            }else{
+                if(b.width < maxWidth){
+                    b.width+=speed;
+                }
+            }
+        }
+        if(soundTicks == 1){
+            System.out.println("Hello  a");
+        }
 
         /*if ((double)this.updateCounter < 1.0E-4D)
         {
@@ -569,7 +676,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
         String s1 = "Copyright Mojang AB. Do not distribute!";
-        this.drawString(this.fontRendererObj, s1, this.width - this.fontRendererObj.getStringWidth(s1) - 2, this.height - 10, -1);
+        //this.drawString(this.fontRendererObj, s1, this.width - this.fontRendererObj.getStringWidth(s1) - 2, this.height - 10, -1);
 
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
         {

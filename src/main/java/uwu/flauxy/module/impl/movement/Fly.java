@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -26,6 +27,7 @@ import uwu.flauxy.event.impl.packet.EventPacket;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.impl.player.Blink;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
@@ -38,6 +40,7 @@ import uwu.flauxy.utils.timer.TimerUtil;
 
 import javax.swing.event.HyperlinkEvent;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -51,6 +54,7 @@ public class Fly extends Module {
     public Timer  timer = new Timer();
     double tempY = 0;
     public ArrayList<Packet> packets = new ArrayList<>();
+    private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
     public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft");
@@ -66,6 +70,7 @@ public class Fly extends Module {
 
     BlockPos oldPos;
     List<BlockPos> blockPosList = new ArrayList<>();
+
     boolean removeBlock = false;
     int flyTicks = 0;
 
@@ -82,10 +87,10 @@ public class Fly extends Module {
                     EventUpdate ev = (EventUpdate) e;
                     mc.thePlayer.motionY = 0;
                     if(mc.gameSettings.keyBindJump.pressed){
-                        mc.thePlayer.motionY += 0.42f;
+                        mc.thePlayer.motionY += 0.42f * speed.getValue();
                     }
                     if(mc.gameSettings.keyBindSneak.pressed){
-                        mc.thePlayer.motionY -= 0.42f;
+                        mc.thePlayer.motionY -= 0.42f * speed.getValue();
                     }
                     if(mc.thePlayer.isMoving()){
                         MoveUtils.strafe(speed.getValue());
@@ -111,12 +116,16 @@ public class Fly extends Module {
                     double lastDist = MathHelper.sqrt_double(xDist * xDist + zDist * zDist);
 
                     if(mc.thePlayer.isCollidedVertically){
-                        mc.timer.timerSpeed = 2.5f;
+                        mc.timer.timerSpeed = 1.4f;
                         flyTicks = 0;
+                        //mc.thePlayer.motionY = 0.42F;
                         mc.thePlayer.motionY = 0.42F;
                         MoveUtils.strafe(0.49);
-                        flySpeed = (float) funcraftSpeed.getValue() * 4;
+                        flySpeed = (float) funcraftSpeed.getValue();
                     }else{
+                        if(mc.timer.timerSpeed > 1.7){
+                            mc.timer.timerSpeed -= 0.08;
+                        }
                         mc.thePlayer.jumpMovementFactor = 0F;
                         switch (flyTicks) {
                             case 0:
@@ -136,15 +145,27 @@ public class Fly extends Module {
             case "Test":{
                 switch(testMode.getMode()){
                     case "Test 3":{
-                        if(e instanceof EventCollide){
-                            EventCollide ec = (EventCollide) e;
-                        }
-                        if(e instanceof EventMove){
-                            EventMove em = (EventMove)e;
-
-                        }
                         if(e instanceof EventMotion){
-                            EventMotion em = (EventMotion)e;
+                            mc.timer.timerSpeed = 1.0f;
+                            EventMotion em = (EventMotion) e;
+                            mc.thePlayer.motionY = 0;
+                            if(mc.thePlayer.isMoving()){
+                                MoveUtils.strafe(flySpeed);
+                                flySpeed = flySpeed > 0.23 ? flySpeed - (flySpeed / 159) : flySpeed;
+                            }else{
+                                mc.thePlayer.motionX = 0;
+                                mc.thePlayer.motionZ = 0;
+                            }
+                            switch(flyTicks){
+                                case 1:{
+                                    if(!mc.thePlayer.onGround) this.toggle();
+                                    mc.thePlayer.jump();
+                                    flySpeed = 1.91f;
+                                    MoveUtils.damage(MoveUtils.Bypass.VANILLA);
+                                    break;
+                                }
+                            }
+                            flyTicks++;
                         }
                         if(e instanceof EventUpdate){
 
@@ -153,16 +174,42 @@ public class Fly extends Module {
                         break;
                     }
                     case "Test 2":{
-                        if(e instanceof EventMove){
+                        /*if(e instanceof EventSendPacket){
+                            int maxTick = Integer.MAX_VALUE; // Integer.MAX_VALUE for infinite blink
+                            int tickDelay = 20;
+                            EventSendPacket eventSendPacket = (EventSendPacket) e;
+                            if(PacketUtil.isPacketBlinkPacket(eventSendPacket.getPacket()) && flyTicks >= 0 && flyTicks < maxTick){
+                                packetsLinked.add(eventSendPacket.getPacket());
+                                eventSendPacket.setCancelled(true);
+                            }
+                            if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
+                                for(int i = 0; i < packetsLinked.size() - 1; i++){
+                                    PacketUtil.packetNoEvent(packetsLinked.get(i));
+                                }
+                                packetsLinked.clear();
+                            }
+                        }*/
 
+                        PacketUtil.blink(packetsLinked, e, flyTicks, 4, Integer.MAX_VALUE);
+                        if(e instanceof EventMotion){
+                            mc.timer.timerSpeed = 0.7f;
+                            EventMotion em = (EventMotion) e;
+                            mc.thePlayer.motionY = -0.125f;
+                            if(mc.thePlayer.isMoving()){
+                                MoveUtils.strafe(speed.getValue());
+                            }else{
+                                mc.thePlayer.motionX = 0;
+                                mc.thePlayer.motionZ = 0;
+                            }
+                            switch(flyTicks){
+                                case 4:{
+                                    //MoveUtils.damage(MoveUtils.Bypass.VERUS);
+                                    break;
+                                }
+                            }
+                            flyTicks++;
                         }
-                        if(e instanceof EventCollide){
-                            EventCollide ec = (EventCollide) e;
-                            if (ec.getBlock() instanceof net.minecraft.block.BlockAir && ec.getPosY() < mc.thePlayer.posY)
-                                ec.setBoundingBox(AxisAlignedBB.fromBounds(ec.getPosX(), ec.getPosY(), ec.getPosZ(), ec.getPosX() + 1.0D, mc.thePlayer.posY, ec.getPosZ() + 1.0D));
-
-                        }
-                        // hycraft
+                        // zonecraft
                         break;
                     }
                 }
@@ -225,6 +272,23 @@ public class Fly extends Module {
     public void onDisable() {
         disableValues();
         resetBlocks();
+        switch(mode.getMode()){
+
+            case "Test": {
+                switch (testMode.getMode()) {
+                    case "Test 3": {
+                        MoveUtils.strafe(MoveUtils.getMotion() * 0.2f);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "Funcraft":{
+                mc.thePlayer.motionX *= 0.25f;
+                mc.thePlayer.motionZ *= 0.25f;
+                break;
+            }
+        }
     }
 
     private int bowSlot() {

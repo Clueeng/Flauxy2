@@ -3,6 +3,7 @@ package uwu.flauxy.module.impl.combat;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventUpdate;
@@ -33,6 +34,16 @@ public class Velocity extends Module {
     }
 
     public void onEvent(Event ev){
+        if(ev instanceof EventUpdate){
+            String addMode = "";
+            if(mode.is("Cancel")){
+                addMode = "X: " + x.getValue() + " | Y: " + y.getValue();
+            }
+            if(mode.is("Redesky")){
+                addMode = "Mode: " + mode.getMode();
+            }
+            this.setDisplayName("Velocity " + EnumChatFormatting.WHITE + addMode);
+        }
         if(ev instanceof EventReceivePacket){
             EventReceivePacket event = (EventReceivePacket) ev;
             switch(mode.getMode()){

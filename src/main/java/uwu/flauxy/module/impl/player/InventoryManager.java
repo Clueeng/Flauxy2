@@ -3,10 +3,12 @@ package uwu.flauxy.module.impl.player;
 import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -80,6 +82,10 @@ public class InventoryManager extends Module {
 
     @Override
     public void onEvent(Event e){
+        if(e instanceof EventUpdate){
+
+            this.setDisplayName("Manager " + EnumChatFormatting.WHITE + "Delay: " + minDelay.getValue() + "-" + maxDelay.getValue());
+        }
 
         if(e instanceof EventMotion){
             EventMotion event = (EventMotion) e;

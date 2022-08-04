@@ -6,6 +6,7 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.RoundedUtils;
 
@@ -104,8 +105,8 @@ public class GuiButton extends Gui
             {
                 j = 16777120;
             }
-
-            this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, (this.yPosition + (this.height - 8) / 2) - 1, j);
+            FontManager.getFont().drawStringWithShadow(this.displayString, (this.xPosition + (this.width / 2) - FontManager.getFont().getWidth(this.displayString) / 2), (this.yPosition + (this.height - 8) / 2) - 2, -1);
+            //this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, (this.yPosition + (this.height - 8) / 2) - 1, j);
         }
     }
 

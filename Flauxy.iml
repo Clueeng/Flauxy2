@@ -26,5 +26,6 @@
     <orderEntry type="library" name="1.8.8" level="project" />
     <orderEntry type="library" name="viaversion" level="project" />
     <orderEntry type="library" name="openauth-1.1.2" level="project" />
+    <orderEntry type="library" name="jlayer-1.0.1" level="project" />
   </component>
 </module>

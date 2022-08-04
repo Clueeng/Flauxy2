@@ -1,5 +1,6 @@
 package uwu.flauxy.utils;
 
+import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -8,6 +9,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
+import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventSendPacket;
+import uwu.flauxy.event.impl.EventUpdate;
 
 public class PacketUtil {
     private static final int MAX_THREADS = 75;
@@ -44,11 +48,46 @@ public class PacketUtil {
         }
     }
     public static boolean isPacketBlinkPacket(Packet p){
-        boolean finBol = false;
-        if(p instanceof C03PacketPlayer || p instanceof C03PacketPlayer.C04PacketPlayerPosition || p instanceof C0FPacketConfirmTransaction){
-            finBol = true;
-        }
-
-        return finBol;
+        return p instanceof C03PacketPlayer || p instanceof C03PacketPlayer.C04PacketPlayerPosition || p instanceof C0FPacketConfirmTransaction;
     }
+    // private LinkedList<Packet> packetsLinked = new LinkedList<>();
+    public static void blink(LinkedList<Packet> packetsLinked, Event e, int flyTicks, int pulseDelay, int maxDelay){
+        int maxTick = maxDelay; // Integer.MAX_VALUE for infinite blink
+        int tickDelay = pulseDelay;
+        if(e instanceof EventSendPacket){
+            EventSendPacket eventSendPacket = (EventSendPacket) e;
+            if(PacketUtil.isPacketBlinkPacket(eventSendPacket.getPacket()) && flyTicks >= 0 && flyTicks < maxTick){
+                packetsLinked.add(eventSendPacket.getPacket());
+                eventSendPacket.setCancelled(true);
+            }
+            if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
+                for(int i = 0; i < packetsLinked.size() - 1; i++){
+                    PacketUtil.packetNoEvent(packetsLinked.get(i));
+                }
+                packetsLinked.clear();
+            }
+        }
+    }
+    public static void blink(LinkedList<Packet> packetsLinked, Event e, int pulseDelay, int maxDelay){
+        int maxTick = maxDelay; // Integer.MAX_VALUE for infinite blink
+        int tickDelay = pulseDelay;
+        int flyTicks = 0;
+        if(e instanceof EventUpdate){
+            flyTicks++;
+        }
+        if(e instanceof EventSendPacket){
+            EventSendPacket eventSendPacket = (EventSendPacket) e;
+            if(PacketUtil.isPacketBlinkPacket(eventSendPacket.getPacket()) && flyTicks >= 0 && flyTicks < maxTick){
+                packetsLinked.add(eventSendPacket.getPacket());
+                eventSendPacket.setCancelled(true);
+            }
+            if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
+                for(int i = 0; i < packetsLinked.size() - 1; i++){
+                    PacketUtil.packetNoEvent(packetsLinked.get(i));
+                }
+                packetsLinked.clear();
+            }
+        }
+    }
+
 }

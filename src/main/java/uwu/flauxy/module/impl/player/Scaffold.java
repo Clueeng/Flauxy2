@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -17,10 +18,6 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
@@ -185,7 +182,7 @@ public class Scaffold extends Module {
 
         tower(e);
 
-        this.setDisplayName("Scaffold §f" + mode.getMode());
+        this.setDisplayName("Scaffold " + EnumChatFormatting.WHITE + mode.getMode());
 
         if(e instanceof EventUpdate) {
             if(timer.getValue() != 1) {

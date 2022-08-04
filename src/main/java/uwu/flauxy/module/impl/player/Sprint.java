@@ -14,7 +14,7 @@ public class Sprint extends Module {
     @Override
     public void onEvent(Event ev){
         if(ev instanceof EventMotion){
-            mc.thePlayer.setSprinting(mc.thePlayer.isMoving() && mc.thePlayer.moveForward > 0);
+            mc.thePlayer.setSprinting(mc.thePlayer.isMoving() && mc.thePlayer.moveForward > 0 && !mc.thePlayer.isCollidedHorizontally);
         }
     }
 

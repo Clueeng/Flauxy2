@@ -1,11 +1,8 @@
 package net.minecraft.client.model;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MathHelper;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.visuals.Emote;
 import uwu.flauxy.utils.timer.TimerUtil;
 
 public class ModelBiped extends ModelBase {
@@ -179,68 +176,6 @@ public class ModelBiped extends ModelBase {
         }
 
         this.bipedLeftArm.rotateAngleY = 0.0F;
-        Emote emote = (Emote) Flauxy.INSTANCE.getModuleManager().getModule("Emote");
-        if (((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0))) {
-            if (emote.isToggled() && emote.mode.is("Heil")) {
-                if (timer.sleep(1) && emote.heilY > -190) {
-                    emote.heilY -= 1;
-                }
-                this.bipedRightArm.rotateAngleX = emote.heilY * 0.01F;
-                this.bipedHead.rotateAngleX = -0.025F;
-                this.bipedRightArm.rotateAngleY = 0.15f;
-                this.bipedLeftArm.rotateAngleX = 0;
-            } else if (emote.heilY < 0) {
-                if (timer.sleep(1)) emote.heilY += 0.1;
-                this.bipedRightArm.rotateAngleX = emote.heilY * 0.01F;
-                this.bipedHead.rotateAngleX = -0.025F;
-                this.bipedRightArm.rotateAngleY = 0.15f;
-                this.bipedLeftArm.rotateAngleX = 0;
-            }
-            if (emote.isToggled() && emote.mode.is("Dab")) {
-                if ((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0)) {
-                    this.bipedHead.rotateAngleX = 0.5F;
-                    this.bipedHead.rotateAngleY = 1;
-                    this.bipedRightArm.rotateAngleX = 4.5F;
-                    this.bipedRightArm.rotateAngleY = -1.25F;
-                    this.bipedLeftArm.rotateAngleX = 4.5F;
-                    this.bipedLeftArm.rotateAngleY = -1.25F;
-                }
-            }
-            if(emote.isToggled() && emote.mode.is("Jerk")){
-
-                if ((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0)) {
-                    this.bipedRightArm.rotateAngleX = -50;
-
-                }
-            }
-          if (emote.isToggled() && emote.mode.is("Hi")) {
-                if ((entityIn.equals(Minecraft.getMinecraft().thePlayer) && Minecraft.getMinecraft().gameSettings.thirdPersonView > 0)) {
-                    if (emote.hithing > 40) {
-                        if (timer.sleep(2)) {
-                            emote.hithing -= 1;
-                        }
-                    }
-
-                    if (timer.sleep(2) && !(emote.hithing > 40)) {
-                        emote.hithing += 1;
-                    }
-
-                    if (timer.sleep(1) && emote.heilY > -190) {
-                        emote.heilY -= 1;
-                    }
-
-                    this.bipedLeftLeg.rotateAngleZ = -1.25F + (emote.heilY * 0.01f);
-                    this.bipedLeftArm.rotateAngleX = -2.4f;
-                    this.bipedLeftArm.rotateAngleZ = -100.1f;
-                    this.bipedLeftArm.rotateAngleY = -1.9f;
-                    this.bipedBody.rotateAngleX = -0.2f;
-                    this.bipedBody.rotateAngleZ = -0.2f;
-                    this.bipedHead.rotateAngleX = -0.2f;
-                    this.bipedHead.rotateAngleZ = -0.2f;
-                }
-            }else {
-            }
-        }
 
         if (this.swingProgress > -9990.0F) {
             float f = this.swingProgress;

@@ -60,6 +60,10 @@ public class FlatUi extends GuiScreen {
     public Category Category = uwu.flauxy.module.Category.Combat;
     public Module currentModule;
 
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
 
     @Override
     public void initGui() {

@@ -5,6 +5,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -26,7 +27,19 @@ public class RenderUtil  {
     private static Minecraft mc = Minecraft.getMinecraft();
     private static final Frustum frustum = new Frustum();
 
-
+    public static void drawImage(final int x, final int y, final int width, final int height, final ResourceLocation image) {
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        GL11.glDisable(2929);
+        GL11.glEnable(3042);
+        GL11.glDepthMask(false);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        GL11.glColor4f(1, 1, 1, 1.0f);
+        mc.getTextureManager().bindTexture(image);
+        Gui.drawModalRectWithCustomSizedTexture(x, y, 0.0f, 0.0f, width, height, (float) width, (float) height);
+        GL11.glDepthMask(true);
+        GL11.glDisable(3042);
+        GL11.glEnable(2929);
+    }
     public static void drawRoundedRect2(final double x, final double y, final double width, final double height, double radius, int color) {
         RenderUtil.drawRoundedRect(x, y, width - x, height - y, radius, color);
     }

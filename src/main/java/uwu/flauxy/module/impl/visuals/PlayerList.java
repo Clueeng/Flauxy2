@@ -51,14 +51,14 @@ public class PlayerList extends Module {
             setX(X.getValue());
             setY(Y.getValue());
 
-            Gui.drawRect((float) (3 + getX()), (float) (-1 + getY()), (float) (151 + getX()), (float) (0 + getY()), getColor().getRGB());
+            Gui.drawRect((float) (3 + getX()), (float) (-1 + getY()), (float) (151 + getX()), (float) (0 + getY()), new Color(35, 35, 35).getRGB());
             if (Alpha.getValue() > 210) {
                 Gui.drawRect((float) (3 + getX()), (float) (0 + getY()), (float) (151 + getX()), (float) (17 + getY()), new Color(12, 12, 12, 255).getRGB());
             } else {
                 Gui.drawRect((float) (3 + getX()), (float) (0 + getY()), (float) (151 + getX()), (float) (17 + getY()), new Color(12, 12, 12, (int) (Alpha.getValue() + 45)).getRGB());
             }
-
-            Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawCenteredString("Players", (int) (148 / 2 + getX()), (int) (2.5 + getY()), -1);
+            int count = mc.theWorld.playerEntities.size();
+            mc.fontRendererObj.drawStringWithShadow("Player List (" + count + ")", (int) getX() + 8, (int) getY() + 4, -1);
 
             for (EntityPlayer entity : mc.theWorld.playerEntities) {
                 GlStateManager.resetColor();
@@ -73,9 +73,9 @@ public class PlayerList extends Module {
 
                 Gui.drawRect((float) (3 + getX()), (float) (0 + getY() + offset), (float) (151 + getX()), (float) (17 + getY() + offset), new Color(20, 20, 20, (int) Alpha.getValue()).getRGB());
                 if (entity.getName().equals(mc.thePlayer.getName())) {
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawCenteredString(entity.getName() + EnumChatFormatting.GRAY + " [" + EnumChatFormatting.WHITE + "You" + EnumChatFormatting.GRAY + "]", (int) (148 / 2 + getX()), (int) (2.5 + offset + getY()), -1);
+                    mc.fontRendererObj.drawStringWithShadow(EnumChatFormatting.YELLOW + "\u272A " + EnumChatFormatting.RESET + entity.getName(), (float) getX() + 12, (float) getY() + offset + 3, -1);
                 } else {
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawCenteredString(entity.getName() + getDistance(entity), (int) (148 / 2 + getX()), (int) (2.5 + offset + getY()), -1);
+                    mc.fontRendererObj.drawStringWithShadow(entity.getName() + " (" + Math.round(mc.thePlayer.getDistanceToEntity(entity)) + ")", (float) getX() + 12, (float) getY() + offset + 3, -1);
                 }
                 offset = offset + 17;
             }

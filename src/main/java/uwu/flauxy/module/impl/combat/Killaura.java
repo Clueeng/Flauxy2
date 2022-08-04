@@ -1,5 +1,7 @@
 package uwu.flauxy.module.impl.combat;
 
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -16,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
@@ -41,6 +44,7 @@ import uwu.flauxy.utils.render.RenderUtil;
 import uwu.flauxy.utils.timer.Timer;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -101,11 +105,18 @@ public class Killaura extends Module {
 
     public void onEvent(Event ev){
         if(ev instanceof EventUpdate){
+            this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode() + " | R: " + reach.getValue());
             // World
 
             if(!mobs.getValue()){
                 if(currentTarget instanceof EntityMob){
                     targets.remove(currentTarget);
+                }
+            }
+
+            if(currentTarget != null){
+                if(mc.thePlayer.getDistanceToEntity(currentTarget) > 15){
+                    currentTarget = null;
                 }
             }
 
@@ -165,8 +176,8 @@ public class Killaura extends Module {
 
                                 float scaledWidth = (float) sr.getScaledWidth();
                                 float scaledHeight = (float) sr.getScaledHeight();
-                                float x = scaledWidth / 2.0F - 70.0F;
-                                float y = scaledHeight / 2.0F + 80.0F;
+                                float x = scaledWidth / 2.0F - 170.0F;
+                                float y = scaledHeight / 2.0F - 25;
                                 int color, xHealthbar, yHealthbar;
                                 float add;
                                 double addX;
@@ -178,7 +189,7 @@ public class Killaura extends Module {
                                 GlStateManager.translate(x, y, 1.0F);
                                 GL11.glScalef(2.0F, 2.0F, 2.0F);
                                 GlStateManager.translate(-x, -y, 1.0F);
-                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "❤", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
+                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
                                 GL11.glPopMatrix();
                                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                                 GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
@@ -226,8 +237,35 @@ public class Killaura extends Module {
                                 double random = NumberUtil.generateRandomFloat(67565, 107450, 10000);
                                 //Wrapper.instance.log(String.valueOf(random));
                                 if(type.is("Pre") && event.isPre()){
-                                    yaw((float) (getRotations(target)[0] + random + 1 + Math.random()), event);
-                                    pitch((float) (getRotations(target)[1] + random + 1 + Math.random()), event);
+                                    float smoothnessX = 30;
+                                    float smoothnessY = 30;
+
+                                    if(event.getYaw() < getRotations(target)[0]){
+                                        float yaw = event.getYaw() + smoothnessX;
+                                        event.setYaw(yaw);
+                                        mc.thePlayer.rotationYawHead = yaw;
+                                        mc.thePlayer.renderYawOffset = yaw;
+                                    }
+                                    if(event.getYaw() > getRotations(target)[0]){
+                                        float yaw = event.getYaw() + smoothnessX;
+                                        event.setYaw(yaw);
+                                        mc.thePlayer.rotationYawHead = yaw;
+                                        mc.thePlayer.renderYawOffset = yaw;
+                                    }
+                                    if(event.getPitch() < getRotations(target)[1]){
+                                        float pitch = event.getPitch() + smoothnessY;
+                                        event.setYaw(pitch);
+                                        mc.thePlayer.rotationPitchHead = pitch;
+                                        event.setPitch(pitch);
+                                    }
+                                    if(event.getPitch() > getRotations(target)[1]){
+                                        float pitch = event.getPitch() - smoothnessY;
+                                        event.setYaw(pitch);
+                                        mc.thePlayer.rotationPitchHead = pitch;
+                                        event.setPitch(pitch);
+                                    }
+                                    //yaw((float) (getRotations(target)[0] + random + 1 + Math.random()), event);
+                                    //pitch((float) (getRotations(target)[1] + random + 1 + Math.random()), event);
                                 }
                                 break;
                             }

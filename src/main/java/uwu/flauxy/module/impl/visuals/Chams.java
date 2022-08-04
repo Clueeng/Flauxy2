@@ -89,7 +89,7 @@ public class Chams extends Module {
 
     public void color(double r, double g, double b, double a){
         GlStateManager.color((float) (r / red.getMaximum()), (float) (g / green.getMaximum()), (float) (b / blue.getMaximum()), (float) (a / alpha.getMaximum()));
-        GlStateManager.disableAlpha();
+
     }
 
 }
