@@ -18,6 +18,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.network.play.client.C0APacketAnimation;
+import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -68,7 +70,7 @@ public class Killaura extends Module {
     NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
     BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake").setCanShow(m -> autoblock.getValue());
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
 
@@ -313,6 +315,19 @@ public class Killaura extends Module {
                             if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
+                        }else{
+                            switch(autoblockMode.getMode()){
+                                case "Redesky":{
+                                    if(mc.thePlayer.getHeldItem() != null){
+                                        if(mc.thePlayer.getHeldItem().getItem() instanceof ItemSword){
+                                            if(mc.thePlayer.ticksExisted % 3 == 0){
+                                                mc.thePlayer.setItemInUse(mc.thePlayer.getHeldItem(), 1);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }else{
                         targets.remove(target);

@@ -7,6 +7,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Packet;
+import net.minecraft.network.login.client.C00PacketLoginStart;
+import net.minecraft.network.play.client.C00PacketKeepAlive;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import uwu.flauxy.event.Event;
@@ -49,6 +51,9 @@ public class PacketUtil {
     }
     public static boolean isPacketBlinkPacket(Packet p){
         return p instanceof C03PacketPlayer || p instanceof C03PacketPlayer.C04PacketPlayerPosition || p instanceof C0FPacketConfirmTransaction;
+    }
+    public static boolean isPacketPingSpoof(Packet p){
+        return p instanceof C0FPacketConfirmTransaction || p instanceof C00PacketKeepAlive;
     }
     // private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public static void blink(LinkedList<Packet> packetsLinked, Event e, int flyTicks, int pulseDelay, int maxDelay){
