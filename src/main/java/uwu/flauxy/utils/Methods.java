@@ -4,8 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.Timer;
 import uwu.flauxy.Flauxy;
 
-public interface Methods {
-
+public interface Methods { // we need to finish this beforef
     Minecraft mc = Minecraft.getMinecraft();
 
     default Timer getTimer() {

@@ -70,7 +70,7 @@ public class ArrayList extends Module {
             float y = 1;
             int count = 0;
 
-            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("auxy 19");
+            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("arial 19");
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                 if (m.isToggled()) {
                     m.xSlide += (0.9f * (60F / (float) Minecraft.getDebugFPS()) * (font.getWidth(m.getDisplayName()) / 4));
@@ -93,7 +93,7 @@ public class ArrayList extends Module {
                 }
             }
             if(customfont.getValue()){
-                mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("auxy 40").getWidth(((Module) m).getDisplayName())).reversed());
+                mods.sort(Comparator.comparingInt(m ->  (int) Flauxy.INSTANCE.getFontManager().getFont("arial 19").getWidth(((Module) m).getDisplayName())).reversed());
             }else{
                 mods.sort(Comparator.comparingInt(m ->  (int)mc.fontRendererObj.getStringWidth(((Module) m).getDisplayName())).reversed());
             }
@@ -172,13 +172,13 @@ public class ArrayList extends Module {
 
                     c+=m.ySlide - 0.12f;
                     if(m.ySlide < font.getHeight(m.getDisplayName())+retarded+1){
-                        m.ySlide+=0.28f;
+                        m.ySlide+=0.08f;
                     }
                     if(m.ySlide > font.getHeight(m.getDisplayName())+retarded+1){
-                        m.ySlide -= 0.08f;
+                        m.ySlide -= 0.02f;
                     }
                     if(!m.isToggled()){
-                        if(m.ySlide > 0) m.ySlide -= 0.28f;
+                        if(m.ySlide > 0) m.ySlide -= 0.08f;
                         else m.ySlide = 0f;
                     }
                     // X

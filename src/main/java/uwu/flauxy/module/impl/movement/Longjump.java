@@ -8,6 +8,7 @@ import net.minecraft.network.play.server.S27PacketExplosion;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovementInput;
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventReceivePacket;
@@ -16,11 +17,15 @@ import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.player.Nofall;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
 import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.Wrapper;
+import uwu.flauxy.utils.timer.Timer;
 
 import java.util.LinkedList;
 
@@ -31,20 +36,60 @@ public class Longjump extends Module {
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> mode.is("Verus"));
 
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Simple", "Normal").setCanShow((m) -> mode.is("Verus"));
-    public ModeSetting redeMode = new ModeSetting("Redesky Mode", "Normal", "Normal", "Advanced", "Packet").setCanShow((m) -> mode.is("Redesky"));
+    public ModeSetting redeMode = new ModeSetting("Redesky Mode", "Normal", "Normal", "Advanced", "Custom").setCanShow((m) -> mode.is("Redesky"));
+    public BooleanSetting redePacketCancel = new BooleanSetting("Cancel some packets", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeCustomSpeedInAir = new NumberSetting("Speed in air", 0.02, 0.02, 0.04, 0.0025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeCustomJumpMovement = new NumberSetting("Jump Move Factor", 0.02, 0.02, 0.04, 0.0025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeMotionY = new NumberSetting("Motion Y", 1.0, 0.42, 1.2, 0.025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeTimer = new NumberSetting("Timer", 1.0, 0.5, 1.2, 0.1).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeMotionMult = new NumberSetting("Motion Multiplier", 0.25, 0.2, 0.4, 0.1).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public BooleanSetting redeSlowingDown = new BooleanSetting("Slow Down", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeSlowDownFactor = new NumberSetting("Slow Down Factor", 0.94, 0.25, 0.99, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeSlowingDown.getValue());
 
+    public BooleanSetting redeBigJump = new BooleanSetting("Jump for longer", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeBigJumpMotion = new NumberSetting("Longer Jump Motion", 0.05, 0.01, 0.20, 0.05).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeBigJump.getValue());
+    public NumberSetting redeBigJumpLength = new NumberSetting("Big jump Length", 1, 0, 4, 0.25).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeBigJump.getValue());
+    public BooleanSetting redeFlagFall = new BooleanSetting("Flag Fall", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeFlagFallDistance = new NumberSetting("Fall Distance", 1.5, 0.5, 2, 0.5).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+    public NumberSetting redeFlagFallMotion = new NumberSetting("Fall Motion Y", 0.42, 0.05, 0.8, 0.05).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+    public NumberSetting redeFlagFallJumpMove = new NumberSetting("Fall Move Factor", 0.02, 0.01, 0.04, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+    public NumberSetting redeFlagSpeedInAir = new NumberSetting("Fall Air Speed", 0.02, 0.01, 0.04, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+    public BooleanSetting groundFlag = new BooleanSetting("Ground Flag Fall", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+
+    boolean thingmotion = false;
+
+    public boolean shouldWait;
+    public int seconds = 0;
+    public Timer timerWait = new Timer();
     double firstypos;
     LinkedList<Packet> packetsLinked = new LinkedList<>();
 
     public Longjump(){
-        addSettings(mode, verusMode, speed, redeMode);
+        addSettings(mode, verusMode, speed, redeMode, redePacketCancel, redeCustomSpeedInAir, redeCustomJumpMovement, redeMotionY, redeTimer, redeMotionMult, redeSlowingDown, redeSlowDownFactor, redeBigJump,
+                redeBigJumpMotion, redeBigJumpLength, redeFlagFall, redeFlagFallDistance, redeFlagFallJumpMove, redeFlagSpeedInAir, redeFlagFallMotion, groundFlag
+
+        );
     }
     boolean shouldBlink;
 
     int ticks = 0;
     public void onEnable() {
+        thingmotion = true;
         stage = 2;
         switch(mode.getMode()){
+            case "Redesky":{
+                if(!mc.thePlayer.onGround) this.toggle();
+                switch(redeMode.getMode()){
+                    case "Advanced":{
+                        timerWait.reset();
+                        seconds = 120;
+                        shouldWait = true;
+
+                        break;
+                    }
+                }
+                break;
+            }
             case "Verus":{
                 ticks = 0;
                 switch(verusMode.getMode()){
@@ -126,7 +171,7 @@ public class Longjump extends Module {
                         if(ev instanceof EventSendPacket){
                             EventSendPacket e = (EventSendPacket) ev;
                             if(e.getPacket() instanceof S12PacketEntityVelocity){
-                                e.setCancelled(mc.thePlayer.ticksExisted % 2 == 0);
+                                e.setCancelled(true);
                             }
                         }
                         if(ev instanceof EventMotion){
@@ -137,7 +182,7 @@ public class Longjump extends Module {
                                     this.toggle();
                                     mc.thePlayer.motionY = 0;
                                 }else{
-                                    mc.thePlayer.motionY = stage <= 2 ? 0.42f : 0.72f;
+                                    mc.thePlayer.motionY = stage <= 2 ? 0.42f : 0.78f;
                                 }
                                 onGroundTicks++;
                                 offGroundTicks = 0;
@@ -178,24 +223,133 @@ public class Longjump extends Module {
                         }
                         break;
                     }
-                    case "Advanced":{
-                        if(ev instanceof EventUpdate) {
-                            if(mc.thePlayer.onGround) {
-                                mc.thePlayer.jump();
-                            } else {
-                                mc.thePlayer.jumpMovementFactor = 0.125F;
-                            }
-                        } else if(ev instanceof EventReceivePacket) {
-                            EventReceivePacket e = (EventReceivePacket) ev;
 
-                            if(e.getPacket() instanceof S12PacketEntityVelocity) {
-                                S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
-                                packet.setMotionY(packet.getMotionY() * 3);
-                                if(packet.getEntityID() == mc.thePlayer.getEntityId()) {
-                                    //e.setCancelled(true);
+                    case "Custom":{
+                        if(ev instanceof EventSendPacket){
+                            EventSendPacket e = (EventSendPacket) ev;
+                            if(redePacketCancel.getValue()){
+                                if(e.getPacket() instanceof S12PacketEntityVelocity){
+                                    e.setCancelled(true);
                                 }
-                            } else if(e.getPacket() instanceof S27PacketExplosion) {
+                                if(e.getPacket() instanceof S08PacketPlayerPosLook){
+                                    e.setCancelled(true);
+                                }
+                            }
+                        }
+                        if(ev instanceof EventMotion){
+                            EventMotion e = (EventMotion) ev;
+                            mc.timer.timerSpeed = (float) redeTimer.getValue();
+                            if(mc.thePlayer.onGround){
+                                if(stage >= 5){
+                                    this.toggle();
+                                    mc.thePlayer.motionY = 0;
+                                }else{
+                                    mc.thePlayer.motionY = stage <= 2 ? 0.42f : redeMotionY.getValue();
+                                }
+                                onGroundTicks++;
+                                offGroundTicks = 0;
+                                stage++;
+                            }else{
+                                if(redeFlagFall.getValue()){
+                                    mc.thePlayer.jumpMovementFactor = (float) redeFlagFallJumpMove.getValue();
+                                    mc.thePlayer.speedInAir = (float) redeFlagSpeedInAir.getValue();
+                                    if(mc.thePlayer.fallDistance2 > redeFlagFallDistance.getValue() ){
+                                        mc.thePlayer.motionY += redeFlagFallMotion.getValue();
+                                        mc.thePlayer.fallDistance2 = 0;
+
+                                    }
+                                    Nofall nofall = Flauxy.INSTANCE.getModuleManager().getModule(Nofall.class);
+                                    if(!nofall.isToggled()){
+                                        if(groundFlag.getValue()){
+                                            if(mc.thePlayer.fallDistance > 2){
+                                                e.setOnGround(true);
+                                                mc.thePlayer.fallDistance = 0;
+                                            }
+                                        }
+                                    }
+                                }
+                                if(redeBigJump.getValue()){
+                                    if(thingmotion){
+                                        Wrapper.instance.log("" + mc.thePlayer.motionY);
+                                        mc.thePlayer.motionY += redeBigJumpMotion.getValue();
+                                    }
+                                    if(mc.thePlayer.motionY >= (redeMotionY.getValue() - (redeMotionY.getValue()) / 2) + redeBigJumpMotion.getValue() + (redeBigJumpLength.getValue() / 10)){
+                                        thingmotion = false;
+                                    }
+                                }
+                                mc.thePlayer.jumpMovementFactor = (float) redeCustomJumpMovement.getValue();
+                                if(stage >= 2){
+                                    if(mc.thePlayer.motionY < redeMotionY.getValue() / 1.5f){
+                                        float f = mc.thePlayer.rotationYaw * (0.017453292F * 6);
+                                        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * redeMotionMult.getValue()); // 0.2 - 0.4
+                                        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * redeMotionMult.getValue());
+                                        mc.thePlayer.speedInAir = (float) redeCustomSpeedInAir.getValue();
+                                    }
+                                }
+                                onGroundTicks = 0;
+                                offGroundTicks++;
+                                if(offGroundTicks == 1 && stage < 3){
+                                    MoveUtils.setSpeed(MoveUtils.getMotion() * 1.04, mc.thePlayer.rotationYaw, 0, 1);
+                                }else{
+                                    MoveUtils.setSpeed(Math.min(MoveUtils.getMotion() * 0.97, MoveUtils.getMotion() * 1.02), mc.thePlayer.rotationYaw, 0, 1);
+                                }
+                                // slow down
+                                /*if(redeSlowingDown.getValue()){
+                                    if(mc.thePlayer.fallDistance > 2.5f){
+                                        Wrapper.instance.log("a");
+                                        mc.thePlayer.motionX *= redeSlowDownFactor.getValue();
+                                        mc.thePlayer.motionZ *= redeSlowDownFactor.getValue();
+                                    }else{
+
+                                    }
+                                }*/
+                                if(mc.thePlayer.speedInAir >= 0.02) mc.thePlayer.speedInAir -= 0.01;
+                                if(mc.thePlayer.speedInAir < 0.02) mc.thePlayer.speedInAir = 0.02f;
+                            }
+                        }
+                        break;
+                    }
+                    case "Advanced":{
+                        if(ev instanceof EventSendPacket){
+                            EventSendPacket e = (EventSendPacket) ev;
+                            if(e.getPacket() instanceof S12PacketEntityVelocity){
                                 e.setCancelled(true);
+                            }
+                            if(e.getPacket() instanceof S08PacketPlayerPosLook){
+                                e.setCancelled(true);
+                            }
+                        }
+                        if(ev instanceof EventMotion){
+                            EventMotion e = (EventMotion) ev;
+                            mc.timer.timerSpeed = 0.8f;
+                            if(mc.thePlayer.onGround){
+                                if(stage >= 5){
+                                    this.toggle();
+                                    mc.thePlayer.motionY = 0;
+                                }else{
+                                    mc.thePlayer.motionY = stage <= 2 ? 0.42f : 1.01f;
+                                }
+                                onGroundTicks++;
+                                offGroundTicks = 0;
+                                stage++;
+                            }else{
+                                if(stage >= 2){
+                                    if(mc.thePlayer.motionY < 0.78){
+                                        float f = mc.thePlayer.rotationYaw * (0.017453292F * 6);
+                                        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.25F);
+                                        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.25F);
+                                        mc.thePlayer.speedInAir = 0.03f;
+                                    }
+                                }
+                                onGroundTicks = 0;
+                                offGroundTicks++;
+                                if(offGroundTicks == 1 && stage < 3){
+                                    MoveUtils.strafe(MoveUtils.getMotion() * 1.04);
+                                }else{
+                                    MoveUtils.strafe(Math.min(MoveUtils.getMotion() * 0.97, MoveUtils.getMotion() * 1.02));
+                                }
+                                if(mc.thePlayer.speedInAir >= 0.02) mc.thePlayer.speedInAir -= 0.01;
+                                if(mc.thePlayer.speedInAir < 0.02) mc.thePlayer.speedInAir = 0.02f;
                             }
                         }
                         break;

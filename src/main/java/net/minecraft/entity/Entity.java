@@ -12,6 +12,7 @@ import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -46,6 +47,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventStrafe;
 
 public abstract class Entity implements ICommandSender
 {
@@ -138,7 +141,7 @@ public abstract class Entity implements ICommandSender
     /** The distance walked multiplied by 0.6 */
     public float distanceWalkedModified;
     public float distanceWalkedOnStepModified;
-    public float fallDistance;
+    public float fallDistance, fallDistance2;
 
     /**
      * The distance that has to be exceeded in order to triger a new step sound and an onEntityWalking event on a block
@@ -499,6 +502,7 @@ public abstract class Entity implements ICommandSender
         {
             this.setOnFireFromLava();
             this.fallDistance *= 0.5F;
+            this.fallDistance2 *= 0.5F;
         }
 
         if (this.posY < -64.0D)
@@ -1025,6 +1029,19 @@ public abstract class Entity implements ICommandSender
     {
         if (onGroundIn)
         {
+            if (this.fallDistance2 > 0.0F)
+            {
+                if (blockIn != null)
+                {
+                    blockIn.onFallenUpon(this.worldObj, pos, this, this.fallDistance2);
+                }
+                else
+                {
+                    this.fall(this.fallDistance2, 1.0F);
+                }
+
+                this.fallDistance2 = 0.0F;
+            }
             if (this.fallDistance > 0.0F)
             {
                 if (blockIn != null)
@@ -1042,6 +1059,7 @@ public abstract class Entity implements ICommandSender
         else if (y < 0.0D)
         {
             this.fallDistance = (float)((double)this.fallDistance - y);
+            this.fallDistance2 = (float)((double)this.fallDistance2 - y);
         }
     }
 
@@ -1108,6 +1126,7 @@ public abstract class Entity implements ICommandSender
             }
 
             this.fallDistance = 0.0F;
+            this.fallDistance2 = 0.0F;
             this.inWater = true;
             this.fire = 0;
         }
@@ -1213,6 +1232,8 @@ public abstract class Entity implements ICommandSender
      */
     public void moveFlying(float strafe, float forward, float friction)
     {
+        EventStrafe e = new EventStrafe(this.rotationYaw);
+        Flauxy.onEvent(e);
         float f = strafe * strafe + forward * forward;
 
         if (f >= 1.0E-4F)
@@ -1227,8 +1248,15 @@ public abstract class Entity implements ICommandSender
             f = friction / f;
             strafe = strafe * f;
             forward = forward * f;
-            float f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
-            float f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
+            float f1 = 0;
+            float f2 = 0;
+            if(this.equals(Minecraft.getMinecraft().thePlayer)){
+                f1 = MathHelper.sin(e.getYaw() * (float)Math.PI / 180.0F);
+                f2 = MathHelper.cos(e.getYaw() * (float)Math.PI / 180.0F);
+            }else{
+                f1 = MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F);
+                f2 = MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F);
+            }
             this.motionX += (double)(strafe * f2 - forward * f1);
             this.motionZ += (double)(forward * f2 + strafe * f1);
         }
@@ -1602,6 +1630,7 @@ public abstract class Entity implements ICommandSender
             tagCompund.setTag("Motion", this.newDoubleNBTList(new double[] {this.motionX, this.motionY, this.motionZ}));
             tagCompund.setTag("Rotation", this.newFloatNBTList(new float[] {this.rotationYaw, this.rotationPitch}));
             tagCompund.setFloat("FallDistance", this.fallDistance);
+            tagCompund.setFloat("FallDistance2", this.fallDistance2);
             tagCompund.setShort("Fire", (short)this.fire);
             tagCompund.setShort("Air", (short)this.getAir());
             tagCompund.setBoolean("OnGround", this.onGround);
@@ -1682,6 +1711,7 @@ public abstract class Entity implements ICommandSender
             this.setRotationYawHead(this.rotationYaw);
             this.func_181013_g(this.rotationYaw);
             this.fallDistance = tagCompund.getFloat("FallDistance");
+            this.fallDistance2 = tagCompund.getFloat("FallDistance2");
             this.fire = tagCompund.getShort("Fire");
             this.setAir(tagCompund.getShort("Air"));
             this.onGround = tagCompund.getBoolean("OnGround");
@@ -2331,6 +2361,7 @@ public abstract class Entity implements ICommandSender
     {
         this.isInWeb = true;
         this.fallDistance = 0.0F;
+        this.fallDistance2 = 0.0F;
     }
 
     /**

@@ -55,7 +55,6 @@ public class Speed extends Module {
 
     public void onEvent(Event event){
         if(event instanceof EventUpdate){
-
             this.setDisplayName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
@@ -64,25 +63,14 @@ public class Speed extends Module {
                     EventMotion e = (EventMotion) event;
 
                     if(mc.thePlayer.motionY > 0.20 || (mc.thePlayer.motionY < -0.3 && mc.thePlayer.fallDistance < 1.5f)){
-                        Wrapper.instance.log("a");
-                        mc.timer.timerSpeed += 0.09f;
+                        mc.timer.timerSpeed += 0.019f;
                     }
 
-                    if(mc.thePlayer.onGround && mc.thePlayer.jumpTicks == 0){
-                        mc.thePlayer.motionY = 0.42f;
-                        mc.timer.timerSpeed = 1f;
-
-                        if (mc.thePlayer.isPotionActive(Potion.jump))
-                        {
-                            mc.thePlayer.motionY += (double)((float)(mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
-                        }
-                        if (mc.thePlayer.isSprinting())
-                        {
-                            float f = mc.thePlayer.rotationYaw * 0.017453292F;
-                            mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.11F);
-                            mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.11F);
-                        }
-                        mc.thePlayer.isAirBorne = true;
+                    if(mc.thePlayer.onGround){
+                        mc.timer.timerSpeed = 1.0f;
+                        mc.gameSettings.keyBindJump.pressed = true;
+                    }else{
+                        mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
                     }
                 }
 
@@ -199,12 +187,28 @@ public class Speed extends Module {
                     switch(testMode.getMode()){
 
                         case "Test 3":{
+                            mc.thePlayer.jumpMovementFactor = 0.23f;
                             if(mc.thePlayer.onGround){
-                                e.setY(mc.thePlayer.motionY = 0.25f);
-                                MoveUtils.strafe(MoveUtils.getMotion() * 2.47f);
+                                mc.thePlayer.speedInAir = 0.03f;
+                                speedV *= speedV > 0.65 ? 0.98 : 1.29;
+                                MoveUtils.strafe(speedV * 1.24);
+                                if(onGroundTicks > 2)
+                                    e.setY(mc.thePlayer.motionY = 0.42f);
+                                offGroundTicks = 0;
+                                onGroundTicks++;
                             }else{
-                                MoveUtils.strafe(MoveUtils.getMotion() * 0.97f);
+                                onGroundTicks = 0;
+                                offGroundTicks++;
+                                speedV = MathHelper.sin((float) speedV);
                             }
+                            switch(offGroundTicks){
+                                case 1:
+                                    Wrapper.instance.log("accelerating");
+                                    speedV *= 1.2f;
+                                    e.setY(mc.thePlayer.motionY -= 0.12);
+                                    break;
+                            }
+                            MoveUtils.strafe(Math.max(speedV, MoveUtils.getBaseSpeed()));
                             break;
                         }
                         case "Test 2":{
@@ -430,6 +434,7 @@ public class Speed extends Module {
     @Override
     public void onDisable() {
 
+        mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
         mc.timer.timerSpeed = 1.0f;
         mc.thePlayer.jumpMovementFactor = 0.02F;
         mc.thePlayer.speedInAir = 0.02F;

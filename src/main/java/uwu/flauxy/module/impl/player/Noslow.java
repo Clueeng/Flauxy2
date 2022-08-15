@@ -1,10 +1,12 @@
 package uwu.flauxy.module.impl.player;
 
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
@@ -18,11 +20,12 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.PacketUtil;
+import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Noslow", displayName = "No Slow", key = -1, cat = Category.Player)
 public class Noslow extends Module {
 
-    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced");
+    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky");
     NumberSetting redudeX = new NumberSetting("Reduce X", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
     NumberSetting redudeZ = new NumberSetting("Reduce Z", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
 
@@ -30,12 +33,28 @@ public class Noslow extends Module {
         addSettings(mode, redudeX, redudeZ);
     }
 
+    boolean blockStop;
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
-            this.setDisplayName("Noslow " + EnumChatFormatting.WHITE + "Mode: " + mode.getMode());
+            this.setDisplayName("Noslow " + EnumChatFormatting.WHITE + "" + mode.getMode());
         }
         switch(mode.getMode()){
+            case "RedeSky":{
+                if(e instanceof EventUpdate){
+                    if(shouldBeNoslowing()){
+                        placement();
+                        blockStop = false;
+                    }else{
+                        if(!blockStop){
+                            release();
+                            blockStop = true;
+                        }
+                    }
+                }
+
+                break;
+            }
             case "Reduced":{
                 if(e instanceof EventUpdate){
                     if(shouldBeNoslowing()){
@@ -68,12 +87,24 @@ public class Noslow extends Module {
     public boolean isUsingSword() {
         return mc.thePlayer.isUsingItem() && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
     }
+    public boolean isUsingBow() {
+        return mc.thePlayer.isUsingItem() && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow;
+    }
     public boolean isConsumingFood() {
         return mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem().getItem() instanceof ItemFood || mc.thePlayer.getHeldItem().getItem() instanceof ItemPotion);
     }
     public boolean shouldBeNoslowing(){
-        return ( isUsingSword() || isConsumingFood() );
+        return ( isUsingSword() || isConsumingFood() || isUsingBow() );
     }
+
+    public void release(){
+        PacketUtil.sendSilentPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+    }
+    public void placement(){
+        PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement((mc.thePlayer.getHeldItem())));
+    }
+
+
 
 
 }

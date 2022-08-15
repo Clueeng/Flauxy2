@@ -82,6 +82,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Project;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventRender3D;
 
 public class EntityRenderer implements IResourceManagerReloadListener // bienvenue en enfer ce client est buggé de ouf
 {
@@ -1646,6 +1648,8 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             this.mc.mcProfiler.endStartSection("aboveClouds");
             this.renderCloudsCheck(renderglobal, partialTicks, pass);
         }
+
+        Flauxy.onEvent(new EventRender3D(partialTicks));
 
         if (Reflector.ForgeHooksClient_dispatchRenderLast.exists())
         {

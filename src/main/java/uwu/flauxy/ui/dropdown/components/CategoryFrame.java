@@ -39,7 +39,7 @@ public class CategoryFrame implements ColorHelper {
     {
         this.category = category;
         this.modules = new ArrayList<>();
-        this.animation = new Animate().setEase(Easing.CUBIC_OUT).setSpeed(250).setMin(0).setMax(defaultWidth / 2F);
+        this.animation = new Animate().setEase(Easing.ELASTIC_OUT).setSpeed(150).setMin(0).setMax(defaultWidth / 2F);
 
         this.x = x;
         this.y = y;
@@ -83,8 +83,8 @@ public class CategoryFrame implements ColorHelper {
         // Drawing category base
         // Drawing category name rect thing
 
-        RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + getHeight(), 5, mainColor);
-        RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + categoryNameHeight, 5, darkerMainColor);
+        RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + getHeight(), 0, mainColor);
+        RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + categoryNameHeight, 0, darkerMainColor);
 
 
         // Drag ClickGUI

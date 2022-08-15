@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.nio.FloatBuffer;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -25,7 +27,13 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.visuals.Chams;
+import uwu.flauxy.utils.WorldUtil;
+import uwu.flauxy.utils.render.RenderUtil;
 
+import static org.lwjgl.opengl.GL11.*;
 public abstract class RendererLivingEntity<T extends EntityLivingBase> extends Render<T>
 {
     private static final Logger logger = LogManager.getLogger();
@@ -252,17 +260,17 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
      */
     protected void renderModel(T entitylivingbaseIn, float p_77036_2_, float p_77036_3_, float p_77036_4_, float p_77036_5_, float p_77036_6_, float p_77036_7_)
     {
-        boolean flag = !entitylivingbaseIn.isInvisible();
-        boolean flag1 = !flag && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
+        boolean visible = !entitylivingbaseIn.isInvisible();
+        boolean visibleToPlayer = !visible && !entitylivingbaseIn.isInvisibleToPlayer(Minecraft.getMinecraft().thePlayer);
 
-        if (flag || flag1)
+        if (visible || visibleToPlayer)
         {
             if (!this.bindEntityTexture(entitylivingbaseIn))
             {
                 return;
             }
 
-            if (flag1)
+            if (visibleToPlayer)
             {
                 GlStateManager.pushMatrix();
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 0.15F);
@@ -272,9 +280,37 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
                 GlStateManager.alphaFunc(516, 0.003921569F);
             }
 
-            this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, p_77036_7_);
+            // thats where the magic happens
+            Chams chams = Flauxy.INSTANCE.getModuleManager().getModule(Chams.class);
+            if(chams.isToggled() && chams.mode.is("Colored") && WorldUtil.isValidChams(entitylivingbaseIn)){
+                Color color = new Color((int) chams.red.getValue(), (int) chams.green.getValue(), (int) chams.blue.getValue(), (int) chams.alpha.getValue());
+                Color hiddenColor = new Color((int) chams.red2.getValue(), (int) chams.green2.getValue(), (int) chams.blue2.getValue(), (int) chams.alpha.getValue());
+                glPushAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glDisable(GL_TEXTURE_2D);
+                GlStateManager.disableLighting();
+                /*if (!chams.materialProperty().getValue())
+                    GlStateManager.disableLighting();*/
+                if(WorldUtil.isValidChams(entitylivingbaseIn)) RenderUtil.color(hiddenColor);
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+                glDisable(GL_DEPTH_TEST);
+                this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, p_77036_7_);
+                glEnable(GL_DEPTH_TEST);
+                RenderUtil.color(color);
+                this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, p_77036_7_);
+                GlStateManager.enableLighting();
+                /*if (!chams.materialProperty().getValue())
+                    GlStateManager.enableLighting();*/
+                glEnable(GL_TEXTURE_2D);
+                glDisable(GL_BLEND);
+                glPopAttrib();
+                glColor4f(1, 1, 1, 1);
+            }else{
+                this.mainModel.render(entitylivingbaseIn, p_77036_2_, p_77036_3_, p_77036_4_, p_77036_5_, p_77036_6_, p_77036_7_);
+            }
 
-            if (flag1)
+            if (visibleToPlayer)
             {
                 GlStateManager.disableBlend();
                 GlStateManager.alphaFunc(516, 0.1F);

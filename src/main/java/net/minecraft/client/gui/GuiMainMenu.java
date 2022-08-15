@@ -38,6 +38,7 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.alts.GuiAltManager;
+import uwu.flauxy.utils.DiscordPresenceUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
@@ -212,6 +213,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
     public void initGui()
     {
+        DiscordPresenceUtil.setPresence("In main menu", "Build 0", true);
         tickToGenerate = 0;
         generateImage();
         this.viewportTexture = new DynamicTexture(256, 256);

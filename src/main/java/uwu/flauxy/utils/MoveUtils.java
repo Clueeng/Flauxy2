@@ -57,7 +57,6 @@ public class MoveUtils {
 
     public static double getSpeed() {
         Minecraft mc = Minecraft.getMinecraft();
-        // nigga hypot heavy
         return Math.hypot(mc.thePlayer.motionX, mc.thePlayer.motionZ);
     }
 

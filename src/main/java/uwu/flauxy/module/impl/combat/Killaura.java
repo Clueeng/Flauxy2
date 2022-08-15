@@ -99,6 +99,7 @@ public class Killaura extends Module {
         }
     }
 
+    float tempX = 0;
     public Entity currentTarget;
     List<Entity> targets;
 
@@ -179,6 +180,17 @@ public class Killaura extends Module {
                                 float x = scaledWidth / 2.0F - 170.0F;
                                 float y = scaledHeight / 2.0F - 25;
                                 int color, xHealthbar, yHealthbar;
+                                Color healthColor = Color.GREEN;
+                                float health = target.getHealth();
+                                float maxHealth = target.getMaxHealth();
+
+                                if (health < maxHealth / 1f) healthColor = new Color(93, 234, 42);
+                                if (health < maxHealth / 1.25f) healthColor = new Color(104, 219, 32);
+                                if (health < maxHealth / 1.5f) healthColor = new Color(219, 185, 32);
+                                if (health < maxHealth / 2) healthColor = new Color(219, 157, 32);
+                                if (health < maxHealth / 3) healthColor = new Color(219, 116, 32);
+                                if (health < maxHealth / 4) healthColor = new Color(219, 48, 32);
+                                healthColor = new Color(healthColor.getRed(), healthColor.getGreen(), healthColor.getBlue(), (int)(1 * 255));
                                 float add;
                                 double addX;
                                 int index;
@@ -192,20 +204,33 @@ public class Killaura extends Module {
                                 this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
                                 GL11.glPopMatrix();
                                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+
                                 GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
+
+
                                 xHealthbar = 30;
                                 yHealthbar = 46;
                                 add = 120.0F;
+                                if(tempX < target.getHealth() / target.getMaxHealth() * add){
+                                    tempX+=0.48f;
+                                }else{
+                                    tempX-=0.16f;
+                                }
                                 drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
-                                drawRect(x + xHealthbar, y + yHealthbar, target.getHealth() / target.getMaxHealth() * add, 8.0F, new Color(color));
+                                drawRect(x + xHealthbar, y + yHealthbar, tempX, 8.0F, healthColor);
                                 addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
-                                drawRect((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
+                                //drawRect((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
+
+
+
                                 for (index = 1; index < 5; index++) {
                                     if (target.getEquipmentInSlot(index) == null) ;
                                 }
                             }
                         }
                     }
+                    GlStateManager.color(1f, 1f, 1f);
                 }
             }
         }

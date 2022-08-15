@@ -174,7 +174,7 @@ public class Fly extends Module {
                         break;
                     }
                     case "Test 2":{
-                        /*if(e instanceof EventSendPacket){
+                        if(e instanceof EventSendPacket){
                             int maxTick = Integer.MAX_VALUE; // Integer.MAX_VALUE for infinite blink
                             int tickDelay = 20;
                             EventSendPacket eventSendPacket = (EventSendPacket) e;
@@ -188,7 +188,7 @@ public class Fly extends Module {
                                 }
                                 packetsLinked.clear();
                             }
-                        }*/
+                        }
 
                         PacketUtil.blink(packetsLinked, e, flyTicks, 4, Integer.MAX_VALUE);
                         if(e instanceof EventMotion){

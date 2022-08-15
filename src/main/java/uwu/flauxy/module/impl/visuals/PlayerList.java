@@ -47,6 +47,7 @@ public class PlayerList extends Module {
 
     public void onEvent(Event e) {
         if (e instanceof EventRender2D) {
+            if(mc.theWorld == null || mc.thePlayer == null) return;
             float offset = 17;
             setX(X.getValue());
             setY(Y.getValue());
@@ -63,7 +64,7 @@ public class PlayerList extends Module {
             for (EntityPlayer entity : mc.theWorld.playerEntities) {
                 GlStateManager.resetColor();
                 if (validname.isEnabled()) {
-                    if (entity.isInvisible()  || entity.getName().contains("(") || entity.getName().contains(")") || entity.getName().contains("-") || entity.getName().contains("§")) {
+                    if (entity.isInvisible()  || entity.getName().contains("(") || entity.getName().contains(")") || entity.getName().contains("-") || entity.getName().contains("§")|| entity.getName().contains("[")|| entity.getName().contains("]")) {
                         return;
                     }
                 }

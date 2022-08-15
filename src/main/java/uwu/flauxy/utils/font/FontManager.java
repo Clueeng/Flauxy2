@@ -25,7 +25,7 @@ public class FontManager {
     private HashMap<String, TTFFontRenderer> fonts = new HashMap<>();
 
     public static TTFFontRenderer getFont() {
-        return Flauxy.INSTANCE.fontManager.getFont("auxy 21");
+        return Flauxy.INSTANCE.fontManager.getFont("arial 21");
     }
 
     public FontManager() {

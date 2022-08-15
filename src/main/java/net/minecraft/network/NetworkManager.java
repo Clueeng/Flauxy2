@@ -52,6 +52,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.EventDirection;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventSendPacket;
 import viamcp.ViaMCP;
@@ -191,6 +193,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
         EventSendPacket event = new EventSendPacket(packetIn);
         Flauxy.onEvent(event);
+        event.setType(EventType.PRE);
         if (this.isChannelOpen())
         {
             if(event.isCancelled()) return;
@@ -210,6 +213,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 this.field_181680_j.writeLock().unlock();
             }
         }
+        event.setType(EventType.POST);
     }
 
     public void sendPacketNoEvent(Packet packetIn)

@@ -19,6 +19,10 @@ public class ClickGUI extends GuiScreen {
         // Creating category instance foreach listed category
         for(Category category : Category.values())
         {
+            if(category.id >= 7){
+                if(category.id == 7) index = -1;
+                categories.add(new CategoryFrame(category, 10 + (++index * (125 + 10)), height + 280));
+            }
             categories.add(new CategoryFrame(category, 10 + (++index * (125 + 10)), 10));
         }
     }

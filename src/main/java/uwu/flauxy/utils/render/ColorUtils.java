@@ -15,6 +15,11 @@ public class ColorUtils {
         int color = java.awt.Color.HSBtoRGB(hue, saturation, brightness);
         return color;
     }
+    public static Color getRainbowC(float seconds, float saturation, float brightness, long index) {
+        float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 750)) / (float)(seconds*750);
+        Color color = new java.awt.Color(hue, saturation, brightness);
+        return color;
+    }
 
     public static Color blend(Color color1, Color color2, double offset) {
         if (offset > 1) {
@@ -52,6 +57,20 @@ public class ColorUtils {
         hue += 0.5F;
         return Color.HSBtoRGB(hue, saturation, brightness);
     }
+
+
+    public static Color astolfoC(float seconds, float saturation, float brightness, float index) {
+        float speed = 3000f;
+        float hue = (System.currentTimeMillis() % (int) (seconds * 1000)) + index;
+        while (hue > speed)
+            hue -= speed;
+        hue /= speed;
+        if (hue > 0.5)
+            hue = 0.5F - (hue - 0.5f);
+        hue += 0.5F;
+        return new Color(hue, saturation, brightness);
+    }
+
     public static int blendThing(float seconds, long index, Color col1, Color col2) {
         index += 40;
         float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 1000)) / (seconds * 1000);
@@ -60,6 +79,15 @@ public class ColorUtils {
             hue2 = 2 - hue2;
         }
         return blend(col1, col2, hue2).getRGB();
+    }
+    public static Color blendThingC(float seconds, long index, Color col1, Color col2) {
+        index += 40;
+        float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 1000)) / (seconds * 1000);
+        float hue2 = hue * 2;
+        if(hue2 > 1) {
+            hue2 = 2 - hue2;
+        }
+        return blend(col1, col2, hue2);
     }
     public static int blendThing(float seconds, long index, Color col1, Color col2, float a) {
         index += 40;

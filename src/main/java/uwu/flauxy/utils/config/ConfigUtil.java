@@ -22,6 +22,19 @@ public class ConfigUtil {
 
     private File dataFile;
 
+    public ArrayList<File> getAllConfigs(){
+        File folder = new File("Flauxy" + "/Configs");
+        File[] listOfFiles = folder.listFiles();
+        ArrayList<File> finalList = null;
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                finalList.add(listOfFiles[i]);
+            }
+        }
+        return finalList;
+    }
+
     public void save(String name) {
         this.dir = new File(String.valueOf(Folder.dir));
         if (!this.dir.exists())
@@ -83,7 +96,7 @@ public class ConfigUtil {
             this.dir.mkdir();
         this.dataFile = new File(this.dir, name + ".txt");
         for(Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-            if(m.isToggled()) {
+            if(m.isToggled()  ) {
                 m.toggle();
             }
         }
@@ -105,16 +118,16 @@ public class ConfigUtil {
                 String[] args = s.split(":");
                 if (s.toLowerCase().startsWith("module:"))
                     for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-                        if (m.getName().equalsIgnoreCase(args[1])) {
+                        if (m.getName().equalsIgnoreCase(args[1]) ) {
                             boolean shouldEnable = Boolean.parseBoolean(args[2]);
-                            if (shouldEnable && !m.isToggled())
+                            if (shouldEnable && !m.isToggled() )
                                 m.setToggled(true);
                             if (args.length > 4);
                         }
                     }
                 if (s.toLowerCase().startsWith("number:"))
                     for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-                        if (m.getName().equalsIgnoreCase(args[1]))
+                        if (m.getName().equalsIgnoreCase(args[1]) )
                             for (Setting setting : m.getSettings()) {
                                 if (!(setting instanceof NumberSetting))
                                     continue;
@@ -126,7 +139,7 @@ public class ConfigUtil {
                     }
                 if (s.toLowerCase().startsWith("boolean:"))
                     for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-                        if (m.getName().equalsIgnoreCase(args[1]))
+                        if (m.getName().equalsIgnoreCase(args[1]) )
                             for (Setting setting : m.getSettings()) {
                                 if (!(setting instanceof BooleanSetting))
                                     continue;
@@ -138,7 +151,7 @@ public class ConfigUtil {
                     }
                 if (s.toLowerCase().startsWith("mode:"))
                     for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
-                        if (m.getName().equalsIgnoreCase(args[1]))
+                        if (m.getName().equalsIgnoreCase(args[1]) )
                             for (Setting setting : m.getSettings()) {
                                 if (!(setting instanceof ModeSetting))
                                     continue;

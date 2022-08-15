@@ -9,6 +9,7 @@ import uwu.flauxy.event.impl.EventRenderPlayer;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 
@@ -18,14 +19,23 @@ public class Chams extends Module {
     public ModeSetting mode = new ModeSetting("Mode", "Colored", "Colored", "Basic");
     public NumberSetting red = new NumberSetting("Red", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
     public NumberSetting green = new NumberSetting("Green", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
-    public NumberSetting blue = new NumberSetting("Red", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
-    public NumberSetting alpha = new NumberSetting("Alpha", 1, 0, 100, 1).setCanShow(m -> mode.is("Colored"));
+    public NumberSetting blue = new NumberSetting("Blue", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
+    public NumberSetting red2 = new NumberSetting("Hidden Red", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
+    public NumberSetting green2 = new NumberSetting("Hidden Green", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
+    public NumberSetting blue2 = new NumberSetting("Hidden Blue", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
+    public NumberSetting alpha = new NumberSetting("Alpha", 1, 0, 255, 1).setCanShow(m -> mode.is("Colored"));
+    public BooleanSetting showTargets = new BooleanSetting("Show Targets", false);
+    public BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
+    public BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
+    public BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
 
     public Chams(){
-        addSettings(mode, red, green, blue, alpha);
+        addSettings(mode, red, green, blue, red2, green2, blue2, alpha, showTargets, players, animals, mobs);
     }
 
     String res;
+
+    // RendererLivingEntity.java ln 275
 
     @Override
     public void onEnable() {
@@ -36,11 +46,11 @@ public class Chams extends Module {
     public void onEvent(Event e) {
         switch(mode.getMode()){
             case "Colored":{
-                coloredMode(e);
+                //coloredMode(e);
                 break;
             }
             case "Basic":{
-                defaultMode(e);
+                //defaultMode(e);
                 break;
             }
         }

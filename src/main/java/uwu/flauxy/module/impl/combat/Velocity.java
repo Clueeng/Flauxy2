@@ -34,13 +34,20 @@ public class Velocity extends Module {
     }
 
     public void onEvent(Event ev){
+        switch(mode.getMode()){
+            case "Redesky":{
+
+                Redesky(ev);
+                break;
+            }
+        }
         if(ev instanceof EventUpdate){
             String addMode = "";
             if(mode.is("Cancel")){
                 addMode = "X: " + x.getValue() + " | Y: " + y.getValue();
             }
             if(mode.is("Redesky")){
-                addMode = "Mode: " + mode.getMode();
+                addMode = mode.getMode();
             }
             this.setDisplayName("Velocity " + EnumChatFormatting.WHITE + addMode);
         }
@@ -60,14 +67,7 @@ public class Velocity extends Module {
                     }
                     break;
                 }
-                case "Redesky":{
-                    if(shouldVelo(event)){
-                        WorldUtil.attackFakePlayer();
 
-                        Wrapper.instance.log("Received Knockback");
-                    }
-                    break;
-                }
             }
         }
     }

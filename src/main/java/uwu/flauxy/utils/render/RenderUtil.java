@@ -4,10 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
@@ -15,8 +12,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
 import java.awt.*;
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -811,6 +810,13 @@ public class RenderUtil  {
         GL11.glColor4f(red, green, blue, alpha);
     }
 
+    public static void color(Color color) {
+        GlStateManager.color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
+    }
+    public static void colorint(int r, int g, int b, int a) {
+        GlStateManager.color(r / 255f, g / 255f, b / 255f, a / 255f);
+    }
+
     public enum RoundingMode {
         TOP_LEFT,
         BOTTOM_LEFT,
@@ -821,6 +827,52 @@ public class RenderUtil  {
         TOP,
         BOTTOM,
         FULL
+    }
+    private static boolean isBoxInFrustrum(final AxisAlignedBB bb) {
+        final Entity current = mc.getRenderViewEntity();
+        frustum.setPosition(current.posX, current.posY, current.posZ);
+        return frustum.isBoundingBoxInFrustum(bb);
+    }
+    public static boolean isEntityInFrustum(final Entity entity) {
+        return (isBoxInFrustrum(entity.getEntityBoundingBox()) || entity.ignoreFrustumCheck);
+    }
+
+
+    public static double interpolate(double current, double old, double scale) {
+        return old + (current - old) * scale;
+    }
+
+    public static float interpolateFloat(float current, float old, float scale) {
+        return old + (current - old) * scale;
+    }
+
+    public static double[] project2D(final double x, final double y, final double z) {
+        FloatBuffer objectPosition = ActiveRenderInfo.objectCoords();
+        ScaledResolution sc = new ScaledResolution(mc);
+        if (GLU.gluProject((float)x, (float)y, (float)z, ActiveRenderInfo.modelview(), ActiveRenderInfo.projection(), ActiveRenderInfo.viewport(), objectPosition))
+            return new double[]{ objectPosition.get(0) / sc.getScaleFactor(), objectPosition.get(1) / sc.getScaleFactor(),
+                    objectPosition.get(2) };
+        return null;
+    }
+
+    public static void pre3D() {
+        glPushMatrix();
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glShadeModel(GL_SMOOTH);
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_LINE_SMOOTH);
+        glDisable(GL_LIGHTING);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    }
+
+    public static void post3D() {
+        glDisable(GL_LINE_SMOOTH);
+        glEnable(GL_TEXTURE_2D);
+        glShadeModel(GL_FLAT);
+        glDisable(GL_BLEND);
+        glPopMatrix();
+        glColor4f(1, 1, 1, 1);
     }
 
 
