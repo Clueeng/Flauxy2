@@ -74,6 +74,7 @@ import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
+import uwu.flauxy.module.impl.movement.Fly;
 
 @SuppressWarnings("incomplete-switch")
 public abstract class EntityPlayer extends EntityLivingBase
@@ -1979,7 +1980,7 @@ public abstract class EntityPlayer extends EntityLivingBase
      */
     public void setInWeb()
     {
-        if (!this.capabilities.isFlying)
+        if (!this.capabilities.isFlying && !Fly.exemptWebs)
         {
             super.setInWeb();
         }

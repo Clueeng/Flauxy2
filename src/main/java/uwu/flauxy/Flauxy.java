@@ -4,8 +4,11 @@ import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
 import lombok.Getter;
+import org.apache.commons.lang3.ObjectUtils;
 import org.lwjgl.opengl.Display;
+import uwu.flauxy.alts.Alt;
 import uwu.flauxy.alts.AltManager;
+import uwu.flauxy.cape.CapeManager;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
@@ -22,8 +25,12 @@ import uwu.flauxy.utils.font.FontManager;
 import viamcp.ViaMCP;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Objects;
 
 @Getter
 public enum Flauxy implements MinecraftInstance {
@@ -35,6 +42,7 @@ public enum Flauxy implements MinecraftInstance {
     public FontManager fontManager;
     public AltManager altManager;
     private ConfigUtil configManager;
+    private CapeManager capeManager;
     private final ConfigManager nonShittyConfigManager = new ConfigManager();
     @Getter
     public DiscordRPC discordRPC;
@@ -60,7 +68,30 @@ public enum Flauxy implements MinecraftInstance {
         moduleManager = new ModuleManager();
         configManager = new ConfigUtil();
         fontManager = new FontManager();
+        // Trying to add before altmanager i guess
         altManager = new AltManager();
+        File altsFile = new File(clientDirectory + "/alts.txt");
+        if(altsFile.exists()){
+            System.out.println("[FLAUXY DEBUG] Found alts file containing at least one alt");
+            try{
+                List<String> alts = Files.readAllLines(altsFile.toPath());
+                for(String alt : alts){
+                    String mail = alt.split(":", 2)[0];
+                    String pass = alt.split(":", 2)[1];
+                    AltManager.registry.add(new Alt(mail, pass));
+                }
+                if(!Objects.isNull(alts.get(0))){
+                    String alt = alts.get(0);
+                    String mail = alt.split(":", 2)[0];
+                    String pass = alt.split(":", 2)[1];
+                    AltManager.lastAlt = new Alt(mail, pass);
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        capeManager = new CapeManager();
         Display.setTitle("Minecraft 1.8.9");
         moduleManager.getModule(HUD.class).toggle();
         moduleManager.getModule(ArrayList.class).toggle();
@@ -89,6 +120,9 @@ public enum Flauxy implements MinecraftInstance {
     }
 
     public static void onEvent(Event e){
+        if(mc.thePlayer == null){
+            return;
+        }
         for(Module m : ModuleManager.modules){
             if(m.isToggled()) m.onEvent(e);
         }

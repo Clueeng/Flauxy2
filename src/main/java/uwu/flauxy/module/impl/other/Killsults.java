@@ -17,6 +17,8 @@ import uwu.flauxy.utils.Wrapper;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ModuleInfo(name = "Killsults", displayName = "Killsults", cat = Category.Other, key = -1)
 public class Killsults extends Module {
@@ -33,10 +35,9 @@ public class Killsults extends Module {
         load();
         if(lines.isEmpty()){
             Wrapper.instance.log("The killsults file is empty, add something in it before enabling the module");
+            return;
         }
-        for(String s : lines){
-            insults.add(s);
-        }
+        insults.addAll(lines);
     }
 
     Random random = new Random();
@@ -49,16 +50,32 @@ public class Killsults extends Module {
                 S02PacketChat packet = (S02PacketChat) eventReceivePacket.getPacket();
                 String chat = packet.getChatComponent().getUnformattedText();
                 String player = mc.thePlayer.getName();
+
+                String victim = getVictimName(chat, player);
+
                 if(chat.contains("foi morto por " + player) || chat.contains("was killed by " + player)){
-                    Wrapper.instance.log("Found kill message");
                     // Chat
                     int index = random.nextInt(insults.size() - 1);
                     String insult = insults.get(index);
-                    String message = insult.replaceAll("<victim>", "lol");
+                    String message = insult.replaceAll("<victim>", victim);
+                    //Wrapper.instance.log(String.valueOf(index));
 
-                    mc.thePlayer.sendChatMessage("a" + message);
+                    mc.thePlayer.sendChatMessage(message);
                 }
             }
+        }
+    }
+
+    public static String getVictimName(String chat, String player) {
+        // Pattern to match the word before " foi morto por" or " was killed by"
+        Pattern pattern = Pattern.compile("(\\S+)\\s+(?:foi\\smorto\\spor|was\\skilled\\sby)\\s+" + Pattern.quote(player));
+        Matcher matcher = pattern.matcher(chat);
+
+        if (matcher.find()) {
+            // The victim's name will be the word before the matched pattern
+            return matcher.group(1);
+        } else {
+            return "victim";
         }
     }
 
@@ -66,38 +83,6 @@ public class Killsults extends Module {
     private File dir;
 
     private File dataFile;
-
-    /*public void save(String name) {
-        this.dir = new File(String.valueOf(Folder.dir));
-        if (!this.dir.exists())
-            this.dir.mkdir();
-        this.dataFile = new File(this.dir, name + ".txt");
-        if (!this.dataFile.exists())
-            try {
-                this.dataFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        ArrayList<String> toSave = new ArrayList<>();
-        try {
-            PrintWriter pw = new PrintWriter(this.dataFile);
-            for (String str : toSave)
-                pw.println(str);
-            pw.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    /*public void delete(String name) {
-        this.dir = new File(String.valueOf(Folder.dir));
-        if (!this.dir.exists())
-            this.dir.mkdir();
-        this.dataFile = new File(this.dir, name + ".txt");
-        try {
-            this.dataFile.delete();
-        } catch (Exception exception) {}
-    }*/
 
     public void load() {
         String fileName = "killsults";

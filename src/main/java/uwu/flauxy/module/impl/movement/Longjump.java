@@ -32,7 +32,7 @@ import java.util.LinkedList;
 @ModuleInfo(name = "Longjump", displayName = "Longjump", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Longjump extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Redesky", "BlocksMC");
+    public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Redesky", "BlocksMC", "Test");
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> mode.is("Verus"));
 
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Simple", "Normal").setCanShow((m) -> mode.is("Verus"));
@@ -40,8 +40,8 @@ public class Longjump extends Module {
     public BooleanSetting redePacketCancel = new BooleanSetting("Cancel some packets", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
     public NumberSetting redeCustomSpeedInAir = new NumberSetting("Speed in air", 0.02, 0.02, 0.04, 0.0025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
     public NumberSetting redeCustomJumpMovement = new NumberSetting("Jump Move Factor", 0.02, 0.02, 0.04, 0.0025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
-    public NumberSetting redeMotionY = new NumberSetting("Motion Y", 1.0, 0.42, 1.2, 0.025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
-    public NumberSetting redeTimer = new NumberSetting("Timer", 1.0, 0.5, 1.2, 0.1).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeMotionY = new NumberSetting("Motion Y", 1.0, 0.42, 2.4, 0.025).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
+    public NumberSetting redeTimer = new NumberSetting("Timer", 1.0, 0.1, 1.2, 0.1).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
     public NumberSetting redeMotionMult = new NumberSetting("Motion Multiplier", 0.25, 0.2, 0.4, 0.1).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
     public BooleanSetting redeSlowingDown = new BooleanSetting("Slow Down", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
     public NumberSetting redeSlowDownFactor = new NumberSetting("Slow Down Factor", 0.94, 0.25, 0.99, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeSlowingDown.getValue());
@@ -55,6 +55,7 @@ public class Longjump extends Module {
     public NumberSetting redeFlagFallJumpMove = new NumberSetting("Fall Move Factor", 0.02, 0.01, 0.04, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
     public NumberSetting redeFlagSpeedInAir = new NumberSetting("Fall Air Speed", 0.02, 0.01, 0.04, 0.01).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
     public BooleanSetting groundFlag = new BooleanSetting("Ground Flag Fall", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom") && redeFlagFall.getValue());
+    public BooleanSetting keepSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Redesky") && redeMode.is("Custom"));
 
     boolean thingmotion = false;
 
@@ -66,7 +67,7 @@ public class Longjump extends Module {
 
     public Longjump(){
         addSettings(mode, verusMode, speed, redeMode, redePacketCancel, redeCustomSpeedInAir, redeCustomJumpMovement, redeMotionY, redeTimer, redeMotionMult, redeSlowingDown, redeSlowDownFactor, redeBigJump,
-                redeBigJumpMotion, redeBigJumpLength, redeFlagFall, redeFlagFallDistance, redeFlagFallJumpMove, redeFlagSpeedInAir, redeFlagFallMotion, groundFlag
+                redeBigJumpMotion, redeBigJumpLength, redeFlagFall, redeFlagFallDistance, redeFlagFallJumpMove, redeFlagSpeedInAir, redeFlagFallMotion, groundFlag, keepSpeed
 
         );
     }
@@ -75,6 +76,7 @@ public class Longjump extends Module {
     int ticks = 0;
     public void onEnable() {
         thingmotion = true;
+        ticks = 0;
         stage = 2;
         switch(mode.getMode()){
             case "Redesky":{
@@ -105,9 +107,15 @@ public class Longjump extends Module {
                     }
                 }
             }
+            case "Test":{
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionZ = 0;
+                break;
+            }
         }
     }
     public void onDisable() {
+        ticks = 0;
         mc.timer.timerSpeed = 1.0f;
         if(!mode.getMode().contains("Redesky") && mode.getMode() != "BlocksMC"){
             MoveUtils.motionreset();
@@ -130,6 +138,17 @@ public class Longjump extends Module {
     @Override
     public void onEvent(Event ev){
         switch(mode.getMode()){
+            case "Test":{
+                ticks++;
+                mc.timer.timerSpeed = .7f;
+                if(ticks < 5){
+                    mc.thePlayer.motionY += .8f;
+                }else{
+                    this.toggle();
+                }
+                break;
+            }
+
             case "BlocksMC":{
 
                 if(ev instanceof EventMotion){
@@ -251,8 +270,10 @@ public class Longjump extends Module {
                                 stage++;
                             }else{
                                 if(redeFlagFall.getValue()){
-                                    mc.thePlayer.jumpMovementFactor = (float) redeFlagFallJumpMove.getValue();
-                                    mc.thePlayer.speedInAir = (float) redeFlagSpeedInAir.getValue();
+                                    if(!keepSpeed.getValue()){
+                                        mc.thePlayer.jumpMovementFactor = (float) redeFlagFallJumpMove.getValue();
+                                        mc.thePlayer.speedInAir = (float) redeFlagSpeedInAir.getValue();
+                                    }
                                     if(mc.thePlayer.fallDistance2 > redeFlagFallDistance.getValue() ){
                                         mc.thePlayer.motionY += redeFlagFallMotion.getValue();
                                         mc.thePlayer.fallDistance2 = 0;
@@ -281,17 +302,21 @@ public class Longjump extends Module {
                                 if(stage >= 2){
                                     if(mc.thePlayer.motionY < redeMotionY.getValue() / 1.5f){
                                         float f = mc.thePlayer.rotationYaw * (0.017453292F * 6);
-                                        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * redeMotionMult.getValue()); // 0.2 - 0.4
-                                        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * redeMotionMult.getValue());
-                                        mc.thePlayer.speedInAir = (float) redeCustomSpeedInAir.getValue();
+                                        if(!keepSpeed.getValue()){
+                                            mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * redeMotionMult.getValue()); // 0.2 - 0.4
+                                            mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * redeMotionMult.getValue());
+                                            mc.thePlayer.speedInAir = (float) redeCustomSpeedInAir.getValue();
+                                        }
                                     }
                                 }
                                 onGroundTicks = 0;
                                 offGroundTicks++;
-                                if(offGroundTicks == 1 && stage < 3){
-                                    MoveUtils.setSpeed(MoveUtils.getMotion() * 1.04, mc.thePlayer.rotationYaw, 0, 1);
-                                }else{
-                                    MoveUtils.setSpeed(Math.min(MoveUtils.getMotion() * 0.97, MoveUtils.getMotion() * 1.02), mc.thePlayer.rotationYaw, 0, 1);
+                                if(!keepSpeed.getValue()){
+                                    if(offGroundTicks == 1 && stage < 3){
+                                        MoveUtils.setSpeed(MoveUtils.getMotion() * 1.04, mc.thePlayer.rotationYaw, 0, 1);
+                                    }else{
+                                        MoveUtils.setSpeed(Math.min(MoveUtils.getMotion() * 0.97, MoveUtils.getMotion() * 1.02), mc.thePlayer.rotationYaw, 0, 1);
+                                    }
                                 }
                                 // slow down
                                 /*if(redeSlowingDown.getValue()){
@@ -372,21 +397,21 @@ public class Longjump extends Module {
                     switch(verusMode.getMode()){
                         case "Damage":{
                             if (mc.thePlayer.onGround) {
-                                mc.thePlayer.jump();
+                                mc.thePlayer.motionY = 0.42f;
                             }
                             int tik = 15;
                             if(ticks < tik){
+                                mc.timer.timerSpeed = 0.8f;
                                 MoveUtils.strafe(speed.getValue());
                                 mc.thePlayer.motionY = 0.1;
                             }else{
                                 if(ticks < tik+1){
                                     MoveUtils.strafe(0.15f);
                                 }
-                                if(((Math.round(mc.thePlayer.posY) * 100) / 100) == (int)mc.thePlayer.posY && mc.thePlayer.fallDistance > 0.75){
+                                if(((Math.round(mc.thePlayer.posY) * 100) / 100) == (int)mc.thePlayer.posY && mc.thePlayer.fallDistance > 0.95){
                                     MoveUtils.strafe(0.27f);
                                     mc.thePlayer.motionY = 0.42f;
                                     mc.thePlayer.fallDistance = 0;
-
                                 }
                             }
                             ticks++;

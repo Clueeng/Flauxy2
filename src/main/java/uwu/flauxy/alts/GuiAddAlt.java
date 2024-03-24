@@ -1,8 +1,16 @@
 package uwu.flauxy.alts;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Proxy;
+import java.util.Objects;
 
+import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
+import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Session;
 import org.lwjgl.input.Keyboard;
 
 import com.mojang.authlib.Agent;
@@ -15,6 +23,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.utils.config.ConfigUtil;
+import uwu.flauxy.utils.config.Folder;
 
 
 public class GuiAddAlt
@@ -23,6 +33,7 @@ extends GuiScreen {
     private PasswordField password;
     private String status = (Object)((Object)EnumChatFormatting.GRAY) + "Idle...";
     private GuiTextField username;
+    private AltLoginThread thread;
 
     public GuiAddAlt(GuiAltManager manager) {
         this.manager = manager;
@@ -34,6 +45,20 @@ extends GuiScreen {
             case 0: {
                 AddAltThread login = new AddAltThread(this.username.getText(), this.password.getText());
                 login.start();
+                /// Gonna add it to a file
+                String name = this.username.getText();
+                String pass = this.password.getText();
+                if(!Objects.isNull(pass)){
+                    String altFolder = String.valueOf(new File(String.valueOf(Flauxy.INSTANCE.clientDirectory)));
+                    File dataFile = new File(altFolder,"alts.txt");
+                    try {
+                        PrintWriter pw = new PrintWriter(dataFile);
+                        pw.println(name + ":" + pass);
+                        pw.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             }
             case 1: {
@@ -100,47 +125,54 @@ extends GuiScreen {
     private class AddAltThread
     extends Thread {
         private final String password;
+        private String status;
         private final String username;
+        private Minecraft mc = Minecraft.getMinecraft();
 
         public AddAltThread(String username, String password) {
+            super("Alt Login Thread");
             this.username = username;
             this.password = password;
-            GuiAddAlt.access$0(GuiAddAlt.this, (Object)((Object)EnumChatFormatting.GRAY) + "Idle...");
+            this.status = (Object)((Object)EnumChatFormatting.GRAY) + "Waiting...";
         }
 
-        private final void checkAndAddAlt(String username, String password) throws IOException {
-            YggdrasilAuthenticationService service = new YggdrasilAuthenticationService(Proxy.NO_PROXY, "");
-            YggdrasilUserAuthentication auth = (YggdrasilUserAuthentication)service.createUserAuthentication(Agent.MINECRAFT);
-            auth.setUsername(username);
-            auth.setPassword(password);
+        private Session createSession(String username, String password) {
             try {
-                auth.logIn();
-                AltManager altManager = Flauxy.INSTANCE.altManager;
-                AltManager.registry.add(new Alt(username, password, auth.getSelectedProfile().getName()));
-               
-                GuiAddAlt.access$0(GuiAddAlt.this, "Alt added. (" + username + ")");
-            }
-            catch (AuthenticationException e) {
-                GuiAddAlt.access$0(GuiAddAlt.this, (Object)((Object)EnumChatFormatting.RED) + "Alt failed!");
+                MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+                MicrosoftAuthResult result = null;
+                result = authenticator.loginWithCredentials(username, password);
+                return new Session(result.getProfile().getName(), result.getProfile().getId(), result.getAccessToken(), "legacy");
+            } catch (Exception e) {
                 e.printStackTrace();
+                return null;
             }
+        }
+
+        public String getStatus() {
+            return this.status;
         }
 
         @Override
         public void run() {
             if (this.password.equals("")) {
-                AltManager altManager = Flauxy.INSTANCE.altManager;
-                AltManager.registry.add(new Alt(this.username, ""));
-                GuiAddAlt.access$0(GuiAddAlt.this, (Object)((Object)EnumChatFormatting.GREEN) + "Alt added. (" + this.username + " - offline name)");
+                this.mc.session = new Session(this.username, "", "", "mojang");
+                this.status = (Object)((Object)EnumChatFormatting.GREEN) + "Logged in. (" + this.username + " - offline name)";
                 return;
             }
-            GuiAddAlt.access$0(GuiAddAlt.this, (Object)((Object)EnumChatFormatting.YELLOW) + "Trying alt...");
-            try {
-                this.checkAndAddAlt(this.username, this.password);
+            this.status = (Object)((Object)EnumChatFormatting.YELLOW) + "Logging in...";
+            Session auth = this.createSession(this.username, this.password);
+            if (auth == null) {
+                this.status = (Object)((Object)EnumChatFormatting.RED) + "Login failed!";
+            } else {
+                AltManager altManager = Flauxy.INSTANCE.altManager;
+                AltManager.lastAlt = new Alt(this.username, this.password);
+                this.status = (Object)((Object)EnumChatFormatting.GREEN) + "Logged in. (" + auth.getUsername() + ")";
+                this.mc.session = auth;
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
         }
     }
 

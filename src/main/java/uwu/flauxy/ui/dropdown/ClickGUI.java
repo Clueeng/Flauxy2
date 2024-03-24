@@ -22,8 +22,10 @@ public class ClickGUI extends GuiScreen {
             if(category.id >= 7){
                 if(category.id == 7) index = -1;
                 categories.add(new CategoryFrame(category, 10 + (++index * (125 + 10)), height + 280));
+            }else{
+                categories.add(new CategoryFrame(category, 10 + (++index * (125 + 10)), 10));
             }
-            categories.add(new CategoryFrame(category, 10 + (++index * (125 + 10)), 10));
+
         }
     }
 

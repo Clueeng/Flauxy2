@@ -2,9 +2,6 @@ package net.minecraft.network;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.viaversion.viaversion.api.connection.UserConnection;
-import com.viaversion.viaversion.connection.UserConnectionImpl;
-import com.viaversion.viaversion.protocol.ProtocolPipelineImpl;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -35,6 +32,8 @@ import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.crypto.SecretKey;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.CryptManager;
@@ -52,15 +51,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.EventDirection;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventSendPacket;
-import viamcp.ViaMCP;
-import viamcp.handler.CommonTransformer;
-import viamcp.handler.MCPDecodeHandler;
-import viamcp.handler.MCPEncodeHandler;
-import viamcp.utils.NettyUtil;
 
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
@@ -162,14 +155,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception
     {
         EventReceivePacket event = new EventReceivePacket(p_channelRead0_2_);
+        event.setType(EventType.PRE);
         Flauxy.onEvent(event);
+
+        if(event.isCancelled())
+            return;
+
         if (this.channel.isOpen())
         {
             try
             {
-                if(!event.isCancelled()){
-                    p_channelRead0_2_.processPacket(this.packetListener);
-                }
+                p_channelRead0_2_.processPacket(this.packetListener);
             }
             catch (ThreadQuickExitException var4)
             {
@@ -191,14 +187,14 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
     public void sendPacket(Packet packetIn)
     {
-        EventSendPacket event = new EventSendPacket(packetIn);
-        Flauxy.onEvent(event);
-        event.setType(EventType.PRE);
+        EventSendPacket eventSendPacket = new EventSendPacket(packetIn);
+        Flauxy.onEvent(eventSendPacket);
         if (this.isChannelOpen())
         {
-            if(event.isCancelled()) return;
-            this.flushOutboundQueue();
-            this.dispatchPacket(event.getPacket(), (GenericFutureListener <? extends Future <? super Void >> [])null);
+            if(!eventSendPacket.isCancelled()){
+                this.flushOutboundQueue();
+                this.dispatchPacket(packetIn, (GenericFutureListener <? extends Future <? super Void >> [])null);
+            }
         }
         else
         {
@@ -213,7 +209,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 this.field_181680_j.writeLock().unlock();
             }
         }
-        event.setType(EventType.POST);
     }
 
     public void sendPacketNoEvent(Packet packetIn)
@@ -414,12 +409,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 }
 
                 p_initChannel_1_.pipeline().addLast((String)"timeout", (ChannelHandler)(new ReadTimeoutHandler(30))).addLast((String)"splitter", (ChannelHandler)(new MessageDeserializer2())).addLast((String)"decoder", (ChannelHandler)(new MessageDeserializer(EnumPacketDirection.CLIENTBOUND))).addLast((String)"prepender", (ChannelHandler)(new MessageSerializer2())).addLast((String)"encoder", (ChannelHandler)(new MessageSerializer(EnumPacketDirection.SERVERBOUND))).addLast((String)"packet_handler", (ChannelHandler)networkmanager);
-                if (p_initChannel_1_ instanceof SocketChannel && ViaMCP.getInstance().getVersion() != ViaMCP.PROTOCOL_VERSION)
-                {
-                    UserConnection user = new UserConnectionImpl(p_initChannel_1_, true);
-                    new ProtocolPipelineImpl(user);
-                    p_initChannel_1_.pipeline().addBefore("encoder", CommonTransformer.HANDLER_ENCODER_NAME, new MCPEncodeHandler(user)).addBefore("decoder", CommonTransformer.HANDLER_DECODER_NAME, new MCPDecodeHandler(user));
-                }
             }
         })).channel(oclass)).connect(p_181124_0_, p_181124_1_).syncUninterruptibly();
         return networkmanager;
@@ -504,8 +493,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
             }
             else
             {
-                //this.channel.pipeline().addBefore("decoder", "decompress", new NettyCompressionDecoder(treshold));
-                NettyUtil.decodeEncodePlacement(channel.pipeline(), "decoder", "decompress", new NettyCompressionDecoder(treshold));
+                this.channel.pipeline().addBefore("decoder", "decompress", new NettyCompressionDecoder(treshold));
             }
 
             if (this.channel.pipeline().get("compress") instanceof NettyCompressionEncoder)
@@ -514,8 +502,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
             }
             else
             {
-                //this.channel.pipeline().addBefore("encoder", "compress", new NettyCompressionEncoder(treshold));
-                NettyUtil.decodeEncodePlacement(channel.pipeline(), "encoder", "compress", new NettyCompressionEncoder(treshold));
+                this.channel.pipeline().addBefore("encoder", "compress", new NettyCompressionEncoder(treshold));
             }
         }
         else

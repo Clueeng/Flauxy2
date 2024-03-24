@@ -1,7 +1,5 @@
 package uwu.flauxy.module.impl.combat;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -108,7 +106,7 @@ public class Killaura extends Module {
 
     public void onEvent(Event ev){
         if(ev instanceof EventUpdate){
-            this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode() + " | R: " + reach.getValue());
+            this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode());
             // World
 
             if(!mobs.getValue()){

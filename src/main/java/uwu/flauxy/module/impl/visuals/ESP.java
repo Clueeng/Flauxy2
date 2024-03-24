@@ -1,10 +1,15 @@
 package uwu.flauxy.module.impl.visuals;
 
 import com.google.common.base.Predicates;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import org.lwjgl.opengl.GL11;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.event.impl.EventRender3D;
@@ -23,10 +28,12 @@ import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.Wrapper;
+import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
 import uwu.flauxy.utils.render.RenderUtil;
 
 import java.awt.*;
+import java.nio.channels.WritePendingException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,6 +45,7 @@ public class ESP extends Module {
 
     private ModeSetting mode = new ModeSetting("Mode", "Box", "Box");
     public NumberSetting thickness = new NumberSetting("Thickness", 1, 1, 5, 0.25);
+    BooleanSetting nametags = new BooleanSetting("Nametags", true);
     public ModeSetting color = new ModeSetting("Color", "Astolfo", "Astolfo", "Rainbow", "Custom", "Blend");
 
     public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
@@ -53,8 +61,9 @@ public class ESP extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
 
     public ESP(){
-        addSettings(mode, thickness, color, red, green, blue, red2, green2, blue2, showTargets, players, mobs, animals, shop);
+        addSettings(mode, nametags, thickness, color, red, green, blue, red2, green2, blue2, showTargets, players, mobs, animals, shop);
     }
+
 
     @Override
     public void onEvent(Event e) {
@@ -62,11 +71,14 @@ public class ESP extends Module {
 
         if(e instanceof EventRender2D){
             EventRender2D event = (EventRender2D)e;
+
             final List<EntityLivingBase> livingEntities = WorldUtil.getLivingEntities(Predicates.and(entity -> true));
 
 
 
             for (EntityLivingBase entity : livingEntities) {
+                int fontSize = (int) mc.thePlayer.getDistanceSqToEntity(entity);
+                TTFFontRenderer fontRenderer = Flauxy.INSTANCE.fontManager.getFont("arial " + fontSize);
                 if (!RenderUtil.isEntityInFrustum(entity)) continue;
                 final double diffX = entity.posX - entity.lastTickPosX;
                 final double diffY = entity.posY - entity.lastTickPosY;
@@ -114,6 +126,13 @@ public class ESP extends Module {
                 }
 
                 if(!isValid(entity)) return;
+                if(nametags.getValue()){
+                    //if(entity instanceof EntityPlayer){
+                        float bottom = maxY + ((minY + maxY) / maxY);
+                        float top = minY - ((maxY / minY)*10);
+                        fontRenderer.drawStringWithShadow(entity.getName(), (minX + maxX) / 2 - (fontRenderer.getWidth(entity.getName()) / 2), top, -1);
+                    //D}
+                }
 
                 switch(mode.getMode()){
                     case "Box":{
@@ -204,6 +223,9 @@ public class ESP extends Module {
         }
 
         return finalValid;
+    }
+
+    private void renderNameTag(String text, double x, double y, double z, Entity entity) {
     }
 
 }

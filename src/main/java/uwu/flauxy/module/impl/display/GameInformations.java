@@ -1,12 +1,22 @@
 package uwu.flauxy.module.impl.display;
 
+import lombok.Getter;
+
 public class GameInformations {
 
-    String name;
+    @Getter
+    String name, customName;
+    Object value;
     public float y;
 
-    public GameInformations(String name){
+    public GameInformations(String name, String customName, Object value){
         this.name = name;
+        this.customName = customName;
+        this.value = value;
+    }
+
+    public void updateValue(){
+
     }
 
     public void draw(){

@@ -1,6 +1,5 @@
 package uwu.flauxy.ui.astolfo;
 
-import javafx.scene.transform.Scale;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import uwu.flauxy.Flauxy;

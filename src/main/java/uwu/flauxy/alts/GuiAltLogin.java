@@ -55,12 +55,6 @@ extends GuiScreen {
                 this.password.setText("");
                 this.thread.start();
             }
-            case 4:{
-                // microsoft login with openauth
-
-
-                break;
-            }
         }
     }
 

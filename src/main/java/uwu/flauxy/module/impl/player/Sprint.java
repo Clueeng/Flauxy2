@@ -1,6 +1,7 @@
 package uwu.flauxy.module.impl.player;
 
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.module.Category;
@@ -14,7 +15,7 @@ public class Sprint extends Module {
     @Override
     public void onEvent(Event ev){
         if(ev instanceof EventMotion){
-            mc.thePlayer.setSprinting(mc.thePlayer.isMoving() && mc.thePlayer.moveForward > 0 && !mc.thePlayer.isCollidedHorizontally);
+            mc.thePlayer.setSprinting(mc.thePlayer.isMoving() && mc.thePlayer.moveForward > 0 && !mc.thePlayer.isCollidedHorizontally && !((mc.thePlayer.isBlocking() && mc.thePlayer.isEating()) && !Flauxy.INSTANCE.moduleManager.getModule(Noslow.class).isToggled()));
         }
     }
 

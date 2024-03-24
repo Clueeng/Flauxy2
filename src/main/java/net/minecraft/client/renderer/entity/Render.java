@@ -105,7 +105,7 @@ public abstract class Render<T extends Entity>
     /**
      * Renders fire on top of the entity. Args: entity, x, y, z, partialTickTime
      */
-    private void renderEntityOnFire(Entity entity, double x, double y, double z, float partialTicks)
+    public void renderEntityOnFire(Entity entity, double x, double y, double z, float partialTicks)
     {
         GlStateManager.disableLighting();
         TextureMap texturemap = Minecraft.getMinecraft().getTextureMapBlocks();

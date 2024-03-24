@@ -7,6 +7,7 @@ import net.minecraft.util.MathHelper;
 import org.apache.commons.lang3.RandomUtils;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.event.impl.EventUpdate;
@@ -146,7 +147,7 @@ public class Speed extends Module {
                         if(event instanceof EventMotion){
                             EventMotion em = (EventMotion) event;
                             if(!mc.thePlayer.onGround){
-                                MoveUtils.strafe(MoveUtils.getMotion() / 1.109f);
+                                                MoveUtils.strafe(MoveUtils.getMotion() / 1.109f);
                             }
                         }
                         if(event instanceof EventMove){
@@ -187,28 +188,18 @@ public class Speed extends Module {
                     switch(testMode.getMode()){
 
                         case "Test 3":{
-                            mc.thePlayer.jumpMovementFactor = 0.23f;
+                            if(!MoveUtils.isWalking()) return;
+                            mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
                             if(mc.thePlayer.onGround){
-                                mc.thePlayer.speedInAir = 0.03f;
-                                speedV *= speedV > 0.65 ? 0.98 : 1.29;
-                                MoveUtils.strafe(speedV * 1.24);
-                                if(onGroundTicks > 2)
-                                    e.setY(mc.thePlayer.motionY = 0.42f);
-                                offGroundTicks = 0;
-                                onGroundTicks++;
+                                e.setY(mc.thePlayer.motionY = 0.42f);
+                                MoveUtils.strafe(MoveUtils.getSpeed() * (1 + mc.thePlayer.jumpMovementFactor));
                             }else{
-                                onGroundTicks = 0;
-                                offGroundTicks++;
-                                speedV = MathHelper.sin((float) speedV);
+                                if(mc.thePlayer.motionY > 0.2){
+                                    e.setY(mc.thePlayer.motionY -= .25);
+                                    e.setType(EventType.PRE);
+                                    MoveUtils.strafe(MoveUtils.getSpeed() * (1 + mc.thePlayer.jumpMovementFactor + 0.05));
+                                }
                             }
-                            switch(offGroundTicks){
-                                case 1:
-                                    Wrapper.instance.log("accelerating");
-                                    speedV *= 1.2f;
-                                    e.setY(mc.thePlayer.motionY -= 0.12);
-                                    break;
-                            }
-                            MoveUtils.strafe(Math.max(speedV, MoveUtils.getBaseSpeed()));
                             break;
                         }
                         case "Test 2":{
@@ -230,18 +221,8 @@ public class Speed extends Module {
                             break;
                         }
                         case "Test 1":{
-                            final String motion = String.valueOf(mc.thePlayer.motionY);
                             if(mc.thePlayer.onGround){
-                                MoveUtils.strafe(MoveUtils.getSpeed() * 1.72f);
-                                e.setY(mc.thePlayer.motionY = 0.42);
-                            }else{
-                                float factor = 0.98f;
-                                mc.thePlayer.motionX *= factor;
-                                mc.thePlayer.motionZ *= factor;
-                                MoveUtils.strafe();
-                            }
-                            if(motion.contains("0.41") || motion.contains("0.0")){
-                                MoveUtils.strafe(MoveUtils.getSpeed() * 1.24f);
+                                MoveUtils.strafe(e, 0.9 * (mc.thePlayer.motionX + mc.thePlayer.motionZ));
                             }
                             break;
                         }

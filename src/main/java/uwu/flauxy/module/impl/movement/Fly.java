@@ -1,7 +1,9 @@
 package uwu.flauxy.module.impl.movement;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBarrier;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -9,14 +11,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
+import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.network.play.server.S39PacketPlayerAbilities;
 import net.minecraft.potion.Potion;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
@@ -31,10 +32,7 @@ import uwu.flauxy.module.impl.player.Blink;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
-import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.NumberUtil;
-import uwu.flauxy.utils.PacketUtil;
-import uwu.flauxy.utils.Wrapper;
+import uwu.flauxy.utils.*;
 import uwu.flauxy.utils.timer.Timer;
 import uwu.flauxy.utils.timer.TimerUtil;
 
@@ -57,8 +55,9 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft");
-    public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision"));
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC");
+    public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
+    public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
     public NumberSetting Collisiontimer = new NumberSetting("Timer", 1, 0.1, 10, 0.025).setCanShow(m -> mode.is("Collision"));
     public BooleanSetting CollisionspoofY = new BooleanSetting("Spoof Y", true).setCanShow(m -> mode.is("Collision"));
     public BooleanSetting Collisiondamage = new BooleanSetting("Damage", true).setCanShow(m -> mode.is("Collision"));
@@ -72,16 +71,44 @@ public class Fly extends Module {
     List<BlockPos> blockPosList = new ArrayList<>();
 
     boolean removeBlock = false;
-    int flyTicks = 0;
+    int flyTicks = 0, flyTicks2 = 0;
+
 
     public Fly() {
-        addSettings(mode, Collisionspeed, Collisiontimer, CollisionspoofY, Collisiondamage, testMode, funcraftSpeed, speed);
+        addSettings(mode, CollisionNotSpeed, Collisionspeed, Collisiontimer, CollisionspoofY, Collisiondamage, testMode, funcraftSpeed, speed);
     }
     private double flySpeed = 0f;
+    private double oldYaw, oldPitch;
+
+    public static boolean exemptWebs = false;
     
     public void onEvent(Event e) {
-        switch(mode.getMode()){
+        if(e instanceof EventUpdate){
 
+            this.setDisplayName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
+        }
+        switch(mode.getMode()){
+            case "ClueAC": {
+                if(e instanceof EventMotion){
+                    if(flyTicks <= 1 && !mc.thePlayer.isCollidedVertically) this.toggle();
+                    if(mc.thePlayer.onGround) {
+                        mc.thePlayer.motionY = 0.42f;
+                    }else{
+                        if(mc.thePlayer.motionY < 2.4 && flyTicks < 10)
+                            mc.thePlayer.motionY += 1.0;
+                    }
+                    flyTicks++;
+                }
+                break;
+            }
+            case "Verus": {
+                if(e instanceof EventMotion){
+                    EventMotion em = (EventMotion) e;
+                    em.setOnGround(true);
+                    mc.thePlayer.motionY = 0;
+                }
+                break;
+            }
             case "Vanilla":{
                 if(e instanceof EventUpdate){
                     EventUpdate ev = (EventUpdate) e;
@@ -144,72 +171,63 @@ public class Fly extends Module {
             }
             case "Test":{
                 switch(testMode.getMode()){
-                    case "Test 3":{
-                        if(e instanceof EventMotion){
-                            mc.timer.timerSpeed = 1.0f;
-                            EventMotion em = (EventMotion) e;
-                            mc.thePlayer.motionY = 0;
-                            if(mc.thePlayer.isMoving()){
-                                MoveUtils.strafe(flySpeed);
-                                flySpeed = flySpeed > 0.23 ? flySpeed - (flySpeed / 159) : flySpeed;
-                            }else{
-                                mc.thePlayer.motionX = 0;
-                                mc.thePlayer.motionZ = 0;
-                            }
-                            switch(flyTicks){
-                                case 1:{
-                                    if(!mc.thePlayer.onGround) this.toggle();
-                                    mc.thePlayer.jump();
-                                    flySpeed = 1.91f;
-                                    MoveUtils.damage(MoveUtils.Bypass.VANILLA);
-                                    break;
-                                }
-                            }
+                    case "Test 1":{
+                        if(e instanceof EventMove){
                             flyTicks++;
-                        }
-                        if(e instanceof EventUpdate){
+                            EventMove ev = (EventMove) e;
+                            mc.timer.timerSpeed = 1f;
 
-                        }
+                            if(mc.thePlayer.onGround && flyTicks < 100) {
+                                flyTicks = 100;
+                            }else{
+                                mc.thePlayer.onGround = false;
+                                if(mc.thePlayer.isSneaking()){
+                                    ev.setY(mc.thePlayer.posY - 0.5f);
+                                    new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 2.5D, mc.thePlayer.posZ, false);
+                                    //mc.thePlayer.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX + 0.1f, mc.thePlayer.posY + 3.5D, mc.thePlayer.posZ, false));
+                                    return;
+                                }
+                                if(Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && mc.currentScreen == null){
+                                    oldYaw = mc.thePlayer.rotationYaw;
+                                    oldPitch = mc.thePlayer.rotationPitch;
+                                    MoveUtils.strafe(0);
+                                    mc.gameSettings.keyBindForward.pressed = false;
+                                    mc.gameSettings.keyBindBack.pressed = false;
+                                    mc.gameSettings.keyBindLeft.pressed = false;
+                                    mc.gameSettings.keyBindRight.pressed = false;
+                                    mc.gameSettings.keyBindJump.pressed = false;
+                                    ev.setY(mc.thePlayer.posY - 0.5f);
+                                    PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 3.5D, mc.thePlayer.posZ, false));
+                                    return;
+                                }
+                                //ev.setY(mc.thePlayer.posY);
+                                //PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0D, mc.thePlayer.posZ, false));
 
+                            }
+                        }
+                        if(e instanceof EventSendPacket){
+                            EventSendPacket es = (EventSendPacket) e;
+                            if(es.getPacket() instanceof C00PacketKeepAlive){
+                                es.setPacket(null);
+                            }
+                        }
+                        if (e instanceof EventCollide) {
+                            mc.gameSettings.keyBindJump.pressed = false;
+                            EventCollide ec = (EventCollide) e;
+                            if (!mc.thePlayer.isSneaking()) {
+                                if (mc.thePlayer.isSneaking())
+                                    return;
+                                if (ec.getBlock() instanceof net.minecraft.block.BlockAir && ec.getPosY() < mc.thePlayer.posY)
+                                    ec.setBoundingBox(AxisAlignedBB.fromBounds(ec.getPosX(), (int)mc.thePlayer.posY, ec.getPosZ(), ec.getPosX() + 1.0D, (int)mc.thePlayer.posY, ec.getPosZ() + 1.0D));
+                            }
+                        }
                         break;
                     }
                     case "Test 2":{
-                        if(e instanceof EventSendPacket){
-                            int maxTick = Integer.MAX_VALUE; // Integer.MAX_VALUE for infinite blink
-                            int tickDelay = 20;
-                            EventSendPacket eventSendPacket = (EventSendPacket) e;
-                            if(PacketUtil.isPacketBlinkPacket(eventSendPacket.getPacket()) && flyTicks >= 0 && flyTicks < maxTick){
-                                packetsLinked.add(eventSendPacket.getPacket());
-                                eventSendPacket.setCancelled(true);
-                            }
-                            if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
-                                for(int i = 0; i < packetsLinked.size() - 1; i++){
-                                    PacketUtil.packetNoEvent(packetsLinked.get(i));
-                                }
-                                packetsLinked.clear();
-                            }
-                        }
-
-                        PacketUtil.blink(packetsLinked, e, flyTicks, 4, Integer.MAX_VALUE);
                         if(e instanceof EventMotion){
-                            mc.timer.timerSpeed = 0.7f;
-                            EventMotion em = (EventMotion) e;
-                            mc.thePlayer.motionY = -0.125f;
-                            if(mc.thePlayer.isMoving()){
-                                MoveUtils.strafe(speed.getValue());
-                            }else{
-                                mc.thePlayer.motionX = 0;
-                                mc.thePlayer.motionZ = 0;
-                            }
-                            switch(flyTicks){
-                                case 4:{
-                                    //MoveUtils.damage(MoveUtils.Bypass.VERUS);
-                                    break;
-                                }
-                            }
-                            flyTicks++;
+                            EventMotion ev = (EventMotion) e;
+
                         }
-                        // zonecraft
                         break;
                     }
                 }
@@ -226,7 +244,9 @@ public class Fly extends Module {
                     }
                 }
                 if(e instanceof EventMotion) {
-                    MoveUtils.setSpeed(Collisionspeed.getValue());
+                    if(!CollisionNotSpeed.getValue()){
+                        MoveUtils.setSpeed(Collisionspeed.getValue());
+                    }
                     mc.timer.timerSpeed = (float) Collisiontimer.getValue();
                     if (CollisionspoofY.isEnabled()) {
                         switch (flyTicks) {
@@ -251,8 +271,10 @@ public class Fly extends Module {
 
     @Override
     public void onEnable() {
+        exemptWebs = false;
         tempY = 0;
         flyTicks = 0;
+        flyTicks2 = 0;
         blinkpackets.clear();
         switch(mode.getMode()){
             case "Collision":{

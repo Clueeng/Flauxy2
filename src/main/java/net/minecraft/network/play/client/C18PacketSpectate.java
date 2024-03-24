@@ -10,7 +10,7 @@ import net.minecraft.world.WorldServer;
 
 public class C18PacketSpectate implements Packet<INetHandlerPlayServer>
 {
-    private UUID id;
+    public UUID id;
 
     public C18PacketSpectate()
     {

@@ -3,6 +3,7 @@ package uwu.flauxy.utils;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C0APacketAnimation;
 
@@ -76,6 +77,14 @@ public class WorldUtil {
 
         PacketUtil.packetNoEvent(new C0APacketAnimation());
         PacketUtil.packetNoEvent(new C02PacketUseEntity(fakePlayer, C02PacketUseEntity.Action.ATTACK));
+    }
+
+    public static Entity spawnBoatAndInteract(){
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityBoat boat = new EntityBoat(mc.theWorld, mc.thePlayer.posX - 2, mc.thePlayer.posY + 0.1, mc.thePlayer.posZ);
+        mc.theWorld.loadedEntityList.add(boat);
+        mc.theWorld.spawnEntityInWorld(boat);
+        return boat;
     }
 
     public static boolean isValidChams(EntityLivingBase e){

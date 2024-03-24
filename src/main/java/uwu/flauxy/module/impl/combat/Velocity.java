@@ -43,12 +43,8 @@ public class Velocity extends Module {
         }
         if(ev instanceof EventUpdate){
             String addMode = "";
-            if(mode.is("Cancel")){
-                addMode = "X: " + x.getValue() + " | Y: " + y.getValue();
-            }
-            if(mode.is("Redesky")){
-                addMode = mode.getMode();
-            }
+            addMode = mode.getMode();
+
             this.setDisplayName("Velocity " + EnumChatFormatting.WHITE + addMode);
         }
         if(ev instanceof EventReceivePacket){

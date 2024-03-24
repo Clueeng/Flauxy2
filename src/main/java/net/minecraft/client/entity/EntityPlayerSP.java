@@ -42,13 +42,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IChatComponent;
-import net.minecraft.util.MovementInput;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
 import uwu.flauxy.Flauxy;
@@ -59,9 +53,15 @@ import uwu.flauxy.event.impl.EventPostMotionUpdate;
 import uwu.flauxy.event.impl.EventUI;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
+import uwu.flauxy.module.Category;
+import uwu.flauxy.module.Module;
+import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.player.Noslow;
 import uwu.flauxy.ui.dropdown.ClickGUI;
+import uwu.flauxy.utils.DiscordPresenceUtil;
 import uwu.flauxy.utils.Wrapper;
+
+import java.io.File;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {
@@ -139,6 +139,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     /** The amount of time an entity has been in a Portal the previous tick */
     public float prevTimeInPortal;
 
+    public float serverYaw, prevServerYaw, serverPitch, prevServerPitch;
+
     public EntityPlayerSP(Minecraft mcIn, World worldIn, NetHandlerPlayClient netHandler, StatFileWriter statFile)
     {
         super(worldIn, netHandler.getGameProfile());
@@ -181,6 +183,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onUpdate()
     {
+        this.prevServerYaw = this.serverYaw;
+        this.prevServerPitch = this.serverPitch;
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
             if(mc.currentScreen instanceof ClickGUI){
@@ -188,6 +192,26 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
             super.onUpdate();
             Flauxy.onEvent(new EventUpdate());
+
+            // Discord RPC
+
+            //if(this.isServerWorld()){
+                //String ip = this.mc.getCurrentServerData().serverIP.toLowerCase();
+                //DiscordPresenceUtil.setPresence("Connected to " + ip, "Alt: " + this.getDisplayName(), true);
+            //}else{
+                //DiscordPresenceUtil.setPresence("In Singleplayer", "Alt: " + this.getDisplayName(), true);
+            //}
+
+            boolean serverExists = this.mc.getCurrentServerData() != null;
+            String ip = "Singleplayer";
+            if(serverExists){
+                ip = this.mc.getCurrentServerData().serverIP.toLowerCase();
+
+            }
+
+
+
+            DiscordPresenceUtil.setPresence("In game on " + ip, "   Build 0", true);
 
             if (this.isRiding())
             {
@@ -209,6 +233,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
         em.setType(EventType.PRE);
         Flauxy.onEvent(em);
+
+        this.serverYaw = em.getYaw();
+        this.serverPitch = em.getPitch();
+
         boolean flag = this.isSprinting();
 
         if (flag != this.serverSprintState)
@@ -976,5 +1004,20 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void moveEntityNoEvent(double x, double y, double z) {
         super.moveEntity(x, y, z);
+    }
+
+
+    @Override
+    public Vec3 getLook(float partialTicks) {
+        if (partialTicks == 1.0F)
+        {
+            return this.getVectorForRotation(this.serverPitch, this.serverYaw);
+        }
+        else
+        {
+            float f = this.prevServerPitch + (this.serverPitch - this.prevServerPitch) * partialTicks;
+            float f1 = this.prevServerYaw + (this.serverYaw - this.prevServerYaw) * partialTicks;
+            return this.getVectorForRotation(f, f1);
+        }
     }
 }

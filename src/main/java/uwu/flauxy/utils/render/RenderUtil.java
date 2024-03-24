@@ -26,6 +26,7 @@ public class RenderUtil  {
     private static Minecraft mc = Minecraft.getMinecraft();
     private static final Frustum frustum = new Frustum();
 
+
     public static void drawImage(final int x, final int y, final int width, final int height, final ResourceLocation image) {
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         GL11.glDisable(2929);

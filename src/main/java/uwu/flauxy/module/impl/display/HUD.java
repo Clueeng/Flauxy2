@@ -76,7 +76,7 @@ public class HUD extends Module {
                     if(customfont.isEnabled()) {
                         Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
+                        mc.fontRendererObj.drawStringWithShadow("F" + EnumChatFormatting.GRAY + "lauxy [" + mc.getDebugFPS() + "]", 4, 4, Color.GREEN.getRGB());
                     }
                     break;
                 case "Onetap":

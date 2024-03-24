@@ -1,6 +1,9 @@
 package uwu.flauxy.module.impl.visuals;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
@@ -19,18 +22,11 @@ public class LightPlayer extends Module {
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
-            int lightValue = 12;
-            World w = mc.thePlayer.worldObj;
-            int oldValue = w.getLight(mc.thePlayer.getPosition(), true);
-            BlockPos oldPos = mc.thePlayer.getPosition();
-            pos.add(oldPos);
-            for(BlockPos b : pos){
-                w.setLightFor(EnumSkyBlock.BLOCK, oldPos, oldValue);
-                Wrapper.instance.log("Set " + oldPos + " to a light value of " + oldValue);
-
+            for(Entity players : mc.theWorld.loadedEntityList){
+                //if(players instanceof EntityPlayer){
+                //    mc.theWorld.setLightFor(EnumSkyBlock.BLOCK, new BlockPos(players.posX, players.posY, players.posZ), 12);
+                //}
             }
-            pos.clear();
-            w.setLightFor(EnumSkyBlock.BLOCK, mc.thePlayer.getPosition(), lightValue);
         }
     }
 }

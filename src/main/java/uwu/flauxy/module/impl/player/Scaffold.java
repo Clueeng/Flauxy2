@@ -557,7 +557,7 @@ public class Scaffold extends Module {
             } else {
                 mc.timer.timerSpeed = 1F;
                 if(--ticks > 0) {
-                    mc.timer.timerSpeed = 1.3F;
+                    //mc.timer.timerSpeed = 1.3F;
                 }
             }
             //mc.timer.timerSpeed = mc.thePlayer.ticksExisted % 2 == 0 ? 1.18F : 1.6F;

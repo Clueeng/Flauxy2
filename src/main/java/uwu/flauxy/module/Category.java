@@ -12,7 +12,7 @@ public enum Category {
     Exploit(new Color(50, 131, 173), 5),
     Display(new Color(243, 155, 18), 6),
     Other(new Color(244, 219, 95), 7),
-    Config(new Color(65, 65, 65), 8);
+    Ghost(new Color(65, 65, 65), 8);
 
     Color c;
     public int id;

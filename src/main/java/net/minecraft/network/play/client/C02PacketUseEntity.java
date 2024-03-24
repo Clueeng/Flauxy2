@@ -10,9 +10,9 @@ import net.minecraft.world.World;
 
 public class C02PacketUseEntity implements Packet<INetHandlerPlayServer>
 {
-    private int entityId;
-    private C02PacketUseEntity.Action action;
-    private Vec3 hitVec;
+    public int entityId;
+    public C02PacketUseEntity.Action action;
+    public Vec3 hitVec;
 
     public C02PacketUseEntity()
     {

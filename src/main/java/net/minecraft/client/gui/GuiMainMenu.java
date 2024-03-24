@@ -11,9 +11,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javazoom.jl.player.Player;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -49,7 +46,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     private int y, tickToGenerate, timeLeftInSeconds = 50, shouldAnimateTicks, soundTicks;
     private boolean shouldAnimate = false, shouldDecreaseOpacity, shouldPlaySound, hasPlayedSound;
     public boolean toggledAnimations = true;
-    private int imageID, availableBgs = 17 - 1, /* (-1 car sinon ca excede) */ checkOld;
+    /* (-1 car sinon ca excede) */ private int checkOld;
 
     private double opacity = 0;
     private String curImg;
@@ -200,7 +197,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
      * window resizes, the buttonList is cleared beforehand.
      */
     private void generateImage(){
-        imageID = rand.nextInt(availableBgs + 1) + 1;
+        int availableBgs = 13 - 1;
+        int imageID = rand.nextInt(availableBgs + 1) + 1;
         if(imageID == checkOld){
             System.out.println("Same image generated, generating new image");
             imageID = rand.nextInt(availableBgs + 1) + 1;
@@ -575,9 +573,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         // display image background bg random
         //mc.getTextureManager().bindTexture(RL_Background);
+
         RenderUtil.drawImage(0, 0, width, height, RL_Background);
         tickToGenerate++;
-        if(tickToGenerate % 100 * timeLeftInSeconds == 0){
+        if(tickToGenerate % (200) * timeLeftInSeconds == 0){
             opacity = 0;
             shouldAnimate = true;
             shouldAnimateTicks = 0;
@@ -606,7 +605,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                 generateImage();
                 shouldDecreaseOpacity = true;
             }
-            if(shouldDecreaseOpacity){
+            if(shouldDecreaseOpacity){ // gtg
                 int removeFactor = 16;
                 if(opacity <= removeFactor) opacity = removeFactor;
                 opacity -= removeFactor;
@@ -618,6 +617,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
 
         this.drawGradientRect(0, 0, width, height, 0, new Color(0, 0, 0, (int)opacity).getRGB());
+        this.drawGradientRect(0, 0, width, height, new Color(1, 1, 1, 69).getRGB(), new Color(1, 1, 1, 69).getRGB());
         TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
         TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
         Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString("Flauxy Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
@@ -626,22 +626,15 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         for(GuiButton b : buttonList){
             int speed = 1;
             int maxWidth = 200;
+            int basePosition = this.width / 2 - 100;
             int length = 5;
+            int velocity = 0;
             switch(b.id){
                 case 40:
                     maxWidth = 100;
+                    basePosition = 10;
             }
-            if(mouseX >= b.xPosition && mouseX <= b.xPosition + b.width && mouseY >= b.yPosition && mouseY <= b.yPosition + b.height){
-                if(b.width >= maxWidth-length){
-                    b.width-=speed;
-                }else{
-                    b.width = maxWidth-(length + 1);
-                }
-            }else{
-                if(b.width < maxWidth){
-                    b.width+=speed;
-                }
-            }
+            boolean hovering = mouseX >= b.xPosition && mouseX <= b.xPosition + b.width && mouseY >= b.yPosition && mouseY <= b.yPosition + b.height;
         }
         if(soundTicks == 1){
             System.out.println("Hello  a");

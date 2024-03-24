@@ -46,6 +46,12 @@ public class Module implements Methods {
         this.key = featureInfo.key();
         this.category = featureInfo.cat();
     }
+    public Module(String name, String displayName, int key, Category cat){
+        this.name = name;
+        this.displayName = displayName;
+        this.key = key;
+        this.category = cat;
+    }
 
     public void onEnable() {
     }

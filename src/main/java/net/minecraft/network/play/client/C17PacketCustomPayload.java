@@ -8,8 +8,8 @@ import net.minecraft.network.play.INetHandlerPlayServer;
 
 public class C17PacketCustomPayload implements Packet<INetHandlerPlayServer>
 {
-    private String channel;
-    private PacketBuffer data;
+    public String channel;
+    public PacketBuffer data;
 
     public C17PacketCustomPayload()
     {

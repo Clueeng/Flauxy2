@@ -1,6 +1,7 @@
 package uwu.flauxy.cape;
 
 import lombok.Getter;
+import net.minecraft.util.ResourceLocation;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
@@ -15,16 +16,10 @@ public class CapeManager {
     public ArrayList<Cape> capes = new ArrayList<>();
 
     public CapeManager(){
-        final Reflections reflections = new Reflections("uwu.flauxy.cape.impl");
-        final Set<Class<? extends Cape>> classes = reflections.getSubTypesOf(Cape.class);
-        for (Class<?> aClass : classes) {
-            try {
-                final Cape mod = (Cape) aClass.newInstance();
-                capes.add(mod);
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
+        capes.add(new Cape(new ResourceLocation("capes/landscape.png")));
+        capes.add(new Cape(new ResourceLocation("capes/purple.png")));
+        capes.add(new Cape(new ResourceLocation("capes/symbol.png")));
+        capes.add(new Cape(new ResourceLocation("capes/wave.png")));
     }
 
 

@@ -9,22 +9,22 @@ import net.minecraft.network.play.INetHandlerPlayServer;
 public class C0EPacketClickWindow implements Packet<INetHandlerPlayServer>
 {
     /** The id of the window which was clicked. 0 for player inventory. */
-    private int windowId;
+    public int windowId;
 
     /** Id of the clicked slot */
-    private int slotId;
+    public int slotId;
 
     /** Button used */
-    private int usedButton;
+    public int usedButton;
 
     /** A unique number for the action, used for transaction handling */
-    private short actionNumber;
+    public short actionNumber;
 
     /** The item stack present in the slot */
-    private ItemStack clickedItem;
+    public ItemStack clickedItem;
 
     /** Inventory operation mode */
-    private int mode;
+    public int mode;
 
     public C0EPacketClickWindow()
     {

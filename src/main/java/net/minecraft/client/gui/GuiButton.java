@@ -4,7 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.utils.font.TTFFontRenderer;
@@ -16,6 +18,11 @@ public class GuiButton extends Gui
 
     /** Button width in pixels */
     protected int width;
+    private long lastTime = System.nanoTime(); // Initialisez avec le temps actuel
+    private float deltaTime = 0f;
+
+
+    protected float smoothnessX = 1, offsetX = 0;
 
     /** Button height in pixels */
     protected int height;
@@ -88,12 +95,28 @@ public class GuiButton extends Gui
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
             int i = this.getHoverState(this.hovered);
+
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
             GlStateManager.blendFunc(770, 771);
+
             /*this.drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
             this.drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);*/
-            RoundedUtils.drawRoundedOutline(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + 19, 1, 2, -1);
+            long now = System.nanoTime();
+            deltaTime = (now - lastTime) / 1_000_000_000.0f; // Convertit en secondes
+            lastTime = now;
+            float adjustment = deltaTime * 60;
+            if(hovered){
+                this.smoothnessX = Math.max(0.982f, this.smoothnessX * 0.95f);
+                this.offsetX += (1 / this.smoothnessX) * adjustment;
+
+            }else{
+                this.smoothnessX = Math.min(1f, this.smoothnessX * 1.05f);
+                this.offsetX -= (1 * this.smoothnessX) * adjustment;
+            }
+            this.offsetX = MathHelper.clamp_float(this.offsetX, 0, 4);
+            RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 1, 2, -1);
+
             this.mouseDragged(mc, mouseX, mouseY);
             int j = 14737632;
 
@@ -105,6 +128,7 @@ public class GuiButton extends Gui
             {
                 j = 16777120;
             }
+
             FontManager.getFont().drawStringWithShadow(this.displayString, (this.xPosition + (this.width / 2) - FontManager.getFont().getWidth(this.displayString) / 2), (this.yPosition + (this.height - 8) / 2) - 2, -1);
             //this.drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, (this.yPosition + (this.height - 8) / 2) - 1, j);
         }
