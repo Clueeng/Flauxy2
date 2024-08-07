@@ -3,6 +3,7 @@ package uwu.flauxy.module;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.utils.Methods;
@@ -62,12 +63,11 @@ public class Module implements Methods {
 
     public void toggle(){
         toggled = !toggled;
+        if(Flauxy.INSTANCE.isGhost() && (this.category != Category.Display && this.category != Category.Visuals && this.category != Category.Ghost)) return;
         if(toggled) onEnable();
         else onDisable();
     }
-
     public void onEvent(Event e){
-
         if(WorldUtil.shouldNotRun()) return;
     }
     public void onEventIgnore(Event e){}

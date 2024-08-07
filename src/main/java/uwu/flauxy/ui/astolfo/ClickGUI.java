@@ -21,11 +21,17 @@ public class ClickGUI extends GuiScreen {
         int index = -1;
         // Creating category instance foreach listed category
         for(Category category : Category.values()) {
-            categories.add(new CategoryFrame(category, category.id > 7 ? 10 : 10 + (++index * (125 + 10)), category.id > 7 ? height + 280 : 10));
+            index++;
+            categories.add(new CategoryFrame(category, category.id > 6 ? 10 + ((index-6) * (125 + 10)) : 10 + (index * (125 + 10)), category.id > 6 ? height + 280 : 10));
         }
         for(Config config : Flauxy.INSTANCE.getNonShittyConfigManager().getConfigs()){
             //non shitty code run here :D
         }
+    }
+
+    @Override
+    public void onGuiClosed() {
+        super.onGuiClosed();
     }
 
     @Override
@@ -34,7 +40,6 @@ public class ClickGUI extends GuiScreen {
         categories.forEach(CategoryFrame::initGui);
         super.initGui();
     }
-
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {

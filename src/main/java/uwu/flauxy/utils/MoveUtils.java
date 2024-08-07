@@ -16,6 +16,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovementInput;
+import uwu.flauxy.event.impl.EventMotion;
+import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.event.impl.packet.EventMove;
 
 public class MoveUtils {
@@ -79,10 +81,10 @@ public class MoveUtils {
             }
             case VANILLA:{
                 for(int i = 0; i <= 4 / 0.0625; i++) {
-                    mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
-                    mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+                    PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.0625, mc.thePlayer.posZ, false));
+                    PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
                 }
-                mc.getNetHandler().getNetworkManager().sendPacket(new C03PacketPlayer(true));
+                PacketUtil.packetNoEvent(new C03PacketPlayer(true));
                 break;
             }
         }
@@ -282,6 +284,23 @@ public class MoveUtils {
         if(!mc.gameSettings.keyBindJump.isKeyDown()) {
             mc.thePlayer.jump();
         }
+    }
+    public static void jumpVanilla(EventStrafe e){
+        mc.thePlayer.motionY = .42f;
+
+        if (mc.thePlayer.isPotionActive(Potion.jump))
+        {
+            mc.thePlayer.motionY += (double)((float)(mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+        }
+
+        float f = 0;
+        f = e.getYaw() * 0.017453292F;
+        mc.thePlayer.motionY = 0.42f;
+        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.2F);
+        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+
+
+        mc.thePlayer.isAirBorne = true;
     }
     public static void jump(double motion) {
         if(!mc.gameSettings.keyBindJump.isKeyDown()) {

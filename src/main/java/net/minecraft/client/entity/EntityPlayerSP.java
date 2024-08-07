@@ -45,8 +45,11 @@ import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.*;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.CommandManager;
+import uwu.flauxy.commands.impl.CommandGhost;
+import uwu.flauxy.commands.impl.CommandSetupCPS;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventPostMotionUpdate;
@@ -190,6 +193,29 @@ public class EntityPlayerSP extends AbstractClientPlayer
             if(mc.currentScreen instanceof ClickGUI){
                 Flauxy.onEvent(new EventUI());
             }
+            // Ghost mode
+            boolean ghostJustToggled = false;
+            if (Flauxy.INSTANCE.isGhost()) {
+                long tgMs = Flauxy.INSTANCE.getCommandManager().getCommand(CommandGhost.class).getToggledMs();
+                if (System.currentTimeMillis() - tgMs < 20) {
+                    Wrapper.instance.log(EnumChatFormatting.GREEN +  "Disabled" + EnumChatFormatting.GRAY + " all " +
+                            EnumChatFormatting.WHITE + "non-ghost" + EnumChatFormatting.GRAY + " modules");
+                    ghostJustToggled = true;
+                }
+                for (Category c : Category.values()) {
+                    if (!(c.equals(Category.Ghost) || c.equals(Category.Visuals)  || c.equals(Category.False) || c.equals(Category.Display))) {
+                        for (Module m : Flauxy.INSTANCE.getModuleManager().getModules(c)) {
+                            if (m.isToggled()) {
+                                if (!ghostJustToggled) {
+                                    Wrapper.instance.log("Ghost mode is " + EnumChatFormatting.GREEN + "toggled" + EnumChatFormatting.WHITE + ", disable it to enable " + EnumChatFormatting.YELLOW + m.getName());
+                                }
+                                m.setToggled(false);
+                            }
+                        }
+                    }
+                }
+            }
+
             super.onUpdate();
             Flauxy.onEvent(new EventUpdate());
 
@@ -230,12 +256,23 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onUpdateWalkingPlayer()
     {
+        // motion
+        boolean g = Flauxy.INSTANCE.isGhost();
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
-        em.setType(EventType.PRE);
-        Flauxy.onEvent(em);
+        if(!g){
+            em.setType(EventType.PRE);
+            Flauxy.onEvent(em);
+        }
+        double ghX = g ? this.posX : em.getX();
+        double ghY = g ? this.posY : em.getY();
+        double ghZ = g ? this.posZ : em.getZ();
+        float ghYaw = g ? this.rotationYaw : em.getYaw();
+        float ghPitch = g ? this.rotationPitch : em.getPitch();
+        boolean ghGround = g ? this.onGround : em.isOnGround();
 
-        this.serverYaw = em.getYaw();
-        this.serverPitch = em.getPitch();
+        this.serverYaw = ghYaw;
+        this.serverPitch = ghPitch;
+
 
         boolean flag = this.isSprinting();
 
@@ -271,11 +308,11 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (this.isCurrentViewEntity())
         {
-            double d0 = em.getX() - this.lastReportedPosX;
-            double d1 = em.getY() - this.lastReportedPosY;
-            double d2 = em.getZ() - this.lastReportedPosZ;
-            double d3 = (double)(em.getYaw() - this.lastReportedYaw);
-            double d4 = (double)(em.getPitch() - this.lastReportedPitch);
+            double d0 = ghX - this.lastReportedPosX;
+            double d1 = ghY - this.lastReportedPosY;
+            double d2 = ghZ - this.lastReportedPosZ;
+            double d3 = (double)(ghYaw - this.lastReportedYaw);
+            double d4 = (double)(ghPitch - this.lastReportedPitch);
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
@@ -283,24 +320,24 @@ public class EntityPlayerSP extends AbstractClientPlayer
             {
                 if (flag2 && flag3)
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(em.getX(), em.getY(), em.getZ(), em.getYaw(), em.getPitch(), em.isOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(ghX, ghY, ghZ, ghYaw, ghPitch, ghGround));
                 }
                 else if (flag2)
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(em.getX(), em.getY(), em.getZ(), em.isOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(ghX, ghY, ghZ, ghGround));
                 }
                 else if (flag3)
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(em.getYaw(), em.getPitch(), em.isOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(ghYaw, ghPitch, ghGround));
                 }
                 else
                 {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer(em.isOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer(ghGround));
                 }
             }
             else
             {
-                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, em.getYaw(), em.getPitch(), em.isOnGround()));
+                this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, ghYaw, ghPitch, ghGround));
                 flag2 = false;
             }
 
@@ -308,23 +345,24 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             if (flag2)
             {
-                this.lastReportedPosX = em.getX();
-                this.lastReportedPosY = em.getY();
-                this.lastReportedPosZ = em.getZ();
+                this.lastReportedPosX = ghX;
+                this.lastReportedPosY = ghY;
+                this.lastReportedPosZ = ghZ;
                 this.positionUpdateTicks = 0;
             }
 
             if (flag3)
             {
-                this.lastReportedYaw = em.getYaw();
-                this.lastReportedPitch = em.getPitch();
+                this.lastReportedYaw = ghYaw;
+                this.lastReportedPitch = ghPitch;
             }
         }
         EventPostMotionUpdate emp = new EventPostMotionUpdate();
-        Flauxy.onEvent(emp);
-
-        em.setType(EventType.POST);
-        Flauxy.onEvent(em);
+        if(!g){
+            Flauxy.onEvent(emp);
+            em.setType(EventType.POST);
+            Flauxy.onEvent(em);
+        }
 
     }
 
@@ -772,6 +810,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onLivingUpdate()
     {
+
+
+
         if (this.sprintingTicksLeft > 0)
         {
             --this.sprintingTicksLeft;

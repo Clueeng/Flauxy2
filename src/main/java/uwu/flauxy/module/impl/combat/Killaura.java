@@ -25,6 +25,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.commands.impl.CommandSetupCPS;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventRender2D;
@@ -45,6 +46,7 @@ import uwu.flauxy.utils.timer.Timer;
 
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +58,13 @@ import static uwu.flauxy.utils.render.RenderUtil.drawFace;
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
 
-    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001);
-    NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
+    public static ArrayList<Long> dataClickOne = new ArrayList<>();
+    public static ArrayList<Long> dataClickTwo = new ArrayList<>();
+    public static ArrayList<Long> dataClickThree = new ArrayList<>();
+
+    ModeSetting cpsMode = new ModeSetting("CPS Mode", "Normal","Normal", "Data Set");
+    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001).setCanShow(m -> cpsMode.is("Normal"));
+    public NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
 
     ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None");
@@ -83,7 +90,7 @@ public class Killaura extends Module {
 
 
     public Killaura(){
-        addSettings(autoblockMode, type, rotations, cps, reach, autoblock, nosprint, noSprintDelay, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
+        addSettings(autoblockMode, type, rotations, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
     public static boolean fakeBlock = false;
@@ -264,30 +271,21 @@ public class Killaura extends Module {
                                 if(type.is("Pre") && event.isPre()){
                                     float smoothnessX = 30;
                                     float smoothnessY = 30;
-
                                     if(event.getYaw() < getRotations(target)[0]){
                                         float yaw = event.getYaw() + smoothnessX;
-                                        event.setYaw(yaw);
-                                        mc.thePlayer.rotationYawHead = yaw;
-                                        mc.thePlayer.renderYawOffset = yaw;
+                                        yaw(yaw, event);
                                     }
                                     if(event.getYaw() > getRotations(target)[0]){
                                         float yaw = event.getYaw() + smoothnessX;
-                                        event.setYaw(yaw);
-                                        mc.thePlayer.rotationYawHead = yaw;
-                                        mc.thePlayer.renderYawOffset = yaw;
+                                        yaw(yaw, event);
                                     }
                                     if(event.getPitch() < getRotations(target)[1]){
                                         float pitch = event.getPitch() + smoothnessY;
-                                        event.setYaw(pitch);
-                                        mc.thePlayer.rotationPitchHead = pitch;
-                                        event.setPitch(pitch);
+                                        pitch(pitch,event);
                                     }
                                     if(event.getPitch() > getRotations(target)[1]){
                                         float pitch = event.getPitch() - smoothnessY;
-                                        event.setYaw(pitch);
-                                        mc.thePlayer.rotationPitchHead = pitch;
-                                        event.setPitch(pitch);
+                                        pitch(pitch,event);
                                     }
                                     //yaw((float) (getRotations(target)[0] + random + 1 + Math.random()), event);
                                     //pitch((float) (getRotations(target)[1] + random + 1 + Math.random()), event);
@@ -300,7 +298,29 @@ public class Killaura extends Module {
                                 break;
                             }
                         }
-                        if(timer.hasTimeElapsed(1000 / cps.getValue() + Math.random(), true)){
+                        long clicks = 0;
+                        switch (cpsMode.getMode()){
+                            case "Data Set":{
+                                int index = (int)Math.ceil(Math.random() * 29);
+                                ArrayList<Long> allData = new ArrayList<>();
+                                allData.addAll(dataClickOne);
+                                allData.addAll(dataClickTwo);
+                                allData.addAll(dataClickThree);
+                                if(allData.size() <= 29 || CommandSetupCPS.runSetup){
+                                    Wrapper.instance.log("Please setup the cps correctly using the .cps command");
+                                    Wrapper.instance.log("Fallback to normal clicking");
+                                    cpsMode.setSelected("Normal");
+                                    return;
+                                }
+                                clicks = allData.get(index);
+                                break;
+                            }
+                            case "Normal":{
+                                clicks = (long) (1000 / cps.getValue() + Math.random());
+                                break;
+                            }
+                        }
+                        if(timer.hasTimeElapsed(clicks, true)){
                             Criticals.isCrits = true;
 
                             if (target instanceof EntityPlayer) { // idk i need to check if player bc it will crash and im to lazy to fix or find the error idc rn
@@ -405,6 +425,7 @@ public class Killaura extends Module {
 
     public void attack(Entity target){
         mc.thePlayer.swingItem();
+        PacketUtil.packetNoEvent(new C0APacketAnimation());
         PacketUtil.packetNoEvent(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
     }
 

@@ -94,8 +94,7 @@ public class Fly extends Module {
                     if(mc.thePlayer.onGround) {
                         mc.thePlayer.motionY = 0.42f;
                     }else{
-                        if(mc.thePlayer.motionY < 2.4 && flyTicks < 10)
-                            mc.thePlayer.motionY += 1.0;
+                        mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.23214d, mc.thePlayer.posZ);
                     }
                     flyTicks++;
                 }
@@ -131,41 +130,23 @@ public class Fly extends Module {
             }
 
             case "Funcraft":{
-                if(e instanceof EventMove){
-                    EventMove em = (EventMove)e;
-                    if(flyTicks >= 2){
-                        em.setY(mc.thePlayer.motionY = -1e-14);
-                    }
-                }
-                if(e instanceof EventUpdate){
-                    double xDist = mc.thePlayer.prevPosX - mc.thePlayer.posX;
-                    double zDist = mc.thePlayer.prevPosZ - mc.thePlayer.posZ;
-                    double lastDist = MathHelper.sqrt_double(xDist * xDist + zDist * zDist);
-
-                    if(mc.thePlayer.isCollidedVertically){
-                        mc.timer.timerSpeed = 1.4f;
-                        flyTicks = 0;
-                        //mc.thePlayer.motionY = 0.42F;
-                        mc.thePlayer.motionY = 0.42F;
-                        MoveUtils.strafe(0.49);
-                        flySpeed = (float) funcraftSpeed.getValue();
+                if(e instanceof EventMotion){
+                    if(flyTicks < 2){
+                        mc.timer.timerSpeed = 0.5f;
+                        flySpeed = speed.getValue() * 2f;
+                        //MoveUtils.damage(MoveUtils.Bypass.VANILLA);
+                        mc.thePlayer.motionY = 0.42f;
                     }else{
-                        if(mc.timer.timerSpeed > 1.7){
-                            mc.timer.timerSpeed -= 0.08;
+                        MoveUtils.strafe(Math.max(flySpeed,0.33));
+                        flySpeed -= flySpeed / 269   ;
+                        if(mc.thePlayer.ticksExisted % 2 == 0){
+                            mc.timer.timerSpeed = 1f;
+                            mc.thePlayer.motionY = 0.03f;
+                        }else{
+                            mc.thePlayer.motionY = -0.03f;
                         }
-                        mc.thePlayer.jumpMovementFactor = 0F;
-                        switch (flyTicks) {
-                            case 0:
-                                MoveUtils.strafe(flySpeed = (float) funcraftSpeed.getValue());
-                                break;
-                        }
-                        if(flyTicks != 0){
-                            flySpeed = lastDist - lastDist / 159;
-                            MoveUtils.strafe(flySpeed);
-                            if (flySpeed < 0.29) MoveUtils.strafe(0.29f);
-                        }
-                        flyTicks++;
                     }
+                    flyTicks++;
                 }
                 break;
             }
@@ -223,10 +204,56 @@ public class Fly extends Module {
                         }
                         break;
                     }
-                    case "Test 2":{
+                    case "Test 2":{// vulcan anticheat-test.com
                         if(e instanceof EventMotion){
                             EventMotion ev = (EventMotion) e;
+                            if(mc.thePlayer.motionY < -0.4){
+                                mc.thePlayer.motionY = 0;
+                            }
+                        }
+                        break;
+                    }
+                    case "Test 3":{// vulcan antich eat-test.com
 
+                        if(e instanceof EventMotion){
+                            EventMotion ev = (EventMotion) e;
+                            if(mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically && mc.thePlayer.ticksExisted % 2 == 00){
+                                mc.timer.timerSpeed = 0.35f;
+                                mc.thePlayer.motionY = 0.42;
+                            }
+                            double yUp = -0.22;
+                            if(mc.gameSettings.keyBindJump.pressed){
+                                yUp = -0.02;
+                            }
+                            if(mc.gameSettings.keyBindSneak.pressed){
+                                yUp = -0.42;
+                            }
+
+                            if(mc.thePlayer.motionY < yUp){
+                                mc.timer.timerSpeed = 0.15f;
+                                mc.thePlayer.motionY = 0.22;
+                                if(yUp == -0.02){
+                                    mc.timer.timerSpeed = .80f;
+                                }
+                            }
+                            if(!mc.gameSettings.keyBindJump.pressed){
+                                if(mc.timer.timerSpeed < 1.1f && mc.timer.timerSpeed > 0.5){
+                                    MoveUtils.strafe(mc.gameSettings.keyBindJump.pressed ? 0.71: 0.69 + (MoveUtils.getMotion() / 6));
+                                    if(!mc.gameSettings.keyBindJump.pressed){
+                                        mc.thePlayer.motionY = -0.01;
+                                    }
+                                }
+                                mc.timer.timerSpeed = Math.min(2.7f, mc.timer.timerSpeed + 0.14f);
+                            }else{
+
+                                if(mc.timer.timerSpeed < 0.7f && mc.timer.timerSpeed > 0.5){
+                                    MoveUtils.strafe(mc.gameSettings.keyBindJump.pressed ? 0.71: 0.69 + (MoveUtils.getMotion() / 6));
+                                    if(!mc.gameSettings.keyBindJump.pressed){
+                                        mc.thePlayer.motionY = -0.01;
+                                    }
+                                }
+                                mc.timer.timerSpeed = Math.min(1.4f, mc.timer.timerSpeed + 0.13f);
+                            }
                         }
                         break;
                     }

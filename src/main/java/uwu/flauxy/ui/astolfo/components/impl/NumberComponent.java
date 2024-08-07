@@ -42,7 +42,8 @@ public class NumberComponent extends Component implements ColorHelper {
         double max = slide.getMaximum();
         double diff = Math.min(defaultWidth + 5, Math.max(0, mouseX - (this.x)));
         double renderWidth = defaultWidth * (slide.getValue() - min) / (max - min);
-        Gui.drawRect(x, y + 18, x + (int) renderWidth, y + getOffset() - 10 + 5 + 4, owner.getParent().getCategory().getCategoryColor().getRGB());
+        Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(125, 125, 125).getRGB());
+        Gui.drawRect(x, y + 20, x + (int) renderWidth, y + getOffset() - 10 + 5 + 8, owner.getParent().getCategory().getCategoryColor().getRGB());
 
 
         if(drag)
@@ -102,7 +103,7 @@ public class NumberComponent extends Component implements ColorHelper {
     public int getOffset() {
         int offset = 0;
         if(this.getSetting().getCanShow().test(null)){
-            offset = 18;
+            offset = 20;
         }else{
             offset = 0;
         }

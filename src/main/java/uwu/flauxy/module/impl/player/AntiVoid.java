@@ -1,5 +1,7 @@
 package uwu.flauxy.module.impl.player;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.BlockPos;
@@ -31,14 +33,20 @@ public class AntiVoid extends Module {
         this.addSettings(mode, val, helper);
     }
     float fps = 0;
+    boolean overVoid;
     
     public void onEvent(Event e) {
         if (e instanceof EventMotion) {
             if(mc.thePlayer.onGround){
                 lastSafePos = mc.thePlayer.getPosition();
             }
-
-            if(mc.thePlayer.fallDistance > val.getValue()){
+            for(int i = (int) mc.thePlayer.posY; i > 0; i--){
+                IBlockState a = mc.theWorld.getBlockState(new BlockPos(Math.floor(mc.thePlayer.posX),i,Math.floor(mc.thePlayer.posX)));
+                if(!a.getBlock().getMaterial().equals(Material.air)){
+                    overVoid = true;
+                }
+            }
+            if(mc.thePlayer.fallDistance > val.getValue() && mc.thePlayer.motionY < -0.2f && overVoid){
                 Jumped = true;
                 resetFall();
             }
@@ -46,7 +54,7 @@ public class AntiVoid extends Module {
                 ranTicks = 0;
                 fps = mc.gameSettings.limitFramerate;
             }
-            if(Jumped){
+            if(Jumped && overVoid){
                 ticks++;
                 switch(mode.getMode()){
                     case "Basic":{
@@ -91,7 +99,7 @@ public class AntiVoid extends Module {
                 }
 
                 Wrapper.instance.log("Tried catching you");
-
+                overVoid = false;
             }
         }
     }

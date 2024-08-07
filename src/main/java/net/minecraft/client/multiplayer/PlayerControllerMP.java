@@ -613,7 +613,7 @@ public class PlayerControllerMP
         return this.currentGameType;
     }
 
-    public boolean func_181040_m()
+    public boolean isHittingBlock()
     {
         return this.isHittingBlock;
     }

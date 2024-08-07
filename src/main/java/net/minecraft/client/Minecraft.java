@@ -185,9 +185,11 @@ import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventFrame;
 import uwu.flauxy.event.impl.EventTick;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.module.impl.ghost.FastPlace;
 import uwu.flauxy.utils.config.KeyLoader;
 import viamcp.utils.AttackOrder;
 
@@ -289,7 +291,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     /**
      * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
      */
-    private int rightClickDelayTimer;
+    public int rightClickDelayTimer;
     private String serverName;
     private int serverPort;
 
@@ -1098,6 +1100,10 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
         this.mcProfiler.endSection();
         long l = System.nanoTime();
+        if(thePlayer != null){
+            EventFrame eventFrame = new EventFrame();
+            Flauxy.onEvent(eventFrame);
+        }
         this.mcProfiler.startSection("tick");
 
         for (int j = 0; j < this.timer.elapsedTicks; ++j)
@@ -1556,11 +1562,14 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     /**
      * Called when user clicked he's mouse right button (place)
      */
-    private void rightClickMouse()
+
+    public void rightClickMouse()
     {
-        if (!this.playerController.func_181040_m())
+        if (!this.playerController.isHittingBlock())
         {
-            this.rightClickDelayTimer = 4;
+            int newDelay = (int) Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class).delay.getValue();
+            boolean toggled = Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class).isToggled();
+            this.rightClickDelayTimer = toggled ? newDelay : 4;
             boolean flag = true;
             ItemStack itemstack = this.thePlayer.inventory.getCurrentItem();
 

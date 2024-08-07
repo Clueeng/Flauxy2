@@ -254,7 +254,7 @@ public class Scaffold extends Module {
                     if(mc.thePlayer.onGround) {
                         towerTicks = 0;
                     }
-                    if(mc.gameSettings.keyBindJump.isKeyDown() && !mc.thePlayer.isMoving() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)) {
+                    if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)) {
                         int IntPosY = (int) mc.thePlayer.posY;
                         if(mc.thePlayer.posY - IntPosY < 0.05) {
                             mc.thePlayer.setPosition(mc.thePlayer.posX, IntPosY, mc.thePlayer.posZ);

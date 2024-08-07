@@ -53,7 +53,7 @@ public class ModeComponent extends Component implements ColorHelper {
     public int getOffset() {
         int offset = 0;
         if(this.getSetting().getCanShow().test(null)){
-            offset = 34;
+            offset = 36;
         }else{
             offset = 0;
         }

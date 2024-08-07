@@ -53,6 +53,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import uwu.flauxy.event.impl.EventStrafe;
+import uwu.flauxy.module.impl.falses.AutoHeadhitter;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -2046,7 +2047,7 @@ public abstract class EntityLivingBase extends Entity
             {
                 this.jump();
                 this.jumpTicks = 10;
-                EntityPlayerSP.jumpTicks = 10;
+                EntityPlayerSP.jumpTicks = AutoHeadhitter.jumpDelayTick;
             }
         }
         else

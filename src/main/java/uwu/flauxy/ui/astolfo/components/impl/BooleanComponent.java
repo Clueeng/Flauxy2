@@ -37,7 +37,7 @@ public class BooleanComponent extends Component implements ColorHelper {
     public void drawScreen(int mouseX, int mouseY)
     {
         animation.update();
-        getFont().drawString(getSetting().name.toLowerCase(), (float)x + (defaultWidth / 2) - (getFont().getWidth(getSetting().getName().toLowerCase()) / 2), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 1.5), ((BooleanSetting) getSetting()).isEnabled() ? owner.getParent().getCategory().getCategoryColor().getRGB() : -1);
+        getFont().drawString(getSetting().name.toLowerCase(), (float)x + (defaultWidth / 2) - (getFont().getWidth(getSetting().getName().toLowerCase()) / 2), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 5), ((BooleanSetting) getSetting()).isEnabled() ? owner.getParent().getCategory().getCategoryColor().getRGB() : -1);
 
         //RenderUtil.drawFilledCircle(x + defaultWidth - 10, (int) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 6.75f), 5, new Color(19, 19, 19, 130));
         GlStateManager.resetColor();

@@ -24,7 +24,7 @@ import java.awt.*;
 
 import static uwu.flauxy.utils.render.ColorUtils.getGradientOffset;
 
-@ModuleInfo(name = "PlayerList", displayName = "Player List", key = 0, cat = Category.Visuals)
+@ModuleInfo(name = "PlayerList", displayName = "Player List", key = 0, cat = Category.Display)
 public class PlayerList extends Module {
 
     static ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());

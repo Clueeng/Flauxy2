@@ -9,7 +9,10 @@ import org.lwjgl.opengl.Display;
 import uwu.flauxy.alts.Alt;
 import uwu.flauxy.alts.AltManager;
 import uwu.flauxy.cape.CapeManager;
+import uwu.flauxy.commands.CommandManager;
+import uwu.flauxy.commands.impl.CommandGhost;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.display.ArrayList;
@@ -43,6 +46,7 @@ public enum Flauxy implements MinecraftInstance {
     public AltManager altManager;
     private ConfigUtil configManager;
     private CapeManager capeManager;
+    private CommandManager commandManager;
     private final ConfigManager nonShittyConfigManager = new ConfigManager();
     @Getter
     public DiscordRPC discordRPC;
@@ -67,6 +71,8 @@ public enum Flauxy implements MinecraftInstance {
         uwu.flauxy.module.impl.other.util.Folder.init(); // for killsults
         moduleManager = new ModuleManager();
         configManager = new ConfigUtil();
+        commandManager = new CommandManager();
+        setGhost(false);
         fontManager = new FontManager();
         // Trying to add before altmanager i guess
         altManager = new AltManager();
@@ -120,7 +126,7 @@ public enum Flauxy implements MinecraftInstance {
     }
 
     public static void onEvent(Event e){
-        if(mc.thePlayer == null){
+        if(mc.thePlayer == null && (e instanceof EventReceivePacket)){
             return;
         }
         for(Module m : ModuleManager.modules){
@@ -139,4 +145,10 @@ public enum Flauxy implements MinecraftInstance {
     }
 
 
+    public boolean isGhost() {
+        return Flauxy.INSTANCE.getCommandManager().getCommand(CommandGhost.class).getSafeMode();
+    }
+    public void setGhost(boolean g){
+        Flauxy.INSTANCE.getCommandManager().getCommand(CommandGhost.class).setGhostmode(g);
+    }
 }

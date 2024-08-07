@@ -49,19 +49,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.MouseFilter;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldSettings;
@@ -84,6 +72,9 @@ import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Project;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventRender3D;
+import uwu.flauxy.module.Module;
+import uwu.flauxy.module.impl.ghost.Reach;
+import uwu.flauxy.utils.Wrapper;
 
 public class EntityRenderer implements IResourceManagerReloadListener // bienvenue en enfer ce client est buggé de ouf
 {
@@ -542,7 +533,6 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             this.mc.mcProfiler.endSection();
         }
     }
-
     /**
      * Update FOV modifier hand
      */

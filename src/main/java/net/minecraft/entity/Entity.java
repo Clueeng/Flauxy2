@@ -47,8 +47,11 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
+import uwu.flauxy.module.impl.ghost.Safewalk;
+import uwu.flauxy.utils.Wrapper;
 
 public abstract class Entity implements ICommandSender
 {
@@ -589,6 +592,7 @@ public abstract class Entity implements ICommandSender
     /**
      * Tries to moves the entity by the passed in displacement. Args: x, y, z
      */
+    public static boolean sneak2 = false;
     public void moveEntity(double x, double y, double z)
     {
         if (this.noClip)
@@ -617,7 +621,12 @@ public abstract class Entity implements ICommandSender
             double d3 = x;
             double d4 = y;
             double d5 = z;
+            boolean sneak = false;
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
+            Safewalk sf = Flauxy.INSTANCE.getModuleManager().getModule(Safewalk.class);
+            if(sf.isToggled()){
+                flag = this.onGround && this instanceof EntityPlayer && this.rotationPitch > 60;
+            }
 
             if (flag)
             {
@@ -637,6 +646,7 @@ public abstract class Entity implements ICommandSender
                     {
                         x += d6;
                     }
+                    sneak = true;
                 }
 
                 for (; z != 0.0D && this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox().offset(0.0D, -1.0D, z)).isEmpty(); d5 = z)
@@ -653,6 +663,7 @@ public abstract class Entity implements ICommandSender
                     {
                         z += d6;
                     }
+                    sneak = true;
                 }
 
                 for (; x != 0.0D && z != 0.0D && this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox().offset(x, -1.0D, z)).isEmpty(); d5 = z)
@@ -684,7 +695,11 @@ public abstract class Entity implements ICommandSender
                     {
                         z += d6;
                     }
+                    sneak = true;
                 }
+            }
+            if(sneak){
+                sneak2 = true;
             }
 
             List<AxisAlignedBB> list1 = this.worldObj.getCollidingBoundingBoxes(this, this.getEntityBoundingBox().addCoord(x, y, z));

@@ -66,4 +66,9 @@ public class CommandManager {
         CommandManager.commands = commands;
     }
 
+
+    public <T extends Command> T getCommand(Class<T> tClass) {
+        return (T) commands.stream().filter(command -> command.getClass().equals(tClass)).findFirst().orElse(null);
+    }
+
 }

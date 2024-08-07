@@ -83,10 +83,13 @@ public class Longjump extends Module {
                 if(!mc.thePlayer.onGround) this.toggle();
                 switch(redeMode.getMode()){
                     case "Advanced":{
-                        timerWait.reset();
-                        seconds = 120;
-                        shouldWait = true;
-
+                        if(seconds > 0){
+                            this.setToggled(false);
+                        }else{
+                            timerWait.reset();
+                            seconds = 10;
+                            shouldWait = true;
+                        }
                         break;
                     }
                 }

@@ -14,10 +14,13 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
+import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.C00PacketLoginStart;
 import net.minecraft.network.play.client.C00PacketKeepAlive;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
+import net.minecraft.network.status.client.C00PacketServerQuery;
+import net.minecraft.network.status.client.C01PacketPing;
 import net.minecraft.util.AxisAlignedBB;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventSendPacket;
@@ -59,7 +62,7 @@ public class PacketUtil {
         }
     }
     public static boolean isPacketBlinkPacket(Packet p){
-        return p instanceof C03PacketPlayer || p instanceof C03PacketPlayer.C04PacketPlayerPosition || p instanceof C0FPacketConfirmTransaction;
+        return p instanceof C03PacketPlayer || p instanceof C0FPacketConfirmTransaction || p instanceof C00PacketKeepAlive;
     }
     public static boolean isPacketPingSpoof(Packet p){
         return p instanceof C0FPacketConfirmTransaction || p instanceof C00PacketKeepAlive;
@@ -69,33 +72,17 @@ public class PacketUtil {
         int maxTick = maxDelay; // Integer.MAX_VALUE for infinite blink
         int tickDelay = pulseDelay;
         if(e instanceof EventUpdate){
-
             if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
-                for(EntityLivingBase fp : fakePlayers){
-                    //mc.theWorld.loadedEntityList.remove(fp);
-                    //fakePlayers.remove(fp);
-                    mc.theWorld.removeEntity(fp);
-                }
-                fakePlayers.remove(0);
-                EntityOtherPlayerMP fakePlayer = new EntityOtherPlayerMP(mc.theWorld, new GameProfile(UUID.randomUUID(), "blinkedPlayer"));
-                fakePlayer.setPositionAndRotation(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-                fakePlayer.setEntityBoundingBox(new AxisAlignedBB(0, 0, 0));
-                fakePlayers.add(fakePlayer);
-                mc.theWorld.loadedEntityList.add(fakePlayer);
+                packetsLinked.forEach(PacketUtil::packetNoEvent);
+                packetsLinked.clear();
             }
         }
         if(e instanceof EventSendPacket){
             EventSendPacket eventSendPacket = (EventSendPacket) e;
-            if(PacketUtil.isPacketBlinkPacket(eventSendPacket.getPacket()) && flyTicks >= 0 && flyTicks < maxTick){
+            if(!(eventSendPacket.getPacket() instanceof C00Handshake && eventSendPacket.getPacket() instanceof C00PacketServerQuery
+                    && eventSendPacket.getPacket() instanceof C01PacketPing) && flyTicks >= 0 && flyTicks < maxTick){
                 packetsLinked.add(eventSendPacket.getPacket());
                 eventSendPacket.setCancelled(true);
-            }
-            if(flyTicks % tickDelay == 0 && flyTicks < maxTick){
-                //fakePlayers.clear();
-                for(int i = 0; i < packetsLinked.size() - 1; i++){
-                    PacketUtil.packetNoEvent(packetsLinked.get(i));
-                }
-                packetsLinked.clear();
             }
         }
     }

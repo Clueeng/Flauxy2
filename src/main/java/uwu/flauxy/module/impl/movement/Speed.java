@@ -6,15 +6,19 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.apache.commons.lang3.RandomUtils;
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventSendPacket;
+import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.impl.combat.Killaura;
+import uwu.flauxy.module.impl.combat.TargetStrafe;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
@@ -26,12 +30,12 @@ import java.util.Random;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Funcraft Funny", "Hypixel Like").setCanShow(m -> mode.is("NCP"));
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Fast").setCanShow(m -> mode.is("Verus"));
     public ModeSetting bmcMode = new ModeSetting("BMC Mode", "Strafe", "Strafe", "Low", "No Strafe").setCanShow(m -> mode.is("BlocksMC"));
     public ModeSetting testMode = new ModeSetting("Test Mode", "Test 1", "Test 1", "Test 2", "Test 3").setCanShow(m -> mode.is("Test"));
-    public NumberSetting speed = new NumberSetting("Speed", 0.6, 0.2, 2, 0.05).setCanShow(m -> mode.is("Vanilla"));
+    public NumberSetting speed = new NumberSetting("Speed", 0.6, 0.2, 2, 0.05).setCanShow(m -> mode.is("Vanilla") || mode.is("Cos Factor") || mode.is("ClueAC"));
     double speedV;
     float timer;
     int offGroundTicks;
@@ -59,6 +63,64 @@ public class Speed extends Module {
             this.setDisplayName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Bullet":{
+                if(event instanceof EventMotion){
+                    if(!MoveUtils.isWalking()) return;
+                    mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
+                    if(mc.thePlayer.motionY < -0 && mc.thePlayer.motionY > -0.24){
+                        double fX = mc.thePlayer.motionX * 0.03;
+                        double fZ = mc.thePlayer.motionZ * 0.03;
+                        mc.thePlayer.setPosition(mc.thePlayer.posX + fX, mc.thePlayer.posY, mc.thePlayer.posZ + fZ);
+                    }
+                    if(mc.thePlayer.onGround){
+                        mc.timer.timerSpeed = 1f;
+                    }
+                }
+                if(event instanceof EventStrafe){
+                    EventStrafe e = (EventStrafe) event;
+                    if(!MoveUtils.isWalking()) return;
+                    float f = e.getYaw() * 0.017453292F;
+                    if(mc.thePlayer.onGround && mc.thePlayer.moveForward <= 0){
+                        mc.thePlayer.motionX += (double)(MathHelper.sin(f) * 0.35F);
+                        mc.thePlayer.motionZ -= (double)(MathHelper.cos(f) * 0.35F);
+                        MoveUtils.jumpVanilla(e);
+                    }
+                    if(mc.thePlayer.onGround && mc.thePlayer.moveForward >= 0){
+                        boolean onlyMovingForward = mc.gameSettings.keyBindForward.pressed && (!mc.gameSettings.keyBindLeft.pressed && !mc.gameSettings.keyBindRight.pressed);
+                        boolean movingSidewars = mc.gameSettings.keyBindForward.pressed && (mc.gameSettings.keyBindLeft.pressed || mc.gameSettings.keyBindRight.pressed);
+                        if(movingSidewars){
+                            Wrapper.instance.log("Sideways");
+                            mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.15F);
+                            mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.15F);
+                        }
+                        if(onlyMovingForward){
+                            Wrapper.instance.log("Only forwards");
+                            mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.14F);
+                            mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.14F);
+                        }
+                        mc.thePlayer.motionY = 0.42f;
+                    }
+                }
+
+
+                break;
+            }
+            case "Cos Factor":{
+                if(event instanceof EventMotion){
+                    if(mc.thePlayer.onGround){
+                        mc.thePlayer.jump();
+                        MoveUtils.strafe(
+                                (speed.getValue()) * Math.cos((mc.thePlayer.motionX + mc.thePlayer.motionZ))
+                        );
+                    }else{
+                        MoveUtils.strafe(
+                                1 * (MoveUtils.getSpeed())
+                        );
+                    }
+                }
+
+                break;
+            }
             case "Redesky":{
                 if(event instanceof EventMotion){
                     EventMotion e = (EventMotion) event;
@@ -79,12 +141,14 @@ public class Speed extends Module {
             }
 
             case "Vanilla":{
-
+                if(!mc.thePlayer.isMoving())return;
+                TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
+                float yaw = Float.isNaN(t.yaw) ? mc.thePlayer.rotationYaw : t.yaw;
                 if(mc.thePlayer.onGround){
                     mc.thePlayer.jump();
-                    MoveUtils.strafe(speed.getValue());
+                    MoveUtils.setSpeed(speed.getValue(),yaw,1,1);
                 }else{
-                    MoveUtils.strafe(speed.getValue());
+                    MoveUtils.setSpeed(speed.getValue(),yaw,1,1);
                 }
 
                 break;
@@ -176,54 +240,36 @@ public class Speed extends Module {
                         }
                         speedV *= 2.149;
                         stage = 0;
-                    } else if (stage == 0) {
-                        MoveUtils.strafe(1094109f);
                     }
 
 
 
 
                     break;
+
+                case "ClueAC":{
+                    if(!MoveUtils.isWalking()) return;
+                    mc.gameSettings.keyBindJump.pressed = true;
+                    if(mc.thePlayer.onGround){
+                        MoveUtils.strafe(1.7f);
+                    }
+                    MoveUtils.strafe(MoveUtils.getSpeed());
+                    break;
+                }
                 case "Test":{
                     switch(testMode.getMode()){
-
-                        case "Test 3":{
-                            if(!MoveUtils.isWalking()) return;
-                            mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
-                            if(mc.thePlayer.onGround){
-                                e.setY(mc.thePlayer.motionY = 0.42f);
-                                MoveUtils.strafe(MoveUtils.getSpeed() * (1 + mc.thePlayer.jumpMovementFactor));
-                            }else{
-                                if(mc.thePlayer.motionY > 0.2){
-                                    e.setY(mc.thePlayer.motionY -= .25);
-                                    e.setType(EventType.PRE);
-                                    MoveUtils.strafe(MoveUtils.getSpeed() * (1 + mc.thePlayer.jumpMovementFactor + 0.05));
-                                }
-                            }
-                            break;
-                        }
                         case "Test 2":{
                             final String motion = String.valueOf(mc.thePlayer.motionY);
                             MoveUtils.strafe();
+                            mc.gameSettings.keyBindJump.pressed = true;
                             if(mc.thePlayer.onGround){
                                 offGroundTicks = 0;
-                                MoveUtils.strafe(1.3);
-                                e.setY(mc.thePlayer.motionY = 0.42);
+                                MoveUtils.strafe(1.6);
+                                //mc.thePlayer.onGround = false;
                             }else{
-                                offGroundTicks++;
-                                if(offGroundTicks == 1){
-                                    Wrapper.instance.log("a");
-                                    MoveUtils.strafe(MoveUtils.getSpeed() * 1.04f);
-                                }
-                                e.setY(mc.thePlayer.motionY -= 0.018f);
-                                MoveUtils.strafe(MoveUtils.getSpeed() * 0.98f);
+                                MoveUtils.strafe();
                             }
-                            break;
-                        }
-                        case "Test 1":{
-                            if(mc.thePlayer.onGround){
-                                MoveUtils.strafe(e, 0.9 * (mc.thePlayer.motionX + mc.thePlayer.motionZ));
-                            }
+                            offGroundTicks++;
                             break;
                         }
                     }
@@ -273,8 +319,8 @@ public class Speed extends Module {
             switch(mode.getMode()){
                 case "NCP":{
                     switch(ncpMode.getMode()){
-
                         case "Hypixel Like":{
+                            if(!mc.thePlayer.isMoving())return;
                             mc.timer.timerSpeed = 1.0f;
                             if(mc.thePlayer.onGround) {
                                 prevOnGround = true;
@@ -282,10 +328,10 @@ public class Speed extends Module {
                                     e.setY(mc.thePlayer.motionY = 0.41999998688698);
                                     //mc.thePlayer.motionY = 0.42;
                                     // 2.13
-                                    speedV *= 2.34;
+                                    speedV *= 2.1;
                                 }
                             } else if(prevOnGround) {
-                                speedV -= 0.74 * (speedV - MoveUtils.getBaseMoveSpeed());
+                                speedV -= 0.91 * (speedV - MoveUtils.getBaseMoveSpeed());
                                 prevOnGround = false;
                             } else {
                                 speedV -= speedV / 159;
@@ -296,7 +342,17 @@ public class Speed extends Module {
                             }
 
                             speedV = Math.max(speedV, MoveUtils.getBaseMoveSpeed());
-                            MoveUtils.strafe(e, speedV);
+                            TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
+                            Killaura k = Flauxy.INSTANCE.moduleManager.getModule(Killaura.class);
+                            float yaw = Float.isNaN(t.yaw) || Flauxy.INSTANCE.getModuleManager().getModule(Killaura.class).currentTarget == null ? mc.thePlayer.rotationYaw + 45 : t.yaw;
+                            if(t.isToggled() && k.isToggled() && k.currentTarget != null){
+                                if(mc.thePlayer.getDistanceSqToEntity(k.currentTarget) <= k.reach.getValue()) {
+                                    mc.timer.timerSpeed = 1.0f;
+                                    MoveUtils.setSpeed(speedV * 0.92, yaw, 1, 1);
+                                }
+                            }else{
+                                MoveUtils.strafe(speedV);
+                            }
                             break;
                         }
 
@@ -308,15 +364,15 @@ public class Speed extends Module {
                                     e.setY(mc.thePlayer.motionY = 0.41999998688698);
                                     //mc.thePlayer.motionY = 0.42;
                                     // 2.13
-                                    speedV *= 2.13;
+                                    if(speedV * 1.83 < 0.54){
+                                        speedV *= 1.83;
+                                    }else{
+                                        speedV = 0.45;
+                                    }
                                 }
                             } else if(prevOnGround) {
                                 speedV -= 0.69 * (speedV - MoveUtils.getBaseMoveSpeed());
                                 prevOnGround = false;
-                                if(mc.gameSettings.keyBindJump.isKeyDown()) {
-                                    mc.timer.timerSpeed = 1.35f;
-                                    e.setY(mc.thePlayer.motionY -= 1);
-                                }
                             } else {
                                 speedV -= speedV / 159;
                             }
@@ -369,7 +425,7 @@ public class Speed extends Module {
                             mc.timer.timerSpeed = 1.2f;
                             if(mc.thePlayer.onGround){
                                 double perfect = 1.724;
-                                MoveUtils.strafe(MoveUtils.getMotion() * 1.728);
+                                //MoveUtils.strafe(MoveUtils.getMotion() * 1.728);
                                 mc.thePlayer.motionY = 0.42f;
                                 float speed = 0.0320f; //0.0320f
                                 if(mc.thePlayer.speedInAir < speed){
@@ -400,7 +456,7 @@ public class Speed extends Module {
                                 if(mc.thePlayer.hurtTime > 4){
                                     mc.thePlayer.speedInAir+=0.006f;
                                 }
-                                MoveUtils.strafe();
+                                //MoveUtils.strafe();
                             }
                             break;
                         }
@@ -409,6 +465,11 @@ public class Speed extends Module {
                     break;
                 }
             }
+        }
+        if(event instanceof EventStrafe){
+            EventStrafe e = (EventStrafe) event;
+            TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
+            e.setYaw(t.yaw);
         }
     }
 

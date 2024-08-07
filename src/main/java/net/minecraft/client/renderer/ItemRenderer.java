@@ -369,7 +369,6 @@ public class ItemRenderer
                                 }
                                 break;
                                 case "Plain": {
-
                                     this.transformFirstPersonItem((float) 0, (float) Math.sin(f1 * var9) / 2);
                                     GlStateManager.translate(0, 0.5F, 0);
                                     this.func_178103_d();
