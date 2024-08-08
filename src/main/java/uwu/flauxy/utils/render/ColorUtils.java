@@ -71,6 +71,38 @@ public class ColorUtils {
         return new Color(hue, saturation, brightness);
     }
 
+    public static Color blendMultiple(float seconds, long index, Color... colors) {
+        if (colors == null || colors.length == 0) {
+            throw new IllegalArgumentException("At least one color must be provided");
+        }
+        if (colors.length == 1) {
+            return colors[0];
+        }
+
+        index += 40;
+        float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 1000)) / (seconds * 1000);
+        float hue2 = hue * 2;
+        if (hue2 > 1) {
+            hue2 = 2 - hue2;
+        }
+
+        int numberOfColors = colors.length;
+        float step = 1.0f / (numberOfColors - 1);
+        int segment = (int)(hue2 / step);
+        float blendFactor = (hue2 % step) / step;
+
+        return blend(colors[segment], colors[segment + 1], blendFactor);
+    }
+
+    public static Color blend(Color col1, Color col2, float ratio) {
+        int r = (int)(col1.getRed() * (1 - ratio) + col2.getRed() * ratio);
+        int g = (int)(col1.getGreen() * (1 - ratio) + col2.getGreen() * ratio);
+        int b = (int)(col1.getBlue() * (1 - ratio) + col2.getBlue() * ratio);
+        int a = (int)(col1.getAlpha() * (1 - ratio) + col2.getAlpha() * ratio);
+        return new Color(r, g, b, a);
+    }
+
+
     public static int blendThing(float seconds, long index, Color col1, Color col2) {
         index += 40;
         float hue = ((System.currentTimeMillis() + index) % (int)(seconds * 1000)) / (seconds * 1000);

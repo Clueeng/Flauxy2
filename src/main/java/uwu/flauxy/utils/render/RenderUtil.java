@@ -43,6 +43,9 @@ public class RenderUtil  {
     public static void drawRoundedRect2(final double x, final double y, final double width, final double height, double radius, int color) {
         RenderUtil.drawRoundedRect(x, y, width - x, height - y, radius, color);
     }
+    public static void drawRoundedRect3(final double x, final double y, final double x2, final double y2, double radius, int color) {
+        RenderUtil.drawRoundedRect(x, y, x2, y2, radius, color);
+    }
 
     public static void drawRoundedRect(double x, double y, double width, double height, double radius, int color) {
         GlStateManager.enableBlend();
@@ -674,7 +677,7 @@ public class RenderUtil  {
     }
 
 
-    public static void prepareScissorBox(float x, float y, float x2, float y2) {
+    public static void  prepareScissorBox(float x, float y, float x2, float y2) {
         ScaledResolution scale = new ScaledResolution(mc);
         int factor = scale.getScaleFactor();
         GL11.glScissor((int)(x * (float)factor), (int)(((float)scale.getScaledHeight() - y2) * (float)factor), (int)((x2 - x) * (float)factor), (int)((y2 - y) * (float)factor));

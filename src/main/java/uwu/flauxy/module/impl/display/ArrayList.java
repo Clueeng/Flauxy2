@@ -29,6 +29,9 @@ import java.util.logging.Logger;
 public class ArrayList extends Module {
 
     public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom", "Blend", "Theme");
+    public ModeSetting themes = new ModeSetting("Theme","Cotton Candy","Cotton Candy", "Sunset").setCanShow(m -> color.is("Theme"));
+    public ModeSetting animAlgo = new ModeSetting("Animation","Lerp","Lerp", "Quad");
+    public NumberSetting animSpeed = new NumberSetting("Animation Speed", 0, 1, 10, 1); // divide by 20
 
     public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
@@ -36,25 +39,20 @@ public class ArrayList extends Module {
     public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
     public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
     public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
-    public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend"));
+    public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend") || color.is("Theme"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
     public BooleanSetting outline = new BooleanSetting("Outline", false);
 
     public BooleanSetting barLeft = new BooleanSetting("Left Bar", false).setCanShow((m) -> !outline.getValue());
     public BooleanSetting barRight = new BooleanSetting("Right Bar", true).setCanShow((m) -> !outline.getValue());
-
-
     public NumberSetting padding = new NumberSetting("Padding", 0, 0, 20, 1);
-
-
     public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
-
 
     public BooleanSetting background = new BooleanSetting("Background", true);
     public NumberSetting background_opacity = new NumberSetting("Background opacity", 90, 0, 255, 1).setCanShow(m -> background.getValue());
     public ArrayList() {
-        addSettings(color, line_width, padding, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight, outline, background, background_opacity);
+        addSettings(color, themes, animAlgo, animSpeed, line_width, padding, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -71,15 +69,34 @@ public class ArrayList extends Module {
             ScaledResolution sr = new ScaledResolution(mc);
             java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
             TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("arial 19");
-
+            double animFactor = 100;
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                 if (m.isToggled()) {
-                    m.xSlide = (float) MathHelper.lerp(0.1f, m.xSlide,80f);
+                    switch (animAlgo.getMode()){
+                        case "Lerp":{
+                            m.xSlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.xSlide,80f);
+                            break;
+                        }
+                        case "Quad":{
+                            animFactor = 40;
+                            m.xSlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.xSlide,80f);
+                            break;
+                        }
+                    }
                 }
                 if (!m.isToggled()) {
-                    m.xSlide = (float) MathHelper.lerp(0.1f, m.xSlide,0f);
+                    switch (animAlgo.getMode()){
+                        case "Lerp":{
+                            m.xSlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.xSlide,customfont.isEnabled() ? 80 - font.getWidth(m.getDisplayName()) - 8 : 80 - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - 6);
+                            break;
+                        }
+                        case "Quad":{
+                            m.xSlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.xSlide,customfont.isEnabled() ? 80 - font.getWidth(m.getDisplayName()) - 8 : 80 - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - 6);
+                            break;
+                        }
+                    }
                 }
-                if (m.xSlide > 0F) {
+                if (m.xSlide > 80 - font.getWidth(m.getDisplayName()) - 4 + padding.getValue()) {
                     mods.add(m);
                 }
             }
@@ -122,6 +139,27 @@ public class ArrayList extends Module {
                         stringColor = ColorUtils.blendThing(2F, (long) (cn * off), col1, col2);
                         break;
                     }
+                    case "Theme":{
+                        switch (themes.getMode()){
+                            case "Cotton Candy":{
+                                Color col1 = new Color(228, 117, 230);
+                                Color col2 = new Color(162, 161, 230);
+                                int off = (int) (offset.getValue() * 75);
+                                stringColor = ColorUtils.blendThing(2F, (long) (cn * off), col1, col2);
+                                break;
+                            }
+                            case "Sunset":{
+                                Color col1 = new Color(170, 67, 223);
+                                Color col2 = new Color(197, 81, 35);
+                                Color col3 = new Color(173, 61, 38);
+                                int off = (int) (offset.getValue() * 75) * 2;
+                                stringColor = ColorUtils.blendThing(2F, (long) (cn * off), col1, col2);
+                                stringColor = ColorUtils.blendMultiple(2f, (cn * off), col1, col2, col3).getRGB();
+                                break;
+                            }
+                        }
+                        break;
+                    }
                     case "Rainbow":{
                         stringColor = ColorUtils.getRainbow(3, 0.40f, 1, cn * 180L);
                         break;
@@ -141,17 +179,17 @@ public class ArrayList extends Module {
                     if(!outline.getValue()){
                         if(customfont.getValue()){
                             if(barRight.getValue()){
-                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - (float)padding.getValue()) + lengthOfMod - expandedLeft, (float) c + (float)padding.getValue() - 1, (float) ((float) wi - padding.getValue()) + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
+                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - (float)padding.getValue()) + lengthOfMod - expandedLeft, (float) c + (float)padding.getValue() - 4, (float) ((float) wi - padding.getValue()) + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
                             }
                             if(barLeft.getValue()){
-                                Gui.drawRect(wa - m.xSlide + 4  + lengthOfMod- expandedLeft, (float) c + (float)padding.getValue() - 1, (float) (wa + (float)line_width.getValue()) - m.xSlide + 4 + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
+                                Gui.drawRect(wa - m.xSlide + 6 + lengthOfMod- expandedLeft, (float) c + (float)padding.getValue() - 3, (float) (wa + (float)line_width.getValue()) - m.xSlide + 4 + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide, stringColor);
                             }
                         }else{
                             if(barRight.getValue()){ //                                                                                                       (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+8) - m.ySlide
-                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - padding.getValue()) + lengthOfMod, (float) ((float) c + (float)padding.getValue()) - 0.75f - 1.5f, (float) ((float) wi - padding.getValue())  + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
+                                Gui.drawRect((float) ((float) (wi - (float)line_width.getValue()) - padding.getValue()) + lengthOfMod, (float) ((float) c + (float)padding.getValue()) - 5f, (float) ((float) wi - padding.getValue())  + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2.5f, stringColor);
                             }
                             if(barLeft.getValue()){
-                                Gui.drawRect(wa - m.xSlide + lengthOfMod- expandedLeft, ((float) c + 8 + (font.getHeight(m.getDisplayName()))) - m.ySlide, (float) (wa + (float)line_width.getValue()) - m.xSlide + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+8) - m.ySlide, stringColor);
+                                Gui.drawRect(wa - m.xSlide + lengthOfMod- expandedLeft + 6, (float) (((float) c + (font.getHeight(m.getDisplayName()))) - m.ySlide + padding.getValue()), (float) (wa + (float)line_width.getValue()) - m.xSlide + lengthOfMod, (float) ((c + (font.getHeight(m.getDisplayName()) * 2)+retarded) - m.ySlide + padding.getValue()), stringColor);
                             }
                         }
                     }else{
@@ -212,15 +250,33 @@ public class ArrayList extends Module {
                     // outline end
 
                     // text
-                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 0.5f, stringColor);
+                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 8.5f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 0.5f, stringColor);
                     else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, stringColor);
                     // values changing
 
                     c+= (int) (m.ySlide - 0.12f);
                     if(!m.isToggled()){
-                        m.ySlide = (float) MathHelper.lerp(0.1f,m.ySlide,0f);
+                        switch (animAlgo.getMode()){
+                            case "Lerp":{
+                                m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,0);
+                                break;
+                            }
+                            case "Quad":{
+                                m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,0);
+                                break;
+                            }
+                        }
                     }else{
-                        m.ySlide = (float) MathHelper.lerp(0.1f,m.ySlide,font.getHeight(m.getDisplayName())+retarded+1);
+                        switch (animAlgo.getMode()){
+                            case "Lerp":{
+                                m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(m.getDisplayName())+retarded+1);
+                                break;
+                            }
+                            case "Quad":{
+                                m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(m.getDisplayName())+retarded+1);
+                                break;
+                            }
+                        }
                     }
                     // X
                     if(!m.isToggled()){

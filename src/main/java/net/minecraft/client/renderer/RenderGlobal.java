@@ -104,6 +104,8 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.visuals.BlockOutline;
 
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener
 {
@@ -2285,11 +2287,28 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
         {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-            GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
-            GL11.glLineWidth(2.0F);
-            GlStateManager.disableTexture2D();
-            GlStateManager.depthMask(false);
-            float f = 0.002F;
+            // Colors the block outline
+
+            BlockOutline outline = Flauxy.INSTANCE.getModuleManager().getModule(BlockOutline.class);
+            if(outline.isToggled()){
+                float red = (float) (outline.red.getValue() / outline.red.getMaximum());
+                float green = (float) (outline.green.getValue() / outline.green.getMaximum());
+                float blue = (float) (outline.blue.getValue() / outline.blue.getMaximum());
+                float opacity = (float) (outline.opacity.getValue() / outline.opacity.getMaximum());
+                float linewidth = (float) (outline.linewidth.getValue());
+                boolean fullblock = outline.fullblock.getValue();
+
+                GlStateManager.color(red, green, blue, opacity);
+                GL11.glLineWidth(linewidth);
+                GlStateManager.disableTexture2D();
+                GlStateManager.depthMask(fullblock);
+            }else{
+                GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+                GL11.glLineWidth(2.0F);
+                GlStateManager.disableTexture2D();
+                GlStateManager.depthMask(false);
+            }
+
             BlockPos blockpos = movingObjectPositionIn.getBlockPos();
             Block block = this.theWorld.getBlockState(blockpos).getBlock();
 
@@ -2301,7 +2320,6 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
                 func_181561_a(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
             }
-
             GlStateManager.depthMask(true);
             GlStateManager.enableTexture2D();
             GlStateManager.disableBlend();

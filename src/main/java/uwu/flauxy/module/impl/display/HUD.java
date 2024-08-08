@@ -93,8 +93,6 @@ public class HUD extends Module {
             }
 
             if(waterMarkToggled.getValue()){
-                Flauxy.INSTANCE.getFontManager().getFont("auxy 18").drawStringWithShadow("Yaw: " + mc.thePlayer.rotationYaw, 4, 24, new Color(148, 105, 187).getRGB());
-                Flauxy.INSTANCE.getFontManager().getFont("auxy 18").drawStringWithShadow("Delta: " + (Math.abs(mc.thePlayer.prevRotationYaw - mc.thePlayer.rotationYaw)), 4, 36, new Color(148, 105, 187).getRGB());
                 switch (watermark.getMode()) {
 
 

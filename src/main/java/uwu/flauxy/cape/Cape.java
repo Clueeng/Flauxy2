@@ -8,9 +8,15 @@ public class Cape {
     public static Cape Instance;
     @Getter
     ResourceLocation location;
+    @Getter
+    String name;
+    @Getter
+    String source;
 
-    public Cape(ResourceLocation location){
+    public Cape(ResourceLocation location, String name, String source){
         this.location = location;
+        this.name = name;
+        this.source = source;
     }
 
     public Cape getCurrentCape(){

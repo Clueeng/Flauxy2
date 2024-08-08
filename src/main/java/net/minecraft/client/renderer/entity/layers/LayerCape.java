@@ -32,7 +32,7 @@ public class LayerCape implements LayerRenderer
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             // apply cape
-            int index = 0;
+            int index = Flauxy.INSTANCE.getCapeManager().CURRENT_CAPE;
             ArrayList<Cape> capes = Flauxy.INSTANCE.getCapeManager().getCapes();
             ResourceLocation cape = capes.get(index).getLocation();
 

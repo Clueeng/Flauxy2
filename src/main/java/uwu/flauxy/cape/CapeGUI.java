@@ -1,7 +1,6 @@
 package uwu.flauxy.cape;
 
 import net.minecraft.client.gui.GuiScreen;
-import uwu.flauxy.cape.impl.CapeTest;
 
 import java.io.IOException;
 

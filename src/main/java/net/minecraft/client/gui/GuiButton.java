@@ -12,6 +12,8 @@ import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.RoundedUtils;
 
+import java.awt.*;
+
 public class GuiButton extends Gui
 {
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
@@ -115,7 +117,8 @@ public class GuiButton extends Gui
                 this.offsetX -= (1 * this.smoothnessX) * adjustment;
             }
             this.offsetX = MathHelper.clamp_float(this.offsetX, 0, 4);
-            RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 1, 2, -1);
+            RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 4, 2, new Color(0, 0, 0, 250).getRGB());
+            RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 4, 2, -1);
 
             this.mouseDragged(mc, mouseX, mouseY);
             int j = 14737632;
