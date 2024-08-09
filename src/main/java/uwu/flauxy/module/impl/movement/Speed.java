@@ -1,16 +1,11 @@
 package uwu.flauxy.module.impl.movement;
 
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
-import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
-import org.apache.commons.lang3.RandomUtils;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
-import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
-import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
@@ -18,15 +13,10 @@ import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.impl.combat.Killaura;
-import uwu.flauxy.module.impl.combat.TargetStrafe;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.Wrapper;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
@@ -142,14 +132,10 @@ public class Speed extends Module {
 
             case "Vanilla":{
                 if(!mc.thePlayer.isMoving())return;
-                TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
-                float yaw = Float.isNaN(t.yaw) ? mc.thePlayer.rotationYaw : t.yaw;
-                if(mc.thePlayer.onGround){
+                if(mc.thePlayer.onGround) {
                     mc.thePlayer.jump();
-                    MoveUtils.setSpeed(speed.getValue(),yaw,1,1);
-                }else{
-                    MoveUtils.setSpeed(speed.getValue(),yaw,1,1);
                 }
+                MoveUtils.strafe(speed.getValue());
 
                 break;
             }
@@ -342,17 +328,8 @@ public class Speed extends Module {
                             }
 
                             speedV = Math.max(speedV, MoveUtils.getBaseMoveSpeed());
-                            TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
-                            Killaura k = Flauxy.INSTANCE.moduleManager.getModule(Killaura.class);
-                            float yaw = Float.isNaN(t.yaw) || Flauxy.INSTANCE.getModuleManager().getModule(Killaura.class).currentTarget == null ? mc.thePlayer.rotationYaw + 45 : t.yaw;
-                            if(t.isToggled() && k.isToggled() && k.currentTarget != null){
-                                if(mc.thePlayer.getDistanceSqToEntity(k.currentTarget) <= k.reach.getValue()) {
-                                    mc.timer.timerSpeed = 1.0f;
-                                    MoveUtils.setSpeed(speedV * 0.92, yaw, 1, 1);
-                                }
-                            }else{
-                                MoveUtils.strafe(speedV);
-                            }
+                            MoveUtils.strafe(speedV);
+
                             break;
                         }
 
@@ -465,11 +442,6 @@ public class Speed extends Module {
                     break;
                 }
             }
-        }
-        if(event instanceof EventStrafe){
-            EventStrafe e = (EventStrafe) event;
-            TargetStrafe t = Flauxy.INSTANCE.moduleManager.getModule(TargetStrafe.class);
-            e.setYaw(t.yaw);
         }
     }
 

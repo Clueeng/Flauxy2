@@ -3,6 +3,8 @@ package net.minecraft.util;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
+import lombok.Getter;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -16,19 +18,38 @@ public enum EnumFacing implements IStringSerializable
     WEST("WEST", 4, 4, 5, 1, "west", EnumFacing.AxisDirection.NEGATIVE, EnumFacing.Axis.X, new Vec3i(-1, 0, 0)),
     EAST("EAST", 5, 5, 4, 3, "east", EnumFacing.AxisDirection.POSITIVE, EnumFacing.Axis.X, new Vec3i(1, 0, 0));
 
-    /** Ordering index for D-U-N-S-W-E */
+    /** Ordering index for D-U-N-S-W-E
+     * -- GETTER --
+     *  Get the Index of this Facing (0-5). The order is D-U-N-S-W-E
+     */
+    @Getter
     private final int index;
 
     /** Index of the opposite Facing in the VALUES array */
     private final int opposite;
 
-    /** Ordering index for the HORIZONTALS field (S-W-N-E) */
+    /** Ordering index for the HORIZONTALS field (S-W-N-E)
+     * -- GETTER --
+     *  Get the index of this horizontal facing (0-3). The order is S-W-N-E
+     */
+    @Getter
     private final int horizontalIndex;
+    @Getter
     private final String name;
+    @Getter
     private final EnumFacing.Axis axis;
+    /**
+     * -- GETTER --
+     *  Get the AxisDirection of this Facing.
+     */
+    @Getter
     private final EnumFacing.AxisDirection axisDirection;
 
-    /** Normalized Vector that points in the direction of this Facing */
+    /** Normalized Vector that points in the direction of this Facing
+     * -- GETTER --
+     *  Get a normalized Vector that points in the direction of this Facing.
+     */
+    @Getter
     private final Vec3i directionVec;
 
     /** All facings in D-U-N-S-W-E order */
@@ -49,30 +70,6 @@ public enum EnumFacing implements IStringSerializable
         this.axis = p_i13_10_;
         this.axisDirection = p_i13_9_;
         this.directionVec = p_i13_11_;
-    }
-
-    /**
-     * Get the Index of this Facing (0-5). The order is D-U-N-S-W-E
-     */
-    public int getIndex()
-    {
-        return this.index;
-    }
-
-    /**
-     * Get the index of this horizontal facing (0-3). The order is S-W-N-E
-     */
-    public int getHorizontalIndex()
-    {
-        return this.horizontalIndex;
-    }
-
-    /**
-     * Get the AxisDirection of this Facing.
-     */
-    public EnumFacing.AxisDirection getAxisDirection()
-    {
-        return this.axisDirection;
     }
 
     /**
@@ -248,11 +245,6 @@ public enum EnumFacing implements IStringSerializable
         return this.name;
     }
 
-    public EnumFacing.Axis getAxis()
-    {
-        return this.axis;
-    }
-
     /**
      * Get the facing specified by the given name
      */
@@ -317,11 +309,6 @@ public enum EnumFacing implements IStringSerializable
         return this.name;
     }
 
-    public String getName()
-    {
-        return this.name;
-    }
-
     public static EnumFacing func_181076_a(EnumFacing.AxisDirection p_181076_0_, EnumFacing.Axis p_181076_1_)
     {
         for (EnumFacing enumfacing : values())
@@ -333,14 +320,6 @@ public enum EnumFacing implements IStringSerializable
         }
 
         throw new IllegalArgumentException("No such direction: " + p_181076_0_ + " " + p_181076_1_);
-    }
-
-    /**
-     * Get a normalized Vector that points in the direction of this Facing.
-     */
-    public Vec3i getDirectionVec()
-    {
-        return this.directionVec;
     }
 
     static {
@@ -458,6 +437,7 @@ public enum EnumFacing implements IStringSerializable
         }
     }
 
+    @Getter
     public static enum Axis implements Predicate, IStringSerializable {
         X("X", 0, "x", EnumFacing.Plane.HORIZONTAL),
         Y("Y", 1, "y", EnumFacing.Plane.VERTICAL),
@@ -505,16 +485,6 @@ public enum EnumFacing implements IStringSerializable
             return p_apply_1_ != null && p_apply_1_.getAxis() == this;
         }
 
-        public EnumFacing.Plane getPlane()
-        {
-            return this.plane;
-        }
-
-        public String getName()
-        {
-            return this.name;
-        }
-
         public boolean apply(Object p_apply_1_)
         {
             return this.apply((EnumFacing)p_apply_1_);
@@ -532,6 +502,7 @@ public enum EnumFacing implements IStringSerializable
         POSITIVE("POSITIVE", 0, 1, "Towards positive"),
         NEGATIVE("NEGATIVE", 1, -1, "Towards negative");
 
+        @Getter
         private final int offset;
         private final String description;
         private static final EnumFacing.AxisDirection[] $VALUES = new EnumFacing.AxisDirection[]{POSITIVE, NEGATIVE};
@@ -541,11 +512,6 @@ public enum EnumFacing implements IStringSerializable
         {
             this.offset = p_i11_5_;
             this.description = p_i11_6_;
-        }
-
-        public int getOffset()
-        {
-            return this.offset;
         }
 
         public String toString()

@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
+import uwu.flauxy.Changelog;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.alts.GuiAltManager;
 import uwu.flauxy.utils.DiscordPresenceUtil;
@@ -623,36 +624,12 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString("Flauxy Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
         font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
 
-        for(GuiButton b : buttonList){
-            int speed = 1;
-            int maxWidth = 200;
-            int basePosition = this.width / 2 - 100;
-            int length = 5;
-            int velocity = 0;
-            switch(b.id){
-                case 40:
-                    maxWidth = 100;
-                    basePosition = 10;
-            }
-            boolean hovering = mouseX >= b.xPosition && mouseX <= b.xPosition + b.width && mouseY >= b.yPosition && mouseY <= b.yPosition + b.height;
+        float endX = font2.getWidth(getLongestChangelog(Flauxy.INSTANCE.getLogs()).getChangelog()) + 28;
+        Gui.drawRect(4, 96, endX, 102 + (12 * Flauxy.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());
+        for(int in = 0; in < Flauxy.INSTANCE.getLogs().size(); in++){
+            Changelog c = Flauxy.INSTANCE.getLogs().get(in);
+            font2.drawStringWithShadow("[" + c.getPrefix() + "] " + c.getChangelog(),8,100 + (12 * in),c.getType().getColor().getRGB());
         }
-        if(soundTicks == 1){
-            System.out.println("Hello  a");
-        }
-
-        /*if ((double)this.updateCounter < 1.0E-4D)
-        {
-            this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 99, 44);
-            this.drawTexturedModalRect(j + 99, k + 0, 129, 0, 27, 44);
-            this.drawTexturedModalRect(j + 99 + 26, k + 0, 126, 0, 3, 44);
-            this.drawTexturedModalRect(j + 99 + 26 + 3, k + 0, 99, 0, 26, 44);
-            this.drawTexturedModalRect(j + 155, k + 0, 0, 45, 155, 44);
-        }
-        else
-        {
-            this.drawTexturedModalRect(j + 0, k + 0, 0, 0, 155, 44);
-            this.drawTexturedModalRect(j + 155, k + 0, 0, 45, 155, 44);
-        }*/
 
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)(this.width / 2 + 90), 70.0F, 0.0F);
@@ -663,15 +640,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         //this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
         GlStateManager.popMatrix();
         String s = "Minecraft 1.8.8";
-
-        if (this.mc.isDemo())
-        {
-            s = s + " Demo";
-        }
-
         this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
-        String s1 = "Copyright Mojang AB. Do not distribute!";
-        //this.drawString(this.fontRendererObj, s1, this.width - this.fontRendererObj.getStringWidth(s1) - 2, this.height - 10, -1);
 
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
         {
@@ -683,6 +652,21 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    public Changelog getLongestChangelog(ArrayList<Changelog> changelogs) {
+        if (changelogs == null || changelogs.isEmpty()) {
+            return null; // Return null if the input list is empty or null
+        }
+
+        Changelog longest = changelogs.get(0); // Assume the first changelog is the longest initially
+
+        for (Changelog changelog : changelogs) {
+            if (changelog.getChangelog().length() > longest.getChangelog().length()) {
+                longest = changelog; // Update longest if a longer changelog is found
+            }
+        }
+
+        return longest;
+    }
     /**
      * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
      */

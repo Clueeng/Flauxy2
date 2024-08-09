@@ -73,6 +73,7 @@ import org.lwjgl.util.glu.Project;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventRender3D;
 import uwu.flauxy.module.Module;
+import uwu.flauxy.module.impl.falses.Zoom;
 import uwu.flauxy.module.impl.ghost.Reach;
 import uwu.flauxy.utils.Wrapper;
 
@@ -563,6 +564,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
     /**
      * Changes the field of view of the player depending on if they are underwater or not
      */
+    public static boolean toggleZoom;
     private float getFOVModifier(float partialTicks, boolean p_78481_2_)
     {
         if (this.debugView)
@@ -585,7 +587,17 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             if (this.mc.currentScreen == null)
             {
                 GameSettings gamesettings = this.mc.gameSettings;
-                flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
+                Zoom mod = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
+                if(mod.isToggled()){
+                    if(mod.hold.isEnabled()){
+                        flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
+                    }else{
+                        flag = toggleZoom;
+                    }
+                }else{
+                    flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
+                }
+                // of zoom ofzoom
             }
 
             if (flag)
@@ -1322,12 +1334,6 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
         {
             this.mc.gameSettings.showDebugProfilerChart = true;
         }
-    }
-
-    public void renderStreamIndicator(float partialTicks)
-    {
-        this.setupOverlayRendering();
-        this.mc.ingameGUI.renderStreamIndicator(new ScaledResolution(this.mc));
     }
 
     private boolean isDrawBlockOutline()

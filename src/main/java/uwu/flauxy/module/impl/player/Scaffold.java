@@ -20,6 +20,7 @@ import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventPostMotionUpdate;
 import uwu.flauxy.event.impl.EventSendPacket;
@@ -239,6 +240,8 @@ public class Scaffold extends Module {
 
     private void tower(Event event) {
         if(event instanceof EventUpdate) {
+            EventUpdate e = (EventUpdate) event;
+            if(e.getType().equals(EventType.POST))return;
             if(jump.getValue()){
                 if(mc.thePlayer.isCollidedVertically && mc.thePlayer.onGround){
                     mc.thePlayer.jump();

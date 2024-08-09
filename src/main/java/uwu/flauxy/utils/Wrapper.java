@@ -8,6 +8,6 @@ public class Wrapper {
 
     public static Wrapper instance = new Wrapper();
     public void log(String message) {
-        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.LIGHT_PURPLE + "Flauxy" + EnumChatFormatting.GRAY + "| " + EnumChatFormatting.WHITE  + "" +  message));
+        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.GRAY + "[" + EnumChatFormatting.LIGHT_PURPLE + "Flauxy" + EnumChatFormatting.GRAY + "] " + EnumChatFormatting.WHITE + message));
     }
 }

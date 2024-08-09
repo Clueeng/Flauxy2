@@ -112,6 +112,28 @@ public enum Flauxy implements MinecraftInstance {
         nonShittyConfigManager.init();
     }
 
+    public java.util.ArrayList<Changelog> getLogs(){
+        java.util.ArrayList<Changelog> list = new java.util.ArrayList<>();
+        list.add(new Changelog("1.1", Changelog.Type.TITLE));
+        list.add(new Changelog("Added FastDrop", Changelog.Type.ADDED));
+        list.add(new Changelog("Added HotbarScroller", Changelog.Type.ADDED));
+        list.add(new Changelog("Added AutoDismount", Changelog.Type.ADDED));
+        list.add(new Changelog("Fully fixed autoheadhitter", Changelog.Type.EDITED));
+        list.add(new Changelog("Fixed delta rotation", Changelog.Type.EDITED));
+        list.add(new Changelog("1.0", Changelog.Type.TITLE));
+        list.add(new Changelog("Added .sens command", Changelog.Type.ADDED));
+        list.add(new Changelog("Added Twitch Optimization", Changelog.Type.ADDED));
+        list.add(new Changelog("Added Packet mode to Criticals", Changelog.Type.ADDED));
+        list.add(new Changelog("Removed TargetStrafe due to bugs", Changelog.Type.REMOVED));
+        list.add(new Changelog("Added Log4J exploit patcher", Changelog.Type.ADDED));
+        list.add(new Changelog("Added resource pack exploit patcher", Changelog.Type.ADDED));
+        list.add(new Changelog("Added pointed entity display", Changelog.Type.ADDED));
+        list.add(new Changelog("Added display yaw option to HUD", Changelog.Type.ADDED));
+        list.add(new Changelog("Fixed ESP color glitch", Changelog.Type.EDITED));
+        list.add(new Changelog("Fixed capes not showing if already have official cape", Changelog.Type.EDITED));
+        return list;
+    }
+
     public void initDiscordApp(){
         String applicationID = "972902027300581406";
         DiscordEventHandlers handlers = new DiscordEventHandlers();

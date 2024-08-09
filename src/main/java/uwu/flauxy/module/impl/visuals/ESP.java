@@ -102,8 +102,6 @@ public class ESP extends Module {
 
                 Color c;
                 switch(color.getMode()){
-                    default:
-                        c = new Color(0, 0, 0);
                     case "Blend":{
                         Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
                         Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
@@ -123,6 +121,8 @@ public class ESP extends Module {
                         c = ColorUtils.astolfoC(3, 0.45f, 1, 8 * 180L);
                         break;
                     }
+                    default:
+                        c = new Color(0, 0, 0);
                 }
 
                 if(!isValid(entity)) return;
@@ -137,7 +137,7 @@ public class ESP extends Module {
                 switch(mode.getMode()){
                     case "Box":{
                         RenderUtil.pre3D();
-                        glColor4f(c.getRed() / 255, c.getGreen() / 255, c.getBlue()  / 255, opacity / 255f);
+                        glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, opacity / 255f);
                         glLineWidth((float) (thickness.getValue() * 4f));
                         glBegin(GL_LINE_LOOP);
                         //Wrapper.instance.log("" + c.getRed() + " " + c.getBlue() + "  " + c.getGreen());
@@ -145,11 +145,11 @@ public class ESP extends Module {
                         glVertex2f(maxX, minY);
                         glVertex2f(maxX, maxY);
                         glVertex2f(minX, maxY);
-                        glColor4f(c.getRed() / 255, c.getGreen() / 255, c.getBlue() / 255, 255);
+                        glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, 255);
                         glEnd();
 
                         glLineWidth((float) thickness.getValue());
-                        GlStateManager.color(c.getRed() / 255, c.getGreen() / 255, c.getBlue() / 255, c.getAlpha() / 255);
+                        GlStateManager.color((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, (float) c.getAlpha() / 255);
                         glBegin(GL_LINE_LOOP);
                         glVertex2f(minX, minY);
                         glVertex2f(maxX, minY);

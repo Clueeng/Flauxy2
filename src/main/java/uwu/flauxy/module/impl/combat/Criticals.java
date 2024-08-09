@@ -2,6 +2,7 @@ package uwu.flauxy.module.impl.combat;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
@@ -12,13 +13,14 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.timer.Timer;
 
 @ModuleInfo(name = "Critical", displayName = "Criticals", key = -1, cat = Category.Combat)
 public class Criticals extends Module {
 
-    public static ModeSetting mode = new ModeSetting("Mode", "Fake", "Fake", "Low", "Low2", "Jump");
+    public static ModeSetting mode = new ModeSetting("Mode", "Fake", "Fake", "Low", "Low2", "Jump", "Packet");
     public NumberSetting delay = new NumberSetting("Delay", 250, 0, 750, 50).setCanShow(m -> mode.is("Low") || mode.is("Low2"));
 
     public static boolean isCrits = false;
@@ -37,6 +39,13 @@ public class Criticals extends Module {
                 if(packet.getAction() == (C02PacketUseEntity.Action.ATTACK)){
                     isCrits = true;
                     target = packet.getEntityFromWorld(mc.theWorld);
+                    switch (mode.getMode()){
+                        case "Packet":{
+                            PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.001, mc.thePlayer.posZ, false));
+                            PacketUtil.packetNoEvent(new C03PacketPlayer.C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false));
+                            break;
+                        }
+                    }
                 }
             }
         }

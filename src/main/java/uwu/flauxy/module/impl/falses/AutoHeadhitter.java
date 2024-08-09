@@ -6,6 +6,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -15,7 +16,7 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
 import uwu.flauxy.utils.Wrapper;
 
-@ModuleInfo(name = "AutoHeadhiiter", cat = Category.False, displayName = "Auto HeadHitter", key = Keyboard.KEY_NONE)
+@ModuleInfo(name = "AutoHeadHitter", cat = Category.False, displayName = "Auto Head Hitter", key = Keyboard.KEY_NONE)
 public class AutoHeadhitter extends Module {
 
     public BooleanSetting autoHit = new BooleanSetting("Auto HH",true);
@@ -39,6 +40,8 @@ public class AutoHeadhitter extends Module {
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
+            EventUpdate ev = (EventUpdate)e;
+            if(ev.getType().equals(EventType.PRE))return;
             jumpDelayTick = changeJumpDelay.isEnabled() ? (int) jumpDelay.getValue() : 10;
             if(autoHit.getValue()){
                 if(mc.thePlayer.ticksExisted % tickDelay.getValue() == 0){
@@ -56,7 +59,12 @@ public class AutoHeadhitter extends Module {
                 AxisAlignedBB playerBoundingBox = mc.thePlayer.getEntityBoundingBox();
                 // Extend the bounding box upwards and in the direction the player is moving
                 double expandY = 0.4;
-                double expandForward = Math.abs(MoveUtils.getMotion());
+                double expandForward = MoveUtils.getMotion(); // east south
+                if(mc.thePlayer.getHorizontalFacing().equals(EnumFacing.WEST) || mc.thePlayer.getHorizontalFacing().equals(EnumFacing.NORTH)){
+                    expandForward = -expandForward;
+                }
+
+                double expandForward2 = MoveUtils.getMotion();
                 Vec3 lookVec = mc.thePlayer.getLookVec();
                 AxisAlignedBB extendedBoundingBox = playerBoundingBox.expand(lookVec.xCoord * expandForward, expandY, lookVec.zCoord * expandForward);
 

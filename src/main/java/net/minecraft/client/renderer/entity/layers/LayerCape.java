@@ -35,7 +35,6 @@ public class LayerCape implements LayerRenderer
             int index = Flauxy.INSTANCE.getCapeManager().CURRENT_CAPE;
             ArrayList<Cape> capes = Flauxy.INSTANCE.getCapeManager().getCapes();
             ResourceLocation cape = capes.get(index).getLocation();
-
             playerRenderer.bindTexture(cape);
 
 

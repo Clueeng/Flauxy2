@@ -88,18 +88,27 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
     public ResourceLocation getLocationCape()
     {
+        // TODO: replace with an option later
+        boolean condition = this.getName().equals(Minecraft.getMinecraft().thePlayer.getName());
         if (!Config.isShowCapes())
         {
             return null;
         }
         else if (this.ofLocationCape != null)
         {
-            return this.ofLocationCape;
+            if(condition){
+                return null;
+            }else
+                return this.ofLocationCape;
         }
         else
         {
-            NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-            return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+            if(condition){
+                return null;
+            }else {
+                NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
+                return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+            }
         }
     }
 

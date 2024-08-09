@@ -102,8 +102,8 @@ public abstract class Entity implements ICommandSender
 
     /** Entity rotation Pitch */
     public float rotationPitch;
-    public float prevRotationYaw;
-    public float prevRotationPitch;
+    public float prevRotationYaw, prevPrevRotationYaw;
+    public float prevRotationPitch, prevPrevRotationPitch;
 
     /** Axis aligned bounding box. */
     private AxisAlignedBB boundingBox;
@@ -417,6 +417,9 @@ public abstract class Entity implements ICommandSender
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
+        this.prevPrevRotationYaw = this.prevRotationYaw;
+        this.prevPrevRotationPitch = this.prevRotationPitch;
+
         this.prevRotationPitch = this.rotationPitch;
         this.prevRotationYaw = this.rotationYaw;
 

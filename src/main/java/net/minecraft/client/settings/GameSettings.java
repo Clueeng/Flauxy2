@@ -21,7 +21,6 @@ import net.minecraft.client.audio.SoundCategory;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.stream.TwitchStream;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.network.play.client.C15PacketClientSettings;
@@ -412,33 +411,6 @@ public class GameSettings
             this.renderDistanceChunks = (int)p_74304_2_;
             this.mc.renderGlobal.setDisplayListEntitiesDirty();
         }
-
-        if (p_74304_1_ == GameSettings.Options.STREAM_BYTES_PER_PIXEL)
-        {
-            this.streamBytesPerPixel = p_74304_2_;
-        }
-
-        if (p_74304_1_ == GameSettings.Options.STREAM_VOLUME_MIC)
-        {
-            this.streamMicVolume = p_74304_2_;
-            this.mc.getTwitchStream().updateStreamVolume();
-        }
-
-        if (p_74304_1_ == GameSettings.Options.STREAM_VOLUME_SYSTEM)
-        {
-            this.streamGameVolume = p_74304_2_;
-            this.mc.getTwitchStream().updateStreamVolume();
-        }
-
-        if (p_74304_1_ == GameSettings.Options.STREAM_KBPS)
-        {
-            this.streamKbps = p_74304_2_;
-        }
-
-        if (p_74304_1_ == GameSettings.Options.STREAM_FPS)
-        {
-            this.streamFps = p_74304_2_;
-        }
     }
 
     /**
@@ -506,31 +478,6 @@ public class GameSettings
         if (p_74306_1_ == GameSettings.Options.CHAT_VISIBILITY)
         {
             this.chatVisibility = EntityPlayer.EnumChatVisibility.getEnumChatVisibility((this.chatVisibility.getChatVisibility() + p_74306_2_) % 3);
-        }
-
-        if (p_74306_1_ == GameSettings.Options.STREAM_COMPRESSION)
-        {
-            this.streamCompression = (this.streamCompression + p_74306_2_) % 3;
-        }
-
-        if (p_74306_1_ == GameSettings.Options.STREAM_SEND_METADATA)
-        {
-            this.streamSendMetadata = !this.streamSendMetadata;
-        }
-
-        if (p_74306_1_ == GameSettings.Options.STREAM_CHAT_ENABLED)
-        {
-            this.streamChatEnabled = (this.streamChatEnabled + p_74306_2_) % 3;
-        }
-
-        if (p_74306_1_ == GameSettings.Options.STREAM_CHAT_USER_FILTER)
-        {
-            this.streamChatUserFilter = (this.streamChatUserFilter + p_74306_2_) % 3;
-        }
-
-        if (p_74306_1_ == GameSettings.Options.STREAM_MIC_TOGGLE_BEHAVIOR)
-        {
-            this.streamMicToggleBehavior = (this.streamMicToggleBehavior + p_74306_2_) % 2;
         }
 
         if (p_74306_1_ == GameSettings.Options.CHAT_COLOR)
@@ -601,7 +548,26 @@ public class GameSettings
 
     public float getOptionFloatValue(GameSettings.Options p_74296_1_)
     {
-        return p_74296_1_ == GameSettings.Options.CLOUD_HEIGHT ? this.ofCloudsHeight : (p_74296_1_ == GameSettings.Options.AO_LEVEL ? this.ofAoLevel : (p_74296_1_ == GameSettings.Options.AA_LEVEL ? (float)this.ofAaLevel : (p_74296_1_ == GameSettings.Options.AF_LEVEL ? (float)this.ofAfLevel : (p_74296_1_ == GameSettings.Options.MIPMAP_TYPE ? (float)this.ofMipmapType : (p_74296_1_ == GameSettings.Options.FRAMERATE_LIMIT ? ((float)this.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() && this.enableVsync ? 0.0F : (float)this.limitFramerate) : (p_74296_1_ == GameSettings.Options.FOV ? this.fovSetting : (p_74296_1_ == GameSettings.Options.GAMMA ? this.gammaSetting : (p_74296_1_ == GameSettings.Options.SATURATION ? this.saturation : (p_74296_1_ == GameSettings.Options.SENSITIVITY ? this.mouseSensitivity : (p_74296_1_ == GameSettings.Options.CHAT_OPACITY ? this.chatOpacity : (p_74296_1_ == GameSettings.Options.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused : (p_74296_1_ == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused : (p_74296_1_ == GameSettings.Options.CHAT_SCALE ? this.chatScale : (p_74296_1_ == GameSettings.Options.CHAT_WIDTH ? this.chatWidth : (p_74296_1_ == GameSettings.Options.FRAMERATE_LIMIT ? (float)this.limitFramerate : (p_74296_1_ == GameSettings.Options.MIPMAP_LEVELS ? (float)this.mipmapLevels : (p_74296_1_ == GameSettings.Options.RENDER_DISTANCE ? (float)this.renderDistanceChunks : (p_74296_1_ == GameSettings.Options.STREAM_BYTES_PER_PIXEL ? this.streamBytesPerPixel : (p_74296_1_ == GameSettings.Options.STREAM_VOLUME_MIC ? this.streamMicVolume : (p_74296_1_ == GameSettings.Options.STREAM_VOLUME_SYSTEM ? this.streamGameVolume : (p_74296_1_ == GameSettings.Options.STREAM_KBPS ? this.streamKbps : (p_74296_1_ == GameSettings.Options.STREAM_FPS ? this.streamFps : 0.0F))))))))))))))))))))));
+        return p_74296_1_ == GameSettings.Options.CLOUD_HEIGHT ? this.ofCloudsHeight
+                : (p_74296_1_ == GameSettings.Options.AO_LEVEL ? this.ofAoLevel
+                : (p_74296_1_ == GameSettings.Options.AA_LEVEL ? (float)this.ofAaLevel
+                : (p_74296_1_ == GameSettings.Options.AF_LEVEL ? (float)this.ofAfLevel
+                : (p_74296_1_ == GameSettings.Options.MIPMAP_TYPE ? (float)this.ofMipmapType
+                : (p_74296_1_ == GameSettings.Options.FRAMERATE_LIMIT ? ((float)this.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() && this.enableVsync ? 0.0F : (float)this.limitFramerate)
+                : (p_74296_1_ == GameSettings.Options.FOV ? this.fovSetting
+                : (p_74296_1_ == GameSettings.Options.GAMMA ? this.gammaSetting
+                : (p_74296_1_ == GameSettings.Options.SATURATION ? this.saturation
+                : (p_74296_1_ == GameSettings.Options.SENSITIVITY ? this.mouseSensitivity
+                : (p_74296_1_ == GameSettings.Options.CHAT_OPACITY ? this.chatOpacity
+                : (p_74296_1_ == GameSettings.Options.CHAT_HEIGHT_FOCUSED ? this.chatHeightFocused
+                : (p_74296_1_ == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED ? this.chatHeightUnfocused
+                : (p_74296_1_ == GameSettings.Options.CHAT_SCALE ? this.chatScale
+                : (p_74296_1_ == GameSettings.Options.CHAT_WIDTH ? this.chatWidth
+                : (p_74296_1_ == GameSettings.Options.FRAMERATE_LIMIT ? (float)this.limitFramerate
+                : (p_74296_1_ == GameSettings.Options.MIPMAP_LEVELS ? (float)this.mipmapLevels
+                : (p_74296_1_ == GameSettings.Options.RENDER_DISTANCE ? (float)this.renderDistanceChunks
+                : 0.0F)))))))))))))))));
+
     }
 
     public boolean getOptionOrdinalValue(GameSettings.Options p_74308_1_)
@@ -697,7 +663,42 @@ public class GameSettings
             {
                 float f1 = this.getOptionFloatValue(p_74297_1_);
                 float f = p_74297_1_.normalizeValue(f1);
-                return p_74297_1_ == GameSettings.Options.SENSITIVITY ? (f == 0.0F ? s1 + I18n.format("options.sensitivity.min", new Object[0]) : (f == 1.0F ? s1 + I18n.format("options.sensitivity.max", new Object[0]) : s1 + (int)(f * 200.0F) + "%")) : (p_74297_1_ == GameSettings.Options.FOV ? (f1 == 70.0F ? s1 + I18n.format("options.fov.min", new Object[0]) : (f1 == 110.0F ? s1 + I18n.format("options.fov.max", new Object[0]) : s1 + (int)f1)) : (p_74297_1_ == GameSettings.Options.FRAMERATE_LIMIT ? (f1 == p_74297_1_.valueMax ? s1 + I18n.format("options.framerateLimit.max", new Object[0]) : s1 + (int)f1 + " fps") : (p_74297_1_ == GameSettings.Options.RENDER_CLOUDS ? (f1 == p_74297_1_.valueMin ? s1 + I18n.format("options.cloudHeight.min", new Object[0]) : s1 + ((int)f1 + 128)) : (p_74297_1_ == GameSettings.Options.GAMMA ? (f == 0.0F ? s1 + I18n.format("options.gamma.min", new Object[0]) : (f == 1.0F ? s1 + I18n.format("options.gamma.max", new Object[0]) : s1 + "+" + (int)(f * 100.0F) + "%")) : (p_74297_1_ == GameSettings.Options.SATURATION ? s1 + (int)(f * 400.0F) + "%" : (p_74297_1_ == GameSettings.Options.CHAT_OPACITY ? s1 + (int)(f * 90.0F + 10.0F) + "%" : (p_74297_1_ == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED ? s1 + GuiNewChat.calculateChatboxHeight(f) + "px" : (p_74297_1_ == GameSettings.Options.CHAT_HEIGHT_FOCUSED ? s1 + GuiNewChat.calculateChatboxHeight(f) + "px" : (p_74297_1_ == GameSettings.Options.CHAT_WIDTH ? s1 + GuiNewChat.calculateChatboxWidth(f) + "px" : (p_74297_1_ == GameSettings.Options.RENDER_DISTANCE ? s1 + (int)f1 + " chunks" : (p_74297_1_ == GameSettings.Options.MIPMAP_LEVELS ? (f1 == 0.0F ? s1 + I18n.format("options.off", new Object[0]) : s1 + (int)f1) : (p_74297_1_ == GameSettings.Options.STREAM_FPS ? s1 + TwitchStream.formatStreamFps(f) + " fps" : (p_74297_1_ == GameSettings.Options.STREAM_KBPS ? s1 + TwitchStream.formatStreamKbps(f) + " Kbps" : (p_74297_1_ == GameSettings.Options.STREAM_BYTES_PER_PIXEL ? s1 + String.format("%.3f bpp", new Object[] {Float.valueOf(TwitchStream.formatStreamBps(f))}): (f == 0.0F ? s1 + I18n.format("options.off", new Object[0]) : s1 + (int)(f * 100.0F) + "%")))))))))))))));
+                return p_74297_1_ == GameSettings.Options.SENSITIVITY
+                    ? (f == 0.0F ? s1 + I18n.format("options.sensitivity.min", new Object[0])
+                    : (f == 1.0F ? s1 + I18n.format("options.sensitivity.max", new Object[0])
+                    : s1 + (int)(f * 200.0F) + "%"))
+                    : (p_74297_1_ == GameSettings.Options.FOV
+                    ? (f1 == 70.0F ? s1 + I18n.format("options.fov.min", new Object[0])
+                    : (f1 == 110.0F ? s1 + I18n.format("options.fov.max", new Object[0])
+                    : s1 + (int)f1))
+                    : (p_74297_1_ == GameSettings.Options.FRAMERATE_LIMIT
+                    ? (f1 == p_74297_1_.valueMax ? s1 + I18n.format("options.framerateLimit.max", new Object[0])
+                    : s1 + (int)f1 + " fps")
+                    : (p_74297_1_ == GameSettings.Options.RENDER_CLOUDS
+                    ? (f1 == p_74297_1_.valueMin ? s1 + I18n.format("options.cloudHeight.min", new Object[0])
+                    : s1 + ((int)f1 + 128))
+                    : (p_74297_1_ == GameSettings.Options.GAMMA
+                    ? (f == 0.0F ? s1 + I18n.format("options.gamma.min", new Object[0])
+                    : (f == 1.0F ? s1 + I18n.format("options.gamma.max", new Object[0])
+                    : s1 + "+" + (int)(f * 100.0F) + "%"))
+                    : (p_74297_1_ == GameSettings.Options.SATURATION
+                    ? s1 + (int)(f * 400.0F) + "%"
+                    : (p_74297_1_ == GameSettings.Options.CHAT_OPACITY
+                    ? s1 + (int)(f * 90.0F + 10.0F) + "%"
+                    : (p_74297_1_ == GameSettings.Options.CHAT_HEIGHT_UNFOCUSED
+                    ? s1 + GuiNewChat.calculateChatboxHeight(f) + "px"
+                    : (p_74297_1_ == GameSettings.Options.CHAT_HEIGHT_FOCUSED
+                    ? s1 + GuiNewChat.calculateChatboxHeight(f) + "px"
+                    : (p_74297_1_ == GameSettings.Options.CHAT_WIDTH
+                    ? s1 + GuiNewChat.calculateChatboxWidth(f) + "px"
+                    : (p_74297_1_ == GameSettings.Options.RENDER_DISTANCE
+                    ? s1 + (int)f1 + " chunks"
+                    : (p_74297_1_ == GameSettings.Options.MIPMAP_LEVELS
+                    ? (f1 == 0.0F ? s1 + I18n.format("options.off", new Object[0])
+                    : s1 + (int)f1)
+                    : (f == 0.0F ? s1 + I18n.format("options.off", new Object[0])
+                    : s1 + (int)(f * 100.0F) + "%"))))))))))));
+
             }
             else if (p_74297_1_.getEnumBoolean())
             {
@@ -719,22 +720,6 @@ public class GameSettings
             else if (p_74297_1_ == GameSettings.Options.AMBIENT_OCCLUSION)
             {
                 return s1 + getTranslation(AMBIENT_OCCLUSIONS, this.ambientOcclusion);
-            }
-            else if (p_74297_1_ == GameSettings.Options.STREAM_COMPRESSION)
-            {
-                return s1 + getTranslation(STREAM_COMPRESSIONS, this.streamCompression);
-            }
-            else if (p_74297_1_ == GameSettings.Options.STREAM_CHAT_ENABLED)
-            {
-                return s1 + getTranslation(STREAM_CHAT_MODES, this.streamChatEnabled);
-            }
-            else if (p_74297_1_ == GameSettings.Options.STREAM_CHAT_USER_FILTER)
-            {
-                return s1 + getTranslation(STREAM_CHAT_FILTER_MODES, this.streamChatUserFilter);
-            }
-            else if (p_74297_1_ == GameSettings.Options.STREAM_MIC_TOGGLE_BEHAVIOR)
-            {
-                return s1 + getTranslation(STREAM_MIC_MODES, this.streamMicToggleBehavior);
             }
             else if (p_74297_1_ == GameSettings.Options.RENDER_CLOUDS)
             {
@@ -3034,16 +3019,6 @@ public class GameSettings
             {
                 ;
             }
-
-            try
-            {
-                field_151477_a[GameSettings.Options.STREAM_SEND_METADATA.ordinal()] = 13;
-            }
-            catch (NoSuchFieldError var5)
-            {
-                ;
-            }
-
             try
             {
                 field_151477_a[GameSettings.Options.FORCE_UNICODE_FONT.ordinal()] = 14;
@@ -3115,16 +3090,6 @@ public class GameSettings
         CHAT_HEIGHT_UNFOCUSED("CHAT_HEIGHT_UNFOCUSED", 28, "options.chat.height.unfocused", true, false),
         MIPMAP_LEVELS("MIPMAP_LEVELS", 29, "options.mipmapLevels", true, false, 0.0F, 4.0F, 1.0F),
         FORCE_UNICODE_FONT("FORCE_UNICODE_FONT", 30, "options.forceUnicodeFont", false, true),
-        STREAM_BYTES_PER_PIXEL("STREAM_BYTES_PER_PIXEL", 31, "options.stream.bytesPerPixel", true, false),
-        STREAM_VOLUME_MIC("STREAM_VOLUME_MIC", 32, "options.stream.micVolumne", true, false),
-        STREAM_VOLUME_SYSTEM("STREAM_VOLUME_SYSTEM", 33, "options.stream.systemVolume", true, false),
-        STREAM_KBPS("STREAM_KBPS", 34, "options.stream.kbps", true, false),
-        STREAM_FPS("STREAM_FPS", 35, "options.stream.fps", true, false),
-        STREAM_COMPRESSION("STREAM_COMPRESSION", 36, "options.stream.compression", false, false),
-        STREAM_SEND_METADATA("STREAM_SEND_METADATA", 37, "options.stream.sendMetadata", false, true),
-        STREAM_CHAT_ENABLED("STREAM_CHAT_ENABLED", 38, "options.stream.chat.enabled", false, false),
-        STREAM_CHAT_USER_FILTER("STREAM_CHAT_USER_FILTER", 39, "options.stream.chat.userFilter", false, false),
-        STREAM_MIC_TOGGLE_BEHAVIOR("STREAM_MIC_TOGGLE_BEHAVIOR", 40, "options.stream.micToggleBehavior", false, false),
         BLOCK_ALTERNATIVES("BLOCK_ALTERNATIVES", 41, "options.blockAlternatives", false, true),
         REDUCED_DEBUG_INFO("REDUCED_DEBUG_INFO", 42, "options.reducedDebugInfo", false, true),
         ENTITY_SHADOWS("ENTITY_SHADOWS", 43, "options.entityShadows", false, true),
@@ -3196,7 +3161,7 @@ public class GameSettings
         private final float valueStep;
         private float valueMin;
         private float valueMax;
-        private static final GameSettings.Options[] $VALUES = new GameSettings.Options[]{INVERT_MOUSE, SENSITIVITY, FOV, GAMMA, SATURATION, RENDER_DISTANCE, VIEW_BOBBING, ANAGLYPH, FRAMERATE_LIMIT, FBO_ENABLE, RENDER_CLOUDS, GRAPHICS, AMBIENT_OCCLUSION, GUI_SCALE, PARTICLES, CHAT_VISIBILITY, CHAT_COLOR, CHAT_LINKS, CHAT_OPACITY, CHAT_LINKS_PROMPT, SNOOPER_ENABLED, USE_FULLSCREEN, ENABLE_VSYNC, USE_VBO, TOUCHSCREEN, CHAT_SCALE, CHAT_WIDTH, CHAT_HEIGHT_FOCUSED, CHAT_HEIGHT_UNFOCUSED, MIPMAP_LEVELS, FORCE_UNICODE_FONT, STREAM_BYTES_PER_PIXEL, STREAM_VOLUME_MIC, STREAM_VOLUME_SYSTEM, STREAM_KBPS, STREAM_FPS, STREAM_COMPRESSION, STREAM_SEND_METADATA, STREAM_CHAT_ENABLED, STREAM_CHAT_USER_FILTER, STREAM_MIC_TOGGLE_BEHAVIOR, BLOCK_ALTERNATIVES, REDUCED_DEBUG_INFO, ENTITY_SHADOWS};
+        private static final GameSettings.Options[] $VALUES = new GameSettings.Options[]{INVERT_MOUSE, SENSITIVITY, FOV, GAMMA, SATURATION, RENDER_DISTANCE, VIEW_BOBBING, ANAGLYPH, FRAMERATE_LIMIT, FBO_ENABLE, RENDER_CLOUDS, GRAPHICS, AMBIENT_OCCLUSION, GUI_SCALE, PARTICLES, CHAT_VISIBILITY, CHAT_COLOR, CHAT_LINKS, CHAT_OPACITY, CHAT_LINKS_PROMPT, SNOOPER_ENABLED, USE_FULLSCREEN, ENABLE_VSYNC, USE_VBO, TOUCHSCREEN, CHAT_SCALE, CHAT_WIDTH, CHAT_HEIGHT_FOCUSED, CHAT_HEIGHT_UNFOCUSED, MIPMAP_LEVELS, FORCE_UNICODE_FONT, BLOCK_ALTERNATIVES, REDUCED_DEBUG_INFO, ENTITY_SHADOWS};
         private static final String __OBFID = "CL_00000653";
 
         public static GameSettings.Options getEnumOptions(int p_74379_0_)

@@ -52,6 +52,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.module.impl.falses.AutoHeadhitter;
 
@@ -2045,9 +2046,11 @@ public abstract class EntityLivingBase extends Entity
             }
             else if (this.onGround && this.jumpTicks == 0)
             {
-                this.jump();
-                this.jumpTicks = 10;
-                EntityPlayerSP.jumpTicks = AutoHeadhitter.jumpDelayTick;
+                this.jump(); // default 10
+                AutoHeadhitter module = Flauxy.INSTANCE.getModuleManager().getModule(AutoHeadhitter.class);
+                boolean shouldModify = module.changeJumpDelay.getValue() && module.isToggled();
+                this.jumpTicks = shouldModify ? (int) module.jumpDelay.getValue() : 10;
+                EntityPlayerSP.jumpTicks = shouldModify ? (int) module.jumpDelay.getValue() : 10;
             }
         }
         else

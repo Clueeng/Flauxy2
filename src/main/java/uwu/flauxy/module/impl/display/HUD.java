@@ -7,6 +7,7 @@ import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.event.impl.EventUpdate;
@@ -32,15 +33,13 @@ public class HUD extends Module {
 
     public BooleanSetting fps = new BooleanSetting("FPS", true);
     public ModeSetting positionFps = new ModeSetting("FPS Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> fps.getValue());
-    public BooleanSetting keystrokes = new BooleanSetting("Keystrokes", true);
-    public ModeSetting keystrokesPos = new ModeSetting("Keystrokes Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> keystrokes.getValue());
-
+    public BooleanSetting showRotations = new BooleanSetting("Show Rotations",true);
 
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
-
+    float deltaYaw = 0.0f, deltaPitch = 0.0f;
     public HUD() {
-        addSettings(watermark, customfont, fps, positionFps, keystrokes, keystrokesPos);
+        addSettings(watermark, showRotations, customfont, fps, positionFps);
     }
 
     @Override
@@ -58,6 +57,11 @@ public class HUD extends Module {
             }
         }
         if(event instanceof EventUpdate){
+            EventUpdate e = (EventUpdate)event;
+            if(e.getType().equals(EventType.PRE)){
+                deltaYaw = mc.thePlayer.rotationYaw - mc.thePlayer.prevPrevRotationYaw;
+                deltaPitch = mc.thePlayer.rotationPitch - mc.thePlayer.prevPrevRotationPitch;
+            }
             Longjump longjump = Flauxy.INSTANCE.getModuleManager().getModule(Longjump.class);
             if(longjump.shouldWait) {
                 if (mc.thePlayer.ticksExisted % 20 == 0) {
@@ -90,6 +94,12 @@ public class HUD extends Module {
                                 , 100, Color.RED.getRGB());
                     }
                 }
+            }
+
+            if(showRotations.getValue()){
+                mc.fontRendererObj.drawStringWithShadow("Yaw / Pitch : " + mc.thePlayer.rotationYaw + " / " + mc.thePlayer.rotationPitch, 4,36, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
+                mc.fontRendererObj.drawStringWithShadow("Delta Yaw : " + deltaYaw, 4,48, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
+                mc.fontRendererObj.drawStringWithShadow("Delta Pitch : " + deltaPitch, 4,60, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
             }
 
             if(waterMarkToggled.getValue()){

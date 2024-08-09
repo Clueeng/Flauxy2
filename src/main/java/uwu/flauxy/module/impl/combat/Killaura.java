@@ -211,11 +211,7 @@ public class Killaura extends Module {
                                 this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
                                 GL11.glPopMatrix();
                                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-
                                 GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
-
-
                                 xHealthbar = 30;
                                 yHealthbar = 46;
                                 add = 120.0F;
@@ -227,10 +223,6 @@ public class Killaura extends Module {
                                 drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
                                 drawRect(x + xHealthbar, y + yHealthbar, tempX, 8.0F, healthColor);
                                 addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
-                                //drawRect((float) (addX - 3.0D), y + yHealthbar, 3.0F, 8.0F, new Color(-1979711488, true));
-
-
-
                                 for (index = 1; index < 5; index++) {
                                     if (target.getEquipmentInSlot(index) == null) ;
                                 }
@@ -244,10 +236,10 @@ public class Killaura extends Module {
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
             if(shouldRun()){
-                targets = (List<Entity>) this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
+                targets = this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
 
-                targets = targets.stream().filter(entity -> ((EntityLivingBase) entity).getDistanceToEntity((EntityLivingBase) this.mc.thePlayer) < 10 && entity != this.mc.thePlayer && (!(entity instanceof EntityArmorStand)) && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
-                targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity((Entity) this.mc.thePlayer)));
+                targets = targets.stream().filter(entity -> entity.getDistanceToEntity(this.mc.thePlayer) < 10 && entity != this.mc.thePlayer && (!(entity instanceof EntityArmorStand)) && !entity.isDead && ((EntityLivingBase)entity).getHealth() > 0).collect((Collectors.toList()));
+                targets.sort(Comparator.comparingDouble(entity -> entity.getDistanceToEntity(this.mc.thePlayer)));
                 targets = targets.stream().filter(EntityLivingBase.class::isInstance).collect((Collectors.toList()));
 
                 if(!targets.isEmpty()){
@@ -266,7 +258,6 @@ public class Killaura extends Module {
 
                         switch(rotations.getMode()){
                             case "Verus":{
-                                double random = NumberUtil.generateRandomFloat(67565, 107450, 10000);
                                 //Wrapper.instance.log(String.valueOf(random));
                                 if(type.is("Pre") && event.isPre()){
                                     float smoothnessX = 30;
@@ -425,10 +416,9 @@ public class Killaura extends Module {
 
     public void attack(Entity target){
         mc.thePlayer.swingItem();
-        PacketUtil.packetNoEvent(new C0APacketAnimation());
-        PacketUtil.packetNoEvent(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
+        mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
+        mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
     }
-
     public boolean isHoldingSword(){
         return mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
     }

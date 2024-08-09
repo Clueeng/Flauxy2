@@ -186,6 +186,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onUpdate()
     {
+        EventUpdate e = new EventUpdate();
+        e.setType(EventType.PRE);
+        Flauxy.onEvent(e);
         this.prevServerYaw = this.serverYaw;
         this.prevServerPitch = this.serverPitch;
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
@@ -217,7 +220,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
 
             super.onUpdate();
-            Flauxy.onEvent(new EventUpdate());
 
             // Discord RPC
 
@@ -248,6 +250,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
             {
                 this.onUpdateWalkingPlayer();
             }
+            e.setType(EventType.POST);
+            Flauxy.onEvent(e);
         }
     }
 
