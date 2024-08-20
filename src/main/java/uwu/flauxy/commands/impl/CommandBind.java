@@ -16,7 +16,7 @@ public class CommandBind extends Command {
 
     @Override
     public String getSyntax() {
-        return "bind";
+        return ".bind <module> <key>";
     }
 
     @Override

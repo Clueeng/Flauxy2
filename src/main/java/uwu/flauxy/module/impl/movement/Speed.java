@@ -16,11 +16,12 @@ import uwu.flauxy.module.impl.combat.Killaura;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MoveUtils;
+import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet", "Karhu");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Funcraft Funny", "Hypixel Like").setCanShow(m -> mode.is("NCP"));
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Fast").setCanShow(m -> mode.is("Verus"));
     public ModeSetting bmcMode = new ModeSetting("BMC Mode", "Strafe", "Strafe", "Low", "No Strafe").setCanShow(m -> mode.is("BlocksMC"));
@@ -45,6 +46,12 @@ public class Speed extends Module {
                 speedV = MoveUtils.getBaseMoveSpeed();
                 break;
             }
+            case "Karhu":{
+                airTick = 0;
+                funny = false;
+                mc.timer.timerSpeed=1f;
+                break;
+            }
         }
     }
 
@@ -53,6 +60,10 @@ public class Speed extends Module {
             this.setDisplayName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Karhu":{
+                karhuSpeed(event);
+                break;
+            }
             case "Bullet":{
                 if(event instanceof EventMotion){
                     if(!MoveUtils.isWalking()) return;
@@ -440,6 +451,52 @@ public class Speed extends Module {
 
                     }
                     break;
+                }
+            }
+        }
+    }
+
+    private float airTick, groundTick, karhuSpeed = 1.6f;
+    private boolean funny;
+    public void karhuSpeed(Event e){
+        if(e instanceof EventMotion){
+            EventMotion ev = (EventMotion) e;
+            if(!ev.isPre())return;
+            if(mc.thePlayer.isMoving() && mc.thePlayer.hurtTime == 0){
+                if(!mc.thePlayer.onGround){
+                    airTick++;
+                    groundTick = 0;
+                }else{
+                    airTick = 0;
+                    groundTick++;
+                }
+                if (airTick >= 0 && airTick <= 33) {
+                    if (mc.thePlayer.onGround && groundTick >= 3 && mc.thePlayer.motionY == -0.0784000015258789) {
+                        mc.thePlayer.jump();
+                        funny = false;
+                        mc.timer.timerSpeed = 1f;
+                    } else if (airTick > 0 && !funny) {
+                        funny = true;
+                        mc.timer.timerSpeed = 1f;
+
+                    } else if (airTick >= 3 && airTick <= 4) {
+                        if (airTick % 2 == 0) {
+                            ((EventMotion) e).setOnGround(true);
+                            mc.thePlayer.jump();
+                            mc.thePlayer.jump();
+                            mc.thePlayer.motionX*= karhuSpeed;
+                            mc.thePlayer.motionZ *= karhuSpeed;
+                            mc.thePlayer.motionY -= 0.12;
+                            mc.timer.timerSpeed = (float) (1.35 - NumberUtil.randomInRange(0.01f, 0.3f));
+
+                        } else {
+                            mc.timer.timerSpeed = 1f;
+
+                            mc.thePlayer.setVelocity(0.0, 0.0, 0.0);
+                        }
+                    }
+                } else {
+                    mc.thePlayer.jumpMovementFactor = 0.02f;
                 }
             }
         }

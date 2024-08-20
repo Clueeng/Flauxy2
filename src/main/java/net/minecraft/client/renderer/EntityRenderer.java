@@ -75,6 +75,8 @@ import uwu.flauxy.event.impl.EventRender3D;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.impl.falses.Zoom;
 import uwu.flauxy.module.impl.ghost.Reach;
+import uwu.flauxy.module.impl.other.Performance;
+import uwu.flauxy.module.impl.visuals.Freelook;
 import uwu.flauxy.utils.Wrapper;
 
 public class EntityRenderer implements IResourceManagerReloadListener // bienvenue en enfer ce client est buggé de ouf
@@ -433,7 +435,10 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
         {
             this.mc.mcProfiler.startSection("pick");
             this.mc.pointedEntity = null;
-            double d0 = (double)this.mc.playerController.getBlockReachDistance();
+            Reach reach = Flauxy.INSTANCE.getModuleManager().getModule(Reach.class);
+            double reachValue = reach.range.getValue();
+            boolean reachToggled = reach.isToggled();
+            double d0 = reachToggled ? reachValue : (double)this.mc.playerController.getBlockReachDistance();
             this.mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
             double d1 = d0;
             Vec3 vec3 = entity.getPositionEyes(partialTicks);
@@ -447,7 +452,9 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             }
             else
             {
-                if (d0 > 3.0D)
+                double defaultValue = 3.0D;
+                double newValue = reachToggled ? reachValue : defaultValue;
+                if (d0 > newValue) // replace with reach value
                 {
                     flag = true;
                 }
@@ -564,6 +571,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
     /**
      * Changes the field of view of the player depending on if they are underwater or not
      */
+    float smoothedZoom;
     public static boolean toggleZoom;
     private float getFOVModifier(float partialTicks, boolean p_78481_2_)
     {
@@ -584,10 +592,10 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
             boolean flag = false;
 
+            Zoom mod = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
             if (this.mc.currentScreen == null)
             {
                 GameSettings gamesettings = this.mc.gameSettings;
-                Zoom mod = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
                 if(mod.isToggled()){
                     if(mod.hold.isEnabled()){
                         flag = GameSettings.isKeyDown(this.mc.gameSettings.ofKeyBindZoom);
@@ -599,7 +607,28 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                 }
                 // of zoom ofzoom
             }
-
+            if(!flag){
+                float endFactor = 0.05f;
+                switch (mod.smoothFunction.getMode()){
+                    case "Lerp":{
+                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.lerp(0.019f,smoothedZoom,1.0f);
+                        break;
+                    }
+                    case "Quad":{
+                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutQuad(endFactor,smoothedZoom,1.0f);
+                        break;
+                    }
+                    case "Ease in":{
+                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutBounce(endFactor,smoothedZoom,1.0f);
+                        break;
+                    }
+                    default:{
+                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInCubic(endFactor,smoothedZoom,1.0f);
+                        break;
+                    }
+                }
+            }
+            float endZoom = 1.01f;
             if (flag)
             {
                 if (!Config.zoomMode)
@@ -610,16 +639,56 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
                 if (Config.zoomMode)
                 {
-                    f /= 4.0F;
+                    // zoom amount the higher the value the bigger the zoom
+                    float factor;
+                    if(mod.isToggled()){
+                        if(!mod.smoothZoom.getValue()){
+                            factor = (float) mod.zoomFactor.getValue();
+                            smoothedZoom = factor;
+                        }else{
+                            factor = (float) mod.zoomFactor.getValue();
+                            // "Lerp", "Lerp", "Quad", "Ease in"
+                            switch (mod.smoothFunction.getMode()){
+                                case "Lerp":{
+                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.lerp(0.019f,smoothedZoom,factor);
+                                    break;
+                                }
+                                case "Quad":{
+                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutQuad(0.05f,smoothedZoom,factor);
+                                    break;
+                                }
+                                case "Ease in":{
+                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutBounce(0.03f,smoothedZoom,factor);
+                                    break;
+                                }
+                                default:{
+                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInCubic(0.03f,smoothedZoom,factor);
+                                    break;
+                                }
+                            }
+                        }
+                    }else{
+                        smoothedZoom = 4.0f;
+                    }
                 }
             }
             else if (Config.zoomMode)
             {
-                Config.zoomMode = false;
                 this.mc.gameSettings.smoothCamera = false;
-                this.mouseFilterXAxis = new MouseFilter();
-                this.mouseFilterYAxis = new MouseFilter();
-                this.mc.renderGlobal.displayListEntitiesDirty = true;
+                if(!mod.isToggled()){
+                    smoothedZoom = 1.0f;
+                }
+                if(smoothedZoom <= endZoom){
+                    Config.zoomMode = false;
+                    this.mouseFilterXAxis = new MouseFilter();
+                    this.mouseFilterYAxis = new MouseFilter();
+                    this.mc.renderGlobal.displayListEntitiesDirty = true;
+                    f /= smoothedZoom;
+                }
+            }
+            if(smoothedZoom > endZoom){
+                f /= smoothedZoom;
+                return f;
             }
 
             if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).getHealth() <= 0.0F)
@@ -717,8 +786,9 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                     GlStateManager.rotate((float)(j * 90), 0.0F, 1.0F, 0.0F);
                 }
 
-                GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks + 180.0F, 0.0F, -1.0F, 0.0F);
-                GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, -1.0F, 0.0F, 0.0F);
+                Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+                GlStateManager.rotate(freelook.getYaw() + (freelook.getYaw() - freelook.getYaw()) * partialTicks + 180.0F, 0.0F, -1.0F, 0.0F);
+                GlStateManager.rotate(freelook.getPitch() + (freelook.getPitch() - freelook.getPitch()) * partialTicks, -1.0F, 0.0F, 0.0F);
             }
         }
         else if (this.mc.gameSettings.thirdPersonView > 0)
@@ -731,8 +801,9 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             }
             else
             {
-                float f1 = entity.rotationYaw;
-                float f2 = entity.rotationPitch;
+                Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+                float f1 = freelook.getYaw();
+                float f2 = freelook.getPitch();
 
                 if (this.mc.gameSettings.thirdPersonView == 2)
                 {
@@ -769,11 +840,11 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                     GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
                 }
 
-                GlStateManager.rotate(entity.rotationPitch - f2, 1.0F, 0.0F, 0.0F);
-                GlStateManager.rotate(entity.rotationYaw - f1, 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotate(freelook.getPitch() - f2, 1.0F, 0.0F, 0.0F);
+                GlStateManager.rotate(freelook.getYaw() - f1, 0.0F, 1.0F, 0.0F);
                 GlStateManager.translate(0.0F, 0.0F, (float)(-d3));
-                GlStateManager.rotate(f1 - entity.rotationYaw, 0.0F, 1.0F, 0.0F);
-                GlStateManager.rotate(f2 - entity.rotationPitch, 1.0F, 0.0F, 0.0F);
+                GlStateManager.rotate(f1 - freelook.getYaw(), 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotate(f2 - freelook.getPitch(), 1.0F, 0.0F, 0.0F);
             }
         }
         else
@@ -783,7 +854,8 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-            GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, 1.0F, 0.0F, 0.0F);
+            Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+            GlStateManager.rotate(freelook.getPitch() + (freelook.getPitch() - freelook.getPitch()) * partialTicks, 1.0F, 0.0F, 0.0F);
 
             if (entity instanceof EntityAnimal)
             {
@@ -792,7 +864,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             }
             else
             {
-                GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks + 180.0F, 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotate(freelook.getYaw() + (freelook.getYaw() - freelook.getYaw()) * partialTicks + 180.0F, 0.0F, 1.0F, 0.0F);
             }
         }
 
@@ -1184,7 +1256,8 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             Mouse.setGrabbed(true);
         }
 
-        if (this.mc.inGameHasFocus && flag)
+        Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+        if (this.mc.inGameHasFocus && flag && freelook.overrideMouse())
         {
             this.mc.mouseHelper.mouseXYChange();
             float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
@@ -1200,8 +1273,13 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
             if (this.mc.gameSettings.smoothCamera)
             {
-                this.smoothCamYaw += f2;
-                this.smoothCamPitch += f3;
+                Zoom z = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
+                float cameraSpeed = 1.0f;
+                if(z.isToggled()){
+                    cameraSpeed = (float) z.zoomSpeed.getValue();
+                }
+                this.smoothCamYaw += f2 * cameraSpeed;
+                this.smoothCamPitch += f3 * cameraSpeed;
                 float f4 = p_181560_1_ - this.smoothCamPartialTicks;
                 this.smoothCamPartialTicks = p_181560_1_;
                 f2 = this.smoothCamFilterX * f4;

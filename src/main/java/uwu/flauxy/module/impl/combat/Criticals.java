@@ -7,6 +7,7 @@ import net.minecraft.network.play.client.C0BPacketEntityAction;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventSendPacket;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -50,8 +51,9 @@ public class Criticals extends Module {
             }
         }
         if(target != null){
-            if(e instanceof EventMotion){
-                EventMotion em = (EventMotion) e;
+            if(e instanceof EventUpdate){
+                EventUpdate em = (EventUpdate) e;
+                if(!em.isPre())return;
                 if(isCrits  && shouldRun()){
                     switch (mode.getMode()){
                         case "Jump":{

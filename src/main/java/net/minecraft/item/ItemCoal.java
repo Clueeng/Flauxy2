@@ -9,7 +9,7 @@ public class ItemCoal extends Item
     {
         this.setHasSubtypes(true);
         this.setMaxDamage(0);
-        this.setCreativeTab(CreativeTabs.tabMaterials);
+        this.setCreativeTab(CreativeTabs.tabTools);
     }
 
     /**

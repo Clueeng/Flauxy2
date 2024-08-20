@@ -13,7 +13,7 @@ public class CommandPassword extends Command {
 
     @Override
     public String getSyntax() {
-        return "password";
+        return ".password <pass>";
     }
 
     @Override

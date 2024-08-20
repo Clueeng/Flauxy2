@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -1500,6 +1501,11 @@ public class Block
     {
         registerBlock(id, new ResourceLocation(textualID), block_);
     }
+
+    public boolean isAir(IBlockState blockState, World entityWorld, BlockPos pos) {
+        return blockState.getBlock().equals(Blocks.air);
+    }
+
 
     public static enum EnumOffsetType
     {

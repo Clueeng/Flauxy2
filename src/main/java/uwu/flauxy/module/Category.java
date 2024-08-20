@@ -11,9 +11,10 @@ public enum Category {
     Visuals(new Color(55, 0, 206), 4),
     Exploit(new Color(50, 131, 173), 5),
     Display(new Color(243, 155, 18), 6),
-    Other(new Color(244, 219, 95), 7),
+    Other(new Color(148, 133, 59), 7),
     Ghost(new Color(65, 65, 65), 8),
-    False(new Color(188, 68, 114), 9);
+    False(new Color(188, 68, 114), 9),
+    Macro(new Color(153, 69, 18), 10);
 
     Color c;
     public int id;

@@ -21,7 +21,7 @@ public class CommandConfig extends Command {
 
     @Override
     public String getSyntax() {
-        return "config";
+        return ".config <save/load/delete> <n>";
     }
 
     @Override

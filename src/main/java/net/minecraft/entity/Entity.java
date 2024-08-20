@@ -50,6 +50,7 @@ import net.minecraft.world.WorldServer;
 import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
+import uwu.flauxy.module.impl.exploit.NoPitchLimit;
 import uwu.flauxy.module.impl.ghost.Safewalk;
 import uwu.flauxy.utils.Wrapper;
 
@@ -388,7 +389,8 @@ public abstract class Entity implements ICommandSender
         float f1 = this.rotationYaw;
         this.rotationYaw = (float)((double)this.rotationYaw + (double)yaw * 0.15D);
         this.rotationPitch = (float)((double)this.rotationPitch - (double)pitch * 0.15D);
-        this.rotationPitch = MathHelper.clamp_float(this.rotationPitch, -90.0F, 90.0F);
+        NoPitchLimit nopitch = Flauxy.INSTANCE.getModuleManager().getModule(NoPitchLimit.class);
+        this.rotationPitch = nopitch.isToggled() ? this.rotationPitch : MathHelper.clamp_float(this.rotationPitch, -90.0F, 90.0F); // remove this
         this.prevRotationPitch += this.rotationPitch - f;
         this.prevRotationYaw += this.rotationYaw - f1;
     }
@@ -1545,7 +1547,6 @@ public abstract class Entity implements ICommandSender
         Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
         return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
     }
-
     /**
      * Returns true if other Entities should be prevented from moving through this Entity.
      */

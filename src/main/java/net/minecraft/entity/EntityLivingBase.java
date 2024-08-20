@@ -55,6 +55,7 @@ import net.minecraft.world.WorldServer;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.module.impl.falses.AutoHeadhitter;
+import uwu.flauxy.module.impl.falses.ModernMotionThreshold;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -2000,17 +2001,22 @@ public abstract class EntityLivingBase extends Entity
             this.motionZ *= 0.98D;
         }
 
-        if (Math.abs(this.motionX) < 0.005D)
+
+        // 1.9+ simulating would be 0.003
+        ModernMotionThreshold mod = Flauxy.INSTANCE.getModuleManager().getModule(ModernMotionThreshold.class);
+        double threshold_1_9 = 0.003D;
+        double threshold_1_8 = 0.005D;
+        if (Math.abs(this.motionX) < (mod.isToggled() ? threshold_1_9 : threshold_1_8))
         {
             this.motionX = 0.0D;
         }
 
-        if (Math.abs(this.motionY) < 0.005D)
+        if (Math.abs(this.motionY) < (mod.isToggled() ? threshold_1_9 : threshold_1_8))
         {
             this.motionY = 0.0D;
         }
 
-        if (Math.abs(this.motionZ) < 0.005D)
+        if (Math.abs(this.motionZ) < (mod.isToggled() ? threshold_1_9 : threshold_1_8))
         {
             this.motionZ = 0.0D;
         }

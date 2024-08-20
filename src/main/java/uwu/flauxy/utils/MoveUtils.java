@@ -34,6 +34,16 @@ public class MoveUtils {
         mc.thePlayer.motionZ = 0;
     }
 
+    public static void cancelMoveInputs(){
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.gameSettings.keyBindJump.pressed = false;
+        mc.gameSettings.keyBindSneak.pressed = false;
+        mc.gameSettings.keyBindLeft.pressed = false;
+        mc.gameSettings.keyBindRight.pressed = false;
+        mc.gameSettings.keyBindBack.pressed = false;
+        mc.gameSettings.keyBindForward.pressed = false;
+    }
+
 
     public static double getBaseSpeed() {
         EntityPlayerSP player = mc.thePlayer;

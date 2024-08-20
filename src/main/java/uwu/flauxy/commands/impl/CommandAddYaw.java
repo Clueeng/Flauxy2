@@ -14,7 +14,7 @@ public class CommandAddYaw extends Command {
 
     @Override
     public String getSyntax() {
-        return "addyaw";
+        return ".addyaw <num>";
     }
 
     @Override

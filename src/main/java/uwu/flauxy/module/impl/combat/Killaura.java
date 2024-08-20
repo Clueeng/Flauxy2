@@ -29,6 +29,7 @@ import uwu.flauxy.commands.impl.CommandSetupCPS;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventRender2D;
+import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -85,12 +86,13 @@ public class Killaura extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
     BooleanSetting wall = new BooleanSetting("Through Walls", true);
     BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
+    BooleanSetting movefix = new BooleanSetting("Move Fix", true);
     ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Flaily", "Flaily", "Astolfo", "Rainbow").setCanShow(m -> targethud.getValue());
     Timer timer = new Timer();
 
 
     public Killaura(){
-        addSettings(autoblockMode, type, rotations, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
+        addSettings(autoblockMode, type, rotations, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
     public static boolean fakeBlock = false;
@@ -112,6 +114,14 @@ public class Killaura extends Module {
 
 
     public void onEvent(Event ev){
+        if(ev instanceof EventStrafe){
+            EventStrafe e = (EventStrafe) ev;
+            if(currentTarget != null){
+                if(isValid(currentTarget, (float) reach.getValue()) && movefix.isEnabled()) {
+                    e.setYaw(getRotations(currentTarget)[0]);
+                }
+            }
+        }
         if(ev instanceof EventUpdate){
             this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode());
             // World

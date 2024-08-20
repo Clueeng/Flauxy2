@@ -17,7 +17,7 @@ public class AutoDismount extends Module {
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
             EventUpdate ev = (EventUpdate)e;
-            if(ev.getType().equals(EventType.PRE))return;
+            if(ev.getType().equals(EventType.PRE) || mc.currentScreen != null)return;
             mc.gameSettings.keyBindSneak.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode());
             if(mc.thePlayer.ridingEntity != null){
                 mc.gameSettings.keyBindSneak.pressed = true;

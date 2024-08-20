@@ -61,6 +61,7 @@ extends Thread {
             AltManager altManager = Flauxy.INSTANCE.altManager;
             AltManager.lastAlt = new Alt(this.username, this.password);
             this.status = (Object)((Object)EnumChatFormatting.GREEN) + "Logged in. (" + auth.getUsername() + ")";
+
             this.mc.session = auth;
         }
     }

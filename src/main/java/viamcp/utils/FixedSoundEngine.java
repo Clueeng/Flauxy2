@@ -86,7 +86,6 @@ public class FixedSoundEngine
                     ItemBlock.setTileEntityNBT(worldIn, playerIn, pos, stack);
                     iblock.getBlock().onBlockPlacedBy(worldIn, pos, iblockstate1, playerIn, stack);
                 }
-
                 if(ViaMCP.getInstance().getVersion() != ViaMCP.PROTOCOL_VERSION)
                 {
                     // Using playSoundAtPos instead of playSoundEffect (I have no understanding as to why playSoundEffect is not functioning properly on 1.9+ protocols)

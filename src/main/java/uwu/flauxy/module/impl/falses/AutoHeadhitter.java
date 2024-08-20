@@ -43,10 +43,9 @@ public class AutoHeadhitter extends Module {
             EventUpdate ev = (EventUpdate)e;
             if(ev.getType().equals(EventType.PRE))return;
             jumpDelayTick = changeJumpDelay.isEnabled() ? (int) jumpDelay.getValue() : 10;
-            if(autoHit.getValue()){
+            if(autoHit.getValue() && !mc.thePlayer.isInWater()){
                 if(mc.thePlayer.ticksExisted % tickDelay.getValue() == 0){
                     if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
-                        Wrapper.instance.log("Tried jumping");
                         mc.gameSettings.keyBindJump.pressed = true;
                     }
                 }else{
@@ -94,7 +93,6 @@ public class AutoHeadhitter extends Module {
 
                 boost = blockAbove;
                 if (boost && actualGo) {
-                    Wrapper.instance.log("Perfect jumped");
                     int d = jumpDelayTick;
                     jumpDelayTick = 0;
                     mc.gameSettings.keyBindJump.pressed = true;

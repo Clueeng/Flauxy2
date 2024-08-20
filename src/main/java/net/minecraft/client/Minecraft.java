@@ -108,6 +108,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLeashKnot;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityBoat;
@@ -184,6 +185,8 @@ import uwu.flauxy.event.impl.EventTick;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.ghost.FastPlace;
+import uwu.flauxy.module.impl.ghost.NoClickDelay;
+import uwu.flauxy.utils.DiscordPresenceUtil;
 import uwu.flauxy.utils.config.KeyLoader;
 import viamcp.utils.AttackOrder;
 
@@ -565,6 +568,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
         else
         {
+            DiscordPresenceUtil.setPresence("Main menu", "", false);
             this.displayGuiScreen(new GuiMainMenu());
         }
 
@@ -1410,6 +1414,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         Flauxy.INSTANCE.getConfigManager().save("Default");
         KeyLoader.save(Flauxy.INSTANCE.getModuleManager().modules);
+        Flauxy.INSTANCE.getWaypointManager().saveWaypoints();
         this.running = false;
     }
 
@@ -1500,7 +1505,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
                 if (this.playerController.isNotCreative())
                 {
-                    this.leftClickCounter = 10;
+                    NoClickDelay mod = Flauxy.INSTANCE.getModuleManager().getModule(NoClickDelay.class);
+                    this.leftClickCounter = mod.isToggled() ? (int) mod.delay.getValue() : 10; // default 10
                 }
             }
             else
@@ -2111,6 +2117,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
                 while (this.gameSettings.keyBindAttack.isPressed())
                 {
+                    ((EntityLivingBase)thePlayer).swingItem(); // added that for 1.7 block animation but idk
                     ;
                 }
 

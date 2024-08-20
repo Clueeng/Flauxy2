@@ -91,9 +91,13 @@ public class ColorUtils {
         int segment = (int)(hue2 / step);
         float blendFactor = (hue2 % step) / step;
 
+        // Ensure that segment + 1 is within bounds
+        if (segment >= numberOfColors - 1) {
+            return colors[numberOfColors - 1]; // Return the last color if out of bounds
+        }
+
         return blend(colors[segment], colors[segment + 1], blendFactor);
     }
-
     public static Color blend(Color col1, Color col2, float ratio) {
         int r = (int)(col1.getRed() * (1 - ratio) + col2.getRed() * ratio);
         int g = (int)(col1.getGreen() * (1 - ratio) + col2.getGreen() * ratio);

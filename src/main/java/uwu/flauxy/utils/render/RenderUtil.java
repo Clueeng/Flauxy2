@@ -7,12 +7,16 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Matrix4f;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.other.Performance;
 
 import java.awt.*;
 import java.nio.FloatBuffer;
@@ -41,6 +45,12 @@ public class RenderUtil  {
         GL11.glEnable(2929);
     }
     public static void drawRoundedRect2(final double x, final double y, final double width, final double height, double radius, int color) {
+        Performance p = Flauxy.INSTANCE.getModuleManager().getModule(Performance.class);
+        if(p.noRounded.getValue() && p.isToggled()){
+            Gui.drawRect((float) x, (float) y, (float) (width), (float) (height), color);
+            GlStateManager.resetColor();
+            return;
+        }
         RenderUtil.drawRoundedRect(x, y, width - x, height - y, radius, color);
     }
     public static void drawRoundedRect3(final double x, final double y, final double x2, final double y2, double radius, int color) {
@@ -837,6 +847,141 @@ public class RenderUtil  {
         frustum.setPosition(current.posX, current.posY, current.posZ);
         return frustum.isBoundingBoxInFrustum(bb);
     }
+
+    public static void draw3DBox(AxisAlignedBB box, int color) {
+        try {
+            float red = (color >> 16 & 255) / 255.0F;
+            float green = (color >> 8 & 255) / 255.0F;
+            float blue = (color & 255) / 255.0F;
+            float alpha = (color >> 24 & 255) / 255.0F;
+
+            GlStateManager.pushMatrix();
+
+            GlStateManager.enableBlend();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableDepth();
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.color(red, green, blue, alpha);
+            /*
+
+        final WorldRenderer worldRenderer = Tessellator.getInstance().getWorldRenderer();
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.color(var7, var8, var9, var6);
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(left, bottom, 0.0).endVertex();
+        worldRenderer.pos(right, bottom, 0.0).endVertex();
+        worldRenderer.pos(right, top, 0.0).endVertex();
+        worldRenderer.pos(left, top, 0.0).endVertex();
+             */
+            final WorldRenderer worldRenderer = Tessellator.getInstance().getWorldRenderer();
+            worldRenderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+
+            // Bottom face
+            worldRenderer.pos(box.minX, box.minY, box.minZ).endVertex();
+            worldRenderer.pos(box.maxX, box.minY, box.minZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.minY, box.minZ).endVertex();
+            worldRenderer.pos(box.maxX, box.minY, box.maxZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.minY, box.maxZ).endVertex();
+            worldRenderer.pos(box.minX, box.minY, box.maxZ).endVertex();
+
+            worldRenderer.pos(box.minX, box.minY, box.maxZ).endVertex();
+            worldRenderer.pos(box.minX, box.minY, box.minZ).endVertex();
+
+            // Vertical lines
+            worldRenderer.pos(box.minX, box.minY, box.minZ).endVertex();
+            worldRenderer.pos(box.minX, box.maxY, box.minZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.minY, box.minZ).endVertex();
+            worldRenderer.pos(box.maxX, box.maxY, box.minZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.minY, box.maxZ).endVertex();
+            worldRenderer.pos(box.maxX, box.maxY, box.maxZ).endVertex();
+
+            worldRenderer.pos(box.minX, box.minY, box.maxZ).endVertex();
+            worldRenderer.pos(box.minX, box.maxY, box.maxZ).endVertex();
+
+            // Top face
+            worldRenderer.pos(box.minX, box.maxY, box.minZ).endVertex();
+            worldRenderer.pos(box.maxX, box.maxY, box.minZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.maxY, box.minZ).endVertex();
+            worldRenderer.pos(box.maxX, box.maxY, box.maxZ).endVertex();
+
+            worldRenderer.pos(box.maxX, box.maxY, box.maxZ).endVertex();
+            worldRenderer.pos(box.minX, box.maxY, box.maxZ).endVertex();
+
+            worldRenderer.pos(box.minX, box.maxY, box.maxZ).endVertex();
+            worldRenderer.pos(box.minX, box.maxY, box.minZ).endVertex();
+
+            Tessellator.getInstance().draw();
+
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            GlStateManager.enableDepth();
+
+            GlStateManager.popMatrix();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void drawFilledBlock(AxisAlignedBB box, int color) {
+        try {
+            float red = (color >> 16 & 255) / 255.0F;
+            float green = (color >> 8 & 255) / 255.0F;
+            float blue = (color & 255) / 255.0F;
+            float alpha = (color >> 24 & 255) / 255.0F;
+
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableDepth();
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.color(red, green, blue, alpha);
+
+            Tessellator tessellator = Tessellator.getInstance();
+            WorldRenderer buffer = tessellator.getWorldRenderer();
+
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+
+            // Draw each face of the block
+            drawFace(buffer, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ); // Top face
+            drawFace(buffer, box.minX, box.minY, box.maxZ, box.maxX, box.maxY, box.minZ); // Bottom face
+            drawFace(buffer, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.minZ); // North face
+            drawFace(buffer, box.minX, box.minY, box.maxZ, box.maxX, box.maxY, box.maxZ); // South face
+            drawFace(buffer, box.maxX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ); // East face
+            drawFace(buffer, box.minX, box.minY, box.minZ, box.minX, box.maxY, box.maxZ); // West face
+
+            tessellator.draw();
+
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            GlStateManager.enableDepth();
+            GlStateManager.popMatrix();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void drawFace(WorldRenderer buffer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        // Draw a single face of the box
+
+        // Top-left
+        buffer.pos(minX, minY, maxZ).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        // Top-right
+        buffer.pos(maxX, minY, maxZ).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        // Bottom-right
+        buffer.pos(maxX, maxY, maxZ).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+        // Bottom-left
+        buffer.pos(minX, maxY, maxZ).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+
+        // Repeat for other faces as needed
+    }
+
     public static boolean isEntityInFrustum(final Entity entity) {
         return (isBoxInFrustrum(entity.getEntityBoundingBox()) || entity.ignoreFrustumCheck);
     }

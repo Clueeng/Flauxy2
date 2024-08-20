@@ -14,12 +14,12 @@ public class CommandSetupCPS extends Command {
 
     @Override
     public String getSyntax() {
-        return "cps";
+        return ".cps";
     }
 
     @Override
     public String getDescription() {
-        return "Makes an undetectable click pattern using your clicks";
+        return "ts should be removed wtf is it doing i dont even know help";
     }
 
     public static boolean runSetup;

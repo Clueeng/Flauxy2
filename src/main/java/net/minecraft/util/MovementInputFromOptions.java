@@ -1,6 +1,7 @@
 package net.minecraft.util;
 
 import net.minecraft.client.settings.GameSettings;
+import uwu.flauxy.utils.Wrapper;
 
 public class MovementInputFromOptions extends MovementInput
 {
@@ -16,10 +17,12 @@ public class MovementInputFromOptions extends MovementInput
         this.moveStrafe = 0.0F;
         this.moveForward = 0.0F;
 
+        //Wrapper.instance.log("Pre update " + moveForward);
         if (this.gameSettings.keyBindForward.isKeyDown())
         {
             ++this.moveForward;
         }
+        //Wrapper.instance.log("Post update " + moveForward);
 
         if (this.gameSettings.keyBindBack.isKeyDown())
         {

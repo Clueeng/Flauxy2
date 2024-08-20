@@ -8,14 +8,20 @@ import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
+import uwu.flauxy.module.setting.impl.ModeSetting;
+import uwu.flauxy.module.setting.impl.NumberSetting;
 
 @ModuleInfo(name = "Zoom",  displayName = "Zoom", cat = Category.False, key = -1)
 public class Zoom extends Module {
 
     public BooleanSetting hold = new BooleanSetting("Hold For Zoom",true);
+    public NumberSetting zoomSpeed = new NumberSetting("Zoom Speed",1,0.1f,10f,0.1f);
+    public NumberSetting zoomFactor = new NumberSetting("Zoom Factor",1,0.25f,12,0.25f);
+    public BooleanSetting smoothZoom = new BooleanSetting("Smooth Zoom",true);
+    public ModeSetting smoothFunction = new ModeSetting("Smooth Function","Lerp", "Lerp", "Quad", "Ease in");
 
     public Zoom(){
-        addSettings(hold);
+        addSettings(hold, zoomSpeed, zoomFactor, smoothZoom, smoothFunction);
     }
 
     @Override

@@ -2,7 +2,9 @@ package uwu.flauxy.module.impl.falses;
 
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventFrame;
+import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -34,11 +36,12 @@ public class HotbarScroller extends Module {
 
     @Override
     public void onEvent(Event e) {
-        if(e instanceof EventFrame){
+        if(e instanceof EventUpdate){
+            EventUpdate ev = (EventUpdate)e;
+            if(ev.getType().equals(EventType.POST))return;
             Random r = new Random();
             int delay = (int) (ms.getValue() + (r.nextDouble() * randomDelay.getValue()));
             if(timer.hasTimeElapsed(delay, true)){
-                Wrapper.instance.log("" + delay + " " + (r.nextDouble() * randomDelay.getValue()));
                 if(randomSlot.getValue()){
                     Random other = new Random();
                     double value = other.nextDouble() * 8;

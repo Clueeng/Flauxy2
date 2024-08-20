@@ -29,7 +29,7 @@ extends GuiScreen {
                     this.mc.displayGuiScreen(null);
                     break;
                 }
-                if (!this.loginThread.getStatus().equals((Object)((Object)EnumChatFormatting.YELLOW) + "Attempting to log in") && !this.loginThread.getStatus().equals((Object)((Object)EnumChatFormatting.RED) + "Do not hit back!" + (Object)((Object)EnumChatFormatting.YELLOW) + " Logging in...")) {
+                        if (!this.loginThread.getStatus().equals((Object)((Object)EnumChatFormatting.YELLOW) + "Attempting to log in") && !this.loginThread.getStatus().equals((Object)((Object)EnumChatFormatting.RED) + "Do not hit back!" + (Object)((Object)EnumChatFormatting.YELLOW) + " Logging in...")) {
                     this.mc.displayGuiScreen(null);
                     break;
                 }
@@ -63,7 +63,8 @@ extends GuiScreen {
             }
             
             case 6: {
-                this.mc.displayGuiScreen(new GuiRenameAlt(this));
+                this.loginThread = new AltLoginThread(AltManager.lastAlt.getUsername(), AltManager.lastAlt.getPassword());
+                this.loginThread.start();
                 break;
             }
            
@@ -126,11 +127,9 @@ extends GuiScreen {
         if (this.selectedAlt == null) {
             this.login.enabled = false;
             this.remove.enabled = false;
-            this.rename.enabled = false;
         } else {
             this.login.enabled = true;
             this.remove.enabled = true;
-            this.rename.enabled = true;
         }
         if (Keyboard.isKeyDown(200)) {
             this.offset -= 26;
@@ -154,13 +153,13 @@ extends GuiScreen {
         this.buttonList.add(this.remove);
         this.buttonList.add(new GuiButton(3, width / 2 + 4 + 50, height - 48, 100, 20, "Add"));
         this.buttonList.add(new GuiButton(4, width / 2 - 50, height - 48, 100, 20, "Direct Login"));
-        this.rename = new GuiButton(6, width / 2 - 50, height - 24, 100, 20, "Edit");
+        this.rename = new GuiButton(6, width / 2 - 50, height - 24, 100, 20, "Restore");
         this.buttonList.add(this.rename);
         this.buttonList.add(new GuiButton(7, width - 100, 0, 100, 20, "Use Mojang"));
         this.buttonList.add(new GuiButton(8, width - 200, 0, 100, 20, "Use TheAltening"));
         this.login.enabled = false;
         this.remove.enabled = false;
-        this.rename.enabled = false;
+        this.rename.enabled = true;
     }
 
     private boolean isAltInArea(int y2) {

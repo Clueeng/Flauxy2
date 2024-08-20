@@ -4,7 +4,8 @@ import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
 import lombok.Getter;
-import org.apache.commons.lang3.ObjectUtils;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import org.lwjgl.opengl.Display;
 import uwu.flauxy.alts.Alt;
 import uwu.flauxy.alts.AltManager;
@@ -25,6 +26,7 @@ import uwu.flauxy.utils.config.ConfigManager;
 import uwu.flauxy.utils.config.ConfigUtil;
 import uwu.flauxy.utils.config.Folder;
 import uwu.flauxy.utils.font.FontManager;
+import uwu.flauxy.waypoint.WaypointManager;
 import viamcp.ViaMCP;
 
 import java.io.File;
@@ -39,7 +41,7 @@ import java.util.Objects;
 public enum Flauxy implements MinecraftInstance {
     INSTANCE;
 
-    public String name = "Flauxy", version = "1.0";
+    public String name = "Flauxy", version = "1.18";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
     public ModuleManager moduleManager;
     public FontManager fontManager;
@@ -47,9 +49,12 @@ public enum Flauxy implements MinecraftInstance {
     private ConfigUtil configManager;
     private CapeManager capeManager;
     private CommandManager commandManager;
+    public WaypointManager waypointManager;
     private final ConfigManager nonShittyConfigManager = new ConfigManager();
     @Getter
     public DiscordRPC discordRPC;
+    @Getter
+    public boolean initialized = false;
     @Getter
     private DiscordRP discordRP = new DiscordRP();
 
@@ -72,6 +77,7 @@ public enum Flauxy implements MinecraftInstance {
         moduleManager = new ModuleManager();
         configManager = new ConfigUtil();
         commandManager = new CommandManager();
+        waypointManager = new WaypointManager();
         setGhost(false);
         fontManager = new FontManager();
         // Trying to add before altmanager i guess
@@ -96,7 +102,6 @@ public enum Flauxy implements MinecraftInstance {
                 e.printStackTrace();
             }
         }
-
         capeManager = new CapeManager();
         Display.setTitle("Minecraft 1.8.9");
         moduleManager.getModule(HUD.class).toggle();
@@ -110,36 +115,43 @@ public enum Flauxy implements MinecraftInstance {
         }
         discordRP.init();
         nonShittyConfigManager.init();
+        initialized = true;
     }
 
     public java.util.ArrayList<Changelog> getLogs(){
         java.util.ArrayList<Changelog> list = new java.util.ArrayList<>();
-        list.add(new Changelog("1.1", Changelog.Type.TITLE));
-        list.add(new Changelog("Added FastDrop", Changelog.Type.ADDED));
-        list.add(new Changelog("Added HotbarScroller", Changelog.Type.ADDED));
-        list.add(new Changelog("Added AutoDismount", Changelog.Type.ADDED));
-        list.add(new Changelog("Fully fixed autoheadhitter", Changelog.Type.EDITED));
-        list.add(new Changelog("Fixed delta rotation", Changelog.Type.EDITED));
-        list.add(new Changelog("1.0", Changelog.Type.TITLE));
-        list.add(new Changelog("Added .sens command", Changelog.Type.ADDED));
-        list.add(new Changelog("Added Twitch Optimization", Changelog.Type.ADDED));
-        list.add(new Changelog("Added Packet mode to Criticals", Changelog.Type.ADDED));
-        list.add(new Changelog("Removed TargetStrafe due to bugs", Changelog.Type.REMOVED));
-        list.add(new Changelog("Added Log4J exploit patcher", Changelog.Type.ADDED));
-        list.add(new Changelog("Added resource pack exploit patcher", Changelog.Type.ADDED));
-        list.add(new Changelog("Added pointed entity display", Changelog.Type.ADDED));
-        list.add(new Changelog("Added display yaw option to HUD", Changelog.Type.ADDED));
-        list.add(new Changelog("Fixed ESP color glitch", Changelog.Type.EDITED));
-        list.add(new Changelog("Fixed capes not showing if already have official cape", Changelog.Type.EDITED));
+        list.add(new Changelog("1.18", Changelog.Type.TITLE));
+        list.add(new Changelog("Added Parkour", Changelog.Type.ADDED));
+        list.add(new Changelog("Fixed autoclicker being bad", Changelog.Type.EDITED));
+        list.add(new Changelog("1.17", Changelog.Type.TITLE));
+        list.add(new Changelog("Changed Discord RPC", Changelog.Type.EDITED));
+        list.add(new Changelog("Freelook Nametags Fixed", Changelog.Type.EDITED));
+        list.add(new Changelog("Freecam", Changelog.Type.ADDED));
+        list.add(new Changelog("Spammer", Changelog.Type.ADDED));
+        list.add(new Changelog("Creative+", Changelog.Type.ADDED));
+        list.add(new Changelog("Self Nametags", Changelog.Type.ADDED));
+        list.add(new Changelog("1.16", Changelog.Type.TITLE));
+        list.add(new Changelog("Freelook", Changelog.Type.ADDED));
+        list.add(new Changelog("Restore Alt Button", Changelog.Type.ADDED));
+        list.add(new Changelog("Fixed ViaMCP", Changelog.Type.EDITED));
+        list.add(new Changelog("Fixed Client Spoofer", Changelog.Type.ADDED));
+        list.add(new Changelog("Keystrokes", Changelog.Type.ADDED));
+        list.add(new Changelog("Draggable hud elements", Changelog.Type.ADDED));
+        list.add(new Changelog("1.15", Changelog.Type.TITLE));
+        list.add(new Changelog("Added Plugin Finder", Changelog.Type.ADDED));
+        list.add(new Changelog("Added modern motion", Changelog.Type.ADDED));
+        list.add(new Changelog("Added macros", Changelog.Type.ADDED));
+        list.add(new Changelog("Removed shaders due to bug", Changelog.Type.REMOVED));
+        list.add(new Changelog("Added Performance Module (WIP)", Changelog.Type.ADDED));
+        list.add(new Changelog("Fixed some things in FastMathHack", Changelog.Type.EDITED));
         return list;
     }
 
     public void initDiscordApp(){
         String applicationID = "972902027300581406";
         DiscordEventHandlers handlers = new DiscordEventHandlers();
-        discordRPC.Discord_Initialize(applicationID, handlers, true, ""); // empty string is steam id
+        discordRPC.Discord_Initialize(applicationID, handlers, false, ""); // empty string is steam id
         DiscordRichPresence presence = new DiscordRichPresence();
-        presence.startTimestamp = System.currentTimeMillis() / 1000;
         presence.largeImageKey = "image1";
         presence.largeImageText = "Flauxy";
         presence.details = "Loading Client";
@@ -164,6 +176,7 @@ public enum Flauxy implements MinecraftInstance {
 
     public void onShutDownApplet(){
         discordRP.close();
+        waypointManager.saveWaypoints();
     }
 
 

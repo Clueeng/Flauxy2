@@ -198,7 +198,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
      * window resizes, the buttonList is cleared beforehand.
      */
     private void generateImage(){
-        int availableBgs = 13 - 1;
+        int availableBgs = 12 - 1;
         int imageID = rand.nextInt(availableBgs + 1) + 1;
         if(imageID == checkOld){
             System.out.println("Same image generated, generating new image");
@@ -212,7 +212,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
     public void initGui()
     {
-        DiscordPresenceUtil.setPresence("In main menu", "Build 0", true);
+        DiscordPresenceUtil.setPresence("Main menu", "", false);
         tickToGenerate = 0;
         generateImage();
         this.viewportTexture = new DynamicTexture(256, 256);
@@ -576,6 +576,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         //mc.getTextureManager().bindTexture(RL_Background);
 
         RenderUtil.drawImage(0, 0, width, height, RL_Background);
+        Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
         tickToGenerate++;
         if(tickToGenerate % (200) * timeLeftInSeconds == 0){
             opacity = 0;
@@ -623,6 +624,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
         Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString("Flauxy Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
         font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
+        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth("Flauxy Client") / 2f) + 4,42,Color.black.getRGB());
+        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth("Flauxy Client") / 2f) + 3,41,-1);
 
         float endX = font2.getWidth(getLongestChangelog(Flauxy.INSTANCE.getLogs()).getChangelog()) + 28;
         Gui.drawRect(4, 96, endX, 102 + (12 * Flauxy.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());

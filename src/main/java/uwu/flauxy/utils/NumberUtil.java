@@ -2,6 +2,7 @@ package uwu.flauxy.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NumberUtil {
@@ -43,4 +44,13 @@ public class NumberUtil {
     public static double getAverage(List<Long> allIntervals) {
         return (double) allIntervals.stream().mapToLong(l -> l).sum() / allIntervals.size();
     }
+
+    public static float randomInRange(float min, float max) {
+        Random RANDOM = new Random();
+        if (min > max) {
+            throw new IllegalArgumentException("Min value must be less than or equal to max value.");
+        }
+        return min + RANDOM.nextFloat() * (max - min);
+    }
+
 }

@@ -55,7 +55,8 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC", "Glide");
+    public ModeSetting glideMode = new ModeSetting("Mode","Chunk","Chunk", "Web");
     public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
     public NumberSetting Collisiontimer = new NumberSetting("Timer", 1, 0.1, 10, 0.025).setCanShow(m -> mode.is("Collision"));
@@ -75,7 +76,7 @@ public class Fly extends Module {
 
 
     public Fly() {
-        addSettings(mode, CollisionNotSpeed, Collisionspeed, Collisiontimer, CollisionspoofY, Collisiondamage, testMode, funcraftSpeed, speed);
+        addSettings(mode, glideMode, CollisionNotSpeed, Collisionspeed, Collisiontimer, CollisionspoofY, Collisiondamage, testMode, funcraftSpeed, speed);
     }
     private double flySpeed = 0f;
     private double oldYaw, oldPitch;
@@ -88,6 +89,24 @@ public class Fly extends Module {
             this.setDisplayName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Glide":{
+                switch (glideMode.getMode()){
+                    case "Chunk":{
+                        if(e instanceof EventMotion){
+                            mc.thePlayer.motionY = -0.09800000190734863;
+                        }
+                        break;
+                    }
+                    case "Web":{
+                        if(e instanceof EventMotion){
+                            mc.thePlayer.motionY = -0.0784000015258789;
+                        }
+                        break;
+                    }
+                }
+
+                break;
+            }
             case "ClueAC": {
                 if(e instanceof EventMotion){
                     if(flyTicks <= 1 && !mc.thePlayer.isCollidedVertically) this.toggle();

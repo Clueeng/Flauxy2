@@ -39,6 +39,7 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow;
 import net.minecraft.network.play.client.C13PacketPlayerAbilities;
 import net.minecraft.network.play.client.C16PacketClientStatus;
 import net.minecraft.potion.Potion;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntitySign;
@@ -173,6 +174,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void mountEntity(Entity entityIn)
     {
+        Wrapper.instance.log("Mounted speed " + moveForward);
         super.mountEntity(entityIn);
 
         if (entityIn instanceof EntityMinecart)
@@ -232,14 +234,29 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             boolean serverExists = this.mc.getCurrentServerData() != null;
             String ip = "Singleplayer";
-            if(serverExists){
-                ip = this.mc.getCurrentServerData().serverIP.toLowerCase();
-
+            if(mc.thePlayer.ticksExisted < 20){
+                if(serverExists){
+                    String players = mc.getCurrentServerData().populationInfo;
+                    if(players == null || players.isEmpty()){
+                        players = "1";
+                    }
+                    String cleaned = players.replaceAll("§[0-9a-fk-or]", "");
+                    String[] parts = cleaned.split("/");
+                    String currentPlayers = parts[0];
+                    int playerCount = Integer.parseInt(currentPlayers);
+                    if(playerCount < 10){
+                        ip = "a private server";
+                    }else{
+                        ip = this.mc.getCurrentServerData().serverIP.toLowerCase();
+                    }
+                    DiscordPresenceUtil.setPresence("Falsing on " + ip, "", true);
+                }else{
+                    DiscordPresenceUtil.setPresence("Falsing in " + ip, "", true);
+                }
             }
 
 
 
-            DiscordPresenceUtil.setPresence("In game on " + ip, "   Build 0", true);
 
             if (this.isRiding())
             {
@@ -312,25 +329,25 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (this.isCurrentViewEntity())
         {
-            double d0 = ghX - this.lastReportedPosX;
-            double d1 = ghY - this.lastReportedPosY;
-            double d2 = ghZ - this.lastReportedPosZ;
-            double d3 = (double)(ghYaw - this.lastReportedYaw);
-            double d4 = (double)(ghPitch - this.lastReportedPitch);
-            boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
-            boolean flag3 = d3 != 0.0D || d4 != 0.0D;
+            double deltaX = ghX - this.lastReportedPosX;
+            double deltaY = ghY - this.lastReportedPosY;
+            double deltaZ = ghZ - this.lastReportedPosZ;
+            double deltaYaw = (double)(ghYaw - this.lastReportedYaw);
+            double deltaPitch = (double)(ghPitch - this.lastReportedPitch);
+            boolean movingOrUpdate = deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ > 9.0E-4D || this.positionUpdateTicks >= 20;
+            boolean rotating = deltaYaw != 0.0D || deltaPitch != 0.0D;
 
             if (this.ridingEntity == null)
             {
-                if (flag2 && flag3)
+                if (movingOrUpdate && rotating)
                 {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(ghX, ghY, ghZ, ghYaw, ghPitch, ghGround));
                 }
-                else if (flag2)
+                else if (movingOrUpdate)
                 {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(ghX, ghY, ghZ, ghGround));
                 }
-                else if (flag3)
+                else if (rotating)
                 {
                     this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(ghYaw, ghPitch, ghGround));
                 }
@@ -342,12 +359,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
             else
             {
                 this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, ghYaw, ghPitch, ghGround));
-                flag2 = false;
+                movingOrUpdate = false;
             }
 
             ++this.positionUpdateTicks;
 
-            if (flag2)
+            if (movingOrUpdate)
             {
                 this.lastReportedPosX = ghX;
                 this.lastReportedPosY = ghY;
@@ -355,7 +372,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.positionUpdateTicks = 0;
             }
 
-            if (flag3)
+            if (rotating)
             {
                 this.lastReportedYaw = ghYaw;
                 this.lastReportedPitch = ghPitch;

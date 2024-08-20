@@ -3,6 +3,7 @@ package uwu.flauxy.module.impl.ghost;
 import lombok.SneakyThrows;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.item.*;
@@ -47,6 +48,8 @@ public class AutoClicker extends Module {
     public NumberSetting jitterAimFactor = new NumberSetting("Jitter Aim Factor", 1, 0.1, 2, 0.1).setCanShow(c -> clickingMode.is("Jitter"));
     private Timer cpsTimer = new Timer();
 
+    public boolean isClickingLeft = false, isClickingRight = false;
+
     public AutoClicker(){
         addSettings(cps, jitterAim, leftClicking, rightClicking, clickingMode, jitterAimFactor, addRandom, randomMode);
     }
@@ -87,6 +90,8 @@ public class AutoClicker extends Module {
         }
 
         if(e instanceof EventUpdate){
+            EventUpdate ev = (EventUpdate)e;
+            if(!ev.isPre())return;
             toggledModule++;
             boolean holdingLeft = Mouse.isButtonDown(0);
             boolean holdingRight = Mouse.isButtonDown(1);
@@ -111,11 +116,18 @@ public class AutoClicker extends Module {
                 case "Default":{
                     if(cpsTimer.hasTimeElapsed(msTime, true)){
                         if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
-                            legitAttack();
+                            KeyBinding.onTick(mc.gameSettings.keyBindAttack.getKeyCode());
+                            isClickingLeft = true;
+                            //legitAttack(ev);
                         }
                         if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
-                            legitRightClick();
+                            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.getKeyCode());
+                            //legitRightClick();
+                            isClickingRight = true;
                         }
+                    }else{
+                        isClickingLeft = false;
+                        isClickingRight = false;
                     }
                     break;
                 }
@@ -133,7 +145,7 @@ public class AutoClicker extends Module {
                         }
                         if(cpsTimer.hasTimeElapsed(msTime, true) && failPercent > percentToFail){
                             if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
-                                legitAttack();
+                                legitAttack(ev);
                             }
                             if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
                                 legitRightClick();
@@ -156,7 +168,7 @@ public class AutoClicker extends Module {
                     if(cpsTimer.hasTimeElapsed(time, true)){
                         //Wrapper.instance.log("Test (" + (amountOfClicks > 2) + ") " + time);
                         if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
-                            legitAttack();
+                            legitAttack(ev);
                         }
                         if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
                             legitRightClick();
@@ -236,11 +248,13 @@ public class AutoClicker extends Module {
         }
     }
 
-    public void legitAttack() {
+    public void legitAttack(EventUpdate e) {
         if (mc.objectMouseOver == null || mc.thePlayer.ridingEntity instanceof EntityBoat) {
             return;
         }
-        mc.thePlayer.swingItem();
+        if(e.isPre()){
+            mc.thePlayer.swingItem();
+        }
 
         switch (mc.objectMouseOver.typeOfHit) {
             case ENTITY:

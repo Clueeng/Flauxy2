@@ -18,7 +18,7 @@ public class ItemSeeds extends Item
     {
         this.crops = crops;
         this.soilBlockID = soil;
-        this.setCreativeTab(CreativeTabs.tabMaterials);
+        this.setCreativeTab(CreativeTabs.tabTools);
     }
 
     /**

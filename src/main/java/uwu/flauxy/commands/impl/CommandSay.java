@@ -12,12 +12,12 @@ public class CommandSay extends Command {
 
     @Override
     public String getSyntax() {
-        return "say";
+        return ".say <msg>";
     }
 
     @Override
     public String getDescription() {
-        return "says shiut";
+        return "says something in chat";
     }
 
     @Override

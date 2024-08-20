@@ -30,6 +30,8 @@ import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.visuals.Chams;
+import uwu.flauxy.module.impl.visuals.Freelook;
+import uwu.flauxy.module.impl.visuals.SelfNametag;
 import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.render.RenderUtil;
 
@@ -590,8 +592,9 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     protected boolean canRenderName(T entity)
     {
         EntityPlayerSP entityplayersp = Minecraft.getMinecraft().thePlayer;
+        SelfNametag selfNametag = Flauxy.INSTANCE.getModuleManager().getModule(SelfNametag.class);
 
-        if (entity instanceof EntityPlayer && entity != entityplayersp)
+        if (entity instanceof EntityPlayer && (entity != entityplayersp || selfNametag.isToggled()))
         {
             Team team = entity.getTeam();
             Team team1 = entityplayersp.getTeam();

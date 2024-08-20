@@ -13,6 +13,10 @@ import net.minecraft.client.resources.I18n;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.Category;
+import uwu.flauxy.module.Module;
+import uwu.flauxy.utils.DiscordPresenceUtil;
 import viamcp.ViaMCP;
 
 public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
@@ -50,6 +54,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
      */
     public void initGui()
     {
+        DiscordPresenceUtil.setPresence("In server list", "", false);
         Keyboard.enableRepeatEvents(true);
         this.buttonList.clear();
 
@@ -100,6 +105,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
         this.buttonList.add(new GuiButton(8, this.width / 2 + 4, this.height - 28, 70, 20, I18n.format("selectServer.refresh", new Object[0])));
         this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 76, this.height - 28, 75, 20, I18n.format("gui.cancel", new Object[0])));
         this.buttonList.add(ViaMCP.getInstance().asyncSlider);
+        this.buttonList.add(new GuiButton(69420,128,4, "Panic Modules"));
         this.selectServer(this.serverListSelector.func_148193_k());
     }
 
@@ -158,6 +164,15 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
                     String s3 = I18n.format("gui.cancel", new Object[0]);
                     GuiYesNo guiyesno = new GuiYesNo(this, s, s1, s2, s3, this.serverListSelector.func_148193_k());
                     this.mc.displayGuiScreen(guiyesno);
+                }
+            }
+            else if(button.id == 69420){
+                for(Category c : Category.values()){
+                    for(Module m : Flauxy.INSTANCE.getModuleManager().getModules(c)){
+                        if(m.isToggled()){
+                            m.setToggled(false);
+                        }
+                    }
                 }
             }
             else if (button.id == 1)

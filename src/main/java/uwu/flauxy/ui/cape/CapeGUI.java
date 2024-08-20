@@ -166,6 +166,7 @@ public class CapeGUI extends GuiScreen {
                 ,(int) startY + 32 + (32 * 6)   );
 
         EntityPlayerSP fake = mc.thePlayer;
+        fake.setArrowCountInEntity(0);
         RenderUtil.drawRoundedRect2(sr.getScaledWidth() - (capeWidth * 2) - 48,(int) startY + 16, sr.getScaledWidth() - (capeWidth * 2) + 48,  (int) startY + 32 + (32 * 6), 7, new Color(0, 0, 0, 120).getRGB());
         GuiInventory.drawEntityOnScreenCape((int) sr.getScaledWidth() - (capeWidth * 2), (int) (startY) + (capeHeight * 7) - 12, 32 * 3, mouseX, -mc.thePlayer.rotationPitch, fake);
 

@@ -1,15 +1,25 @@
 package uwu.flauxy.module.impl.display;
 
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.network.login.client.C00PacketLoginStart;
+import net.minecraft.network.play.client.C00PacketKeepAlive;
+import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
+import net.minecraft.network.play.server.S00PacketKeepAlive;
 import net.minecraft.network.play.server.S02PacketChat;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.network.play.server.S32PacketConfirmTransaction;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventRender2D;
+import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -17,11 +27,15 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.impl.movement.Longjump;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
-import uwu.flauxy.utils.Wrapper;
+import uwu.flauxy.utils.*;
 import uwu.flauxy.utils.render.RenderUtil;
+import viamcp.ViaMCP;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static uwu.flauxy.utils.font.FontManager.getFont;
 
@@ -35,11 +49,29 @@ public class HUD extends Module {
     public ModeSetting positionFps = new ModeSetting("FPS Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> fps.getValue());
     public BooleanSetting showRotations = new BooleanSetting("Show Rotations",true);
 
-    BooleanSetting customfont = new BooleanSetting("Custom Font", true);
+    public BooleanSetting customfont = new BooleanSetting("Custom Font", true);
+    public BooleanSetting showPosition = new BooleanSetting("Show Position",true).setCanShow(s -> showRotations.getValue());
+    public BooleanSetting showVelocity = new BooleanSetting("Show Velocity",true).setCanShow(s -> showRotations.getValue());
+    public BooleanSetting showAction = new BooleanSetting("Show Action",true).setCanShow(s -> showRotations.getValue()); // vlock sneak ground
+    public BooleanSetting showSpeed = new BooleanSetting("Show Speed",true).setCanShow(s -> showRotations.getValue());
+
+    public int infocount;
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
     float deltaYaw = 0.0f, deltaPitch = 0.0f;
+    float velocityX, velocityZ, velocityY, opacityEnd, opacity = 0.0f;
+    long lastKnockback = 0;
+    public long lastBlockPlace;
+    boolean updatePing;
+
+    @Getter @Setter
+    public int absoluteX, absoluteY;
+    public long ping;
+    public float maxSpeed, resetSpeed;
+    private final Map<Integer, Long> keepAliveTimestamps = new HashMap<>();
+    public float width;
+    public List<InfoEntry> infoEntries = new java.util.ArrayList<>();
     public HUD() {
-        addSettings(watermark, showRotations, customfont, fps, positionFps);
+        addSettings(watermark, showRotations, showPosition, showVelocity, showAction, showSpeed, customfont, fps, positionFps);
     }
 
     @Override
@@ -55,12 +87,74 @@ public class HUD extends Module {
                     longjump.shouldWait = false;
                 }
             }
+            if(e.getPacket() instanceof S12PacketEntityVelocity){
+                S12PacketEntityVelocity s = (S12PacketEntityVelocity) e.getPacket();
+                if(s.getEntityID() == mc.thePlayer.getEntityId()){
+                    if(Math.abs(s.getMotionY()) > 1E-3f){
+                        velocityY = s.getMotionY() / 8000f;
+                    }
+                    if(Math.abs(s.getMotionX()) > 1E-3f){
+                        velocityX = s.getMotionX() / 8000f;
+                    }
+                    if(Math.abs(s.getMotionZ()) > 1E-3f){
+                        velocityZ = s.getMotionZ() / 8000f;
+                    }
+                    if(Math.abs(s.getMotionZ()) > 1E-3f || Math.abs(s.getMotionX()) > 1E-3f || Math.abs(s.getMotionY()) > 1E-3f){
+                        lastKnockback = System.currentTimeMillis();
+                        opacityEnd = 255;
+                        opacity = 255;
+                    }
+
+                }
+
+            }
+            if (e.getPacket() instanceof S00PacketKeepAlive) {
+                S00PacketKeepAlive keepAlivePacket = (S00PacketKeepAlive) e.getPacket();
+                int id = keepAlivePacket.func_149134_c();
+                keepAliveTimestamps.put(id, System.currentTimeMillis());
+            }
+        }
+        if(event instanceof EventSendPacket){
+            EventSendPacket e = (EventSendPacket)event;
+            if(e.getPacket() instanceof C00PacketLoginStart){
+                maxSpeed = 0;
+            }
+            if (e.getPacket() instanceof C00PacketKeepAlive) {
+                C00PacketKeepAlive keepAlivePacket = (C00PacketKeepAlive) e.getPacket();
+                int id = keepAlivePacket.getKey();
+                Long sentTime = keepAliveTimestamps.remove(id);
+                if (sentTime != null) {
+                    ping = System.currentTimeMillis() - sentTime;
+                    System.out.println("Ping: " + ping + "ms");
+                }
+            }
         }
         if(event instanceof EventUpdate){
             EventUpdate e = (EventUpdate)event;
             if(e.getType().equals(EventType.PRE)){
+
+                if (mc.thePlayer.ticksExisted % 5 == 0) {
+                    loadInformation();
+                }
+                opacity = (float) MathHelper.lerp(0.2f,opacity,opacityEnd);
                 deltaYaw = mc.thePlayer.rotationYaw - mc.thePlayer.prevPrevRotationYaw;
                 deltaPitch = mc.thePlayer.rotationPitch - mc.thePlayer.prevPrevRotationPitch;
+                if(Math.abs(System.currentTimeMillis() - lastKnockback) > 2500){
+                    velocityZ = 0;
+                    velocityY = 0;
+                    velocityX = 0;
+                    opacityEnd = 0;
+                }
+                float threshold = 1e-4f;
+                if(maxSpeed + threshold < MoveUtils.getSpeed()){
+                    maxSpeed = (float) MoveUtils.getSpeed();
+                    resetSpeed = 2.5f * 20;
+                }
+                resetSpeed -= 1;
+                if(resetSpeed <= 0){
+                    maxSpeed = 0;
+                }
+                resetSpeed = Math.max(0, resetSpeed);
             }
             Longjump longjump = Flauxy.INSTANCE.getModuleManager().getModule(Longjump.class);
             if(longjump.shouldWait) {
@@ -81,25 +175,56 @@ public class HUD extends Module {
             }
             if(!Flauxy.INSTANCE.isGhost()){
                 if(mc.currentScreen == null){
-                    Flauxy.INSTANCE.getFontManager().getFont("auxy 19").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
-                            (Flauxy.INSTANCE.getFontManager().getFont("auxy 19").getWidth("Ghost mode is disabled")), sr.getScaledHeight() - 14, Color.RED.getRGB());
+                    if(customfont.getValue()){
+                        Flauxy.INSTANCE.getFontManager().getFont("auxy 19").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
+                                (Flauxy.INSTANCE.getFontManager().getFont("auxy 19").getWidth("Ghost mode is disabled")), sr.getScaledHeight() - 14, Color.RED.getRGB());
+                    }else{
+                        mc.fontRendererObj.drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
+                                (mc.fontRendererObj.getStringWidth("Ghost mode is disabled")), sr.getScaledHeight() - 14, Color.RED.getRGB());
+                    }
+
                 }else{
                     if(mc.currentScreen instanceof GuiChat){
-                        Flauxy.INSTANCE.getFontManager().getFont("auxy 19").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
-                                (Flauxy.INSTANCE.getFontManager().getFont("auxy 19").getWidth("Ghost mode is disabled")), sr.getScaledHeight() - 25, Color.RED.getRGB());
+                        if(customfont.getValue()){
+                            Flauxy.INSTANCE.getFontManager().getFont("auxy 19").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
+                                    (Flauxy.INSTANCE.getFontManager().getFont("auxy 19").getWidth("Ghost mode is disabled")), sr.getScaledHeight() - 25, Color.RED.getRGB());
+                        }else{
+                            mc.fontRendererObj.drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() -
+                                    (mc.fontRendererObj.getStringWidth("Ghost mode is disabled")), sr.getScaledHeight() - 25, Color.RED.getRGB());
+                        }
                     }
                     if(mc.currentScreen instanceof GuiInventory){
                         double len = (Flauxy.INSTANCE.getFontManager().getFont("auxy 24").getWidth("Ghost mode is disabled"));
-                        Flauxy.INSTANCE.getFontManager().getFont("auxy 24").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() - ((double) sr.getScaledWidth() / 2) - (len / 2)
-                                , 100, Color.RED.getRGB());
+                        if(customfont.getValue()){
+                            Flauxy.INSTANCE.getFontManager().getFont("auxy 24").drawStringWithShadow("Ghost mode is disabled", sr.getScaledWidth() - ((double) sr.getScaledWidth() / 2) - (len / 2)
+                                    , 100, Color.RED.getRGB());
+                        }else{
+                            mc.fontRendererObj.drawStringWithShadow("Ghost mode is disabled", (float) (sr.getScaledWidth() - ((double) sr.getScaledWidth() / 2) - (len / 2))
+                                    , 100, Color.RED.getRGB());
+                        }
                     }
                 }
             }
 
             if(showRotations.getValue()){
-                mc.fontRendererObj.drawStringWithShadow("Yaw / Pitch : " + mc.thePlayer.rotationYaw + " / " + mc.thePlayer.rotationPitch, 4,36, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
-                mc.fontRendererObj.drawStringWithShadow("Delta Yaw : " + deltaYaw, 4,48, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
-                mc.fontRendererObj.drawStringWithShadow("Delta Pitch : " + deltaPitch, 4,60, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
+                infocount = infoEntries.size(); // 20 for blocking sneaking ground
+                int maxWidth = infoEntries.stream()
+                        .mapToInt(entry -> customfont.getValue() ? (int) getFont().getWidth(entry.getFormattedText()) : mc.fontRendererObj.getStringWidth(entry.getFormattedText()))
+                        .max().orElse(0);
+
+                int offsetY = 0;
+                width = absoluteX + maxWidth;
+                RenderUtil.drawRoundedRect2(absoluteX-2,absoluteY-2,width,
+                        absoluteY + (12 * infocount), 4, new Color(0, 0, 0, 120).getRGB());
+
+                for (InfoEntry entry : infoEntries) {
+                    if (customfont.getValue()) {
+                        getFont().drawStringWithShadow(entry.getFormattedText(), absoluteX, absoluteY + offsetY, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
+                    } else {
+                        mc.fontRendererObj.drawStringWithShadow(entry.getFormattedText(), absoluteX, absoluteY + offsetY, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
+                    }
+                    offsetY += 12;
+                }
             }
 
             if(waterMarkToggled.getValue()){
@@ -222,11 +347,50 @@ public class HUD extends Module {
             final DecimalFormat bpsFormat = new DecimalFormat("#.##");
             final String bps = bpsFormat.format(xz);
             String drawBPS = "Blocks/s: " + EnumChatFormatting.WHITE + bps;
-            Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 4 - Flauxy.INSTANCE.getFontManager().getFont("auxy 16").getHeight(drawBPS), scol);
+            if(customfont.getValue()){
+                Flauxy.INSTANCE.getFontManager().getFont("auxy 16").drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 4 - Flauxy.INSTANCE.getFontManager().getFont("auxy 16").getHeight(drawBPS), scol);
+            }else{
+                mc.fontRendererObj.drawStringWithShadow(drawBPS, 4, sr.getScaledHeight() - 4 - mc.fontRendererObj.FONT_HEIGHT, scol);
+            }
         }
 
     }
 
+    public void loadInformation(){
+        infoEntries.clear();
+
+        infoEntries.add(new InfoEntry("Client Brand", ClientBrandRetriever::getClientModName));
+        if(showPosition.getValue()){
+            infoEntries.add(new InfoEntry("Yaw / Pitch", () -> mc.thePlayer.rotationYaw + " / " + mc.thePlayer.rotationPitch));
+            infoEntries.add(new InfoEntry("Delta Yaw", () -> String.valueOf(deltaYaw)));
+            infoEntries.add(new InfoEntry("Delta Pitch", () -> String.valueOf(deltaPitch)));
+            infoEntries.add(new InfoEntry("X", () -> String.valueOf(mc.thePlayer.posX)));
+            infoEntries.add(new InfoEntry("Y", () -> String.valueOf(mc.thePlayer.posY)));
+            infoEntries.add(new InfoEntry("Z", () -> String.valueOf(mc.thePlayer.posZ)));
+            infoEntries.add(new InfoEntry("Facing", () -> mc.thePlayer.getHorizontalFacing().toString()));
+        }
+        infoEntries.add(new InfoEntry("Fast Math", () -> net.minecraft.util.MathHelper.fastMath + " / " + mc.gameSettings.ofFastMath));
+        infoEntries.add(new InfoEntry("Protocol Version", () -> ViaUtil.toReadableVersion(ViaMCP.getInstance().getVersion())));
+        if(showVelocity.getValue()){
+            infoEntries.add(new InfoEntry("Velocity X", () -> String.valueOf(velocityX)));
+            infoEntries.add(new InfoEntry("Velocity Y", () -> String.valueOf(velocityY)));
+            infoEntries.add(new InfoEntry("Velocity Z", () -> String.valueOf(velocityZ)));
+        }
+        infoEntries.add(new InfoEntry("Ping", () -> String.valueOf(ping)));
+        if(showSpeed.getValue()){
+            infoEntries.add(new InfoEntry("Speed", () -> String.valueOf(MoveUtils.getMotion())));
+            infoEntries.add(new InfoEntry("MotionX", () -> String.valueOf(mc.thePlayer.motionX)));
+            infoEntries.add(new InfoEntry("MotionZ", () -> String.valueOf(mc.thePlayer.motionZ)));
+            infoEntries.add(new InfoEntry("Max Speed", () -> String.valueOf(maxSpeed)));
+        }
+        if(showAction.isEnabled()){
+            infoEntries.add(new InfoEntry("Sneaking", () -> String.valueOf(mc.thePlayer.isSneaking())));
+            infoEntries.add(new InfoEntry("Ground", () -> String.valueOf(mc.thePlayer.onGround)));
+            infoEntries.add(new InfoEntry("Blocking", () -> String.valueOf(mc.thePlayer.isBlocking())));
+            infoEntries.add(new InfoEntry("Last Place", () -> String.valueOf(Math.abs(lastBlockPlace - System.currentTimeMillis()))));
+        }
+
+    }
 
 
     @Override

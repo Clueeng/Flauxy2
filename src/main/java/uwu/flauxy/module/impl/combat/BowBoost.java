@@ -21,19 +21,16 @@ public class BowBoost extends Module {
 
     @Override
     public void onEvent(Event e) {
-        if(e instanceof EventUpdate){
-            if(mc.thePlayer.hurtTime > 9){
-                this.toggle();
-            }
-        }
         if(e instanceof EventReceivePacket){
             EventReceivePacket event = (EventReceivePacket) e;
 
             if(event.getPacket() instanceof S12PacketEntityVelocity){
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
-                packet.setMotionX((int) ((packet.getMotionX() / 100) * (x.getValue() * 100)) ); // between 1 and 20?
-                packet.setMotionY((int) ((packet.getMotionY() / 100) * (y.getValue()) * 100) );
-                packet.setMotionZ((int) ((packet.getMotionZ() / 100) * (x.getValue()) * 100) );
+                if(packet.getEntityID() == mc.thePlayer.getEntityId()){
+                    packet.setMotionX((int) ((packet.getMotionX() / 100) * (x.getValue() * 100)) ); // between 1 and 20?
+                    packet.setMotionY((int) ((packet.getMotionY() / 100) * (y.getValue()) * 100) );
+                    packet.setMotionZ((int) ((packet.getMotionZ() / 100) * (x.getValue()) * 100) );
+                }
             }
         }
     }

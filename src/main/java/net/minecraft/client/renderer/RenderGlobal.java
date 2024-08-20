@@ -1352,6 +1352,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
     @SuppressWarnings("incomplete-switch")
     private void renderBlockLayer(EnumWorldBlockLayer blockLayerIn)
     {
+
         this.mc.entityRenderer.enableLightmap();
 
         if (OpenGlHelper.useVbo())
@@ -2301,7 +2302,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 GlStateManager.color(red, green, blue, opacity);
                 GL11.glLineWidth(linewidth);
                 GlStateManager.disableTexture2D();
-                GlStateManager.depthMask(fullblock);
+                GlStateManager.depthMask(false);
             }else{
                 GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
                 GL11.glLineWidth(2.0F);
@@ -2325,7 +2326,6 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
             GlStateManager.disableBlend();
         }
     }
-
     public static void func_181561_a(AxisAlignedBB p_181561_0_)
     {
         Tessellator tessellator = Tessellator.getInstance();

@@ -13,6 +13,7 @@ public class Folder {
 
     public static File dir;
     public static File auxware;
+    public static File yawDir;  // New Yaw directory
 
     public Folder() {
         init();
@@ -26,6 +27,10 @@ public class Folder {
         if (!dir.exists())
             dir.mkdir();
 
+        yawDir = new File(auxware, "Yaw");
+        if (!yawDir.exists()) {
+            yawDir.mkdir();
+        }
     }
 
     public static File getFile(String name) {

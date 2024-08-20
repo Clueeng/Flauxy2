@@ -28,6 +28,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.display.HUD;
 
 public class PlayerControllerMP
 {
@@ -418,6 +420,8 @@ public class PlayerControllerMP
             }
 
             this.netClientHandler.addToSendQueue(new C08PacketPlayerBlockPlacement(hitPos, side.getIndex(), player.inventory.getCurrentItem(), f, f1, f2));
+            HUD hud = Flauxy.INSTANCE.moduleManager.getModule(HUD.class);
+            hud.lastBlockPlace = System.currentTimeMillis();
 
             if (!flag && this.currentGameType != WorldSettings.GameType.SPECTATOR)
             {

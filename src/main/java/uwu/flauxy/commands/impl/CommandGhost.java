@@ -15,7 +15,7 @@ public class CommandGhost extends Command {
 
     @Override
     public String getSyntax() {
-        return "gh";
+        return ".ghost";
     }
 
     @Override

@@ -1,5 +1,8 @@
 package net.minecraft.util;
 
+import optfine.MathUtils;
+import uwu.flauxy.module.impl.falses.FastMathHack;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -17,7 +20,7 @@ public class MathHelper
     private static final float radToIndex = 651.8986F;
     private static final float degToIndex = 11.377778F;
     public static final float deg2Rad = 0.017453292F;
-    private static final float[] SIN_TABLE_FAST = new float[4096];
+    public static final float[] SIN_TABLE_FAST = new float[4096];
     public static boolean fastMath = false;
 
     /**
@@ -562,6 +565,7 @@ public class MathHelper
             SIN_TABLE[i] = (float)Math.sin((double)i * Math.PI * 2.0D / 65536.0D);
         }
 
+
         for (int j = 0; j < 4096; ++j)
         {
             SIN_TABLE_FAST[j] = (float)Math.sin((double)(((float)j + 0.5F) / 4096.0F * ((float)Math.PI * 2F)));
@@ -571,6 +575,20 @@ public class MathHelper
         {
             SIN_TABLE_FAST[(int)((float)l * 11.377778F) & 4095] = (float)Math.sin((double)((float)l * 0.017453292F));
         }
+
+
+        // game initialization do not touch
+        for (int j = 0; j < 4096; ++j)
+        {
+            SIN_TABLE_FAST[j] = (float)Math.sin((double)(((float)j + 0.5F) / 4096.0F * ((float)Math.PI * 2F)));
+        }
+
+        for (int l = 0; l < 360; l += 90)
+        {
+            SIN_TABLE_FAST[(int)((float)l * 11.377778F) & 4095] = (float)Math.sin((double)((float)l * 0.017453292F));
+        }
+
+
 
         multiplyDeBruijnBitPosition = new int[] {0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9};
         field_181163_d = Double.longBitsToDouble(4805340802404319232L);

@@ -11,6 +11,10 @@ public class EventSendPacket extends Event {
     @Getter @Setter
     public boolean cancelled;
 
+    public void cancel(){
+        setCancelled(true);
+    }
+
     public EventSendPacket(Packet inputPacket) {
         this.packet = inputPacket;
     }
