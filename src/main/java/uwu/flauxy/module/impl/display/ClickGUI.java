@@ -20,7 +20,7 @@ public class ClickGUI extends Module {
     uwu.flauxy.ui.astolfo.ClickGUI clickguiAs;
     Discord discordUi;
     FlatUi flatUi;
-    public ModeSetting mode = new ModeSetting("Mode", "Dropdown", "Dropdown", "Flat", "Astolfo", "Discord");
+    public ModeSetting mode = new ModeSetting("Mode", "Dropdown", "Dropdown", "Flat", "Astolfo");
     public static NumberSetting red = new NumberSetting("R", 180, 1, 250, 1);
     public static NumberSetting green = new NumberSetting("G", 10, 1, 250, 1);
     public static NumberSetting blue = new NumberSetting("B", 120, 1, 250, 1);

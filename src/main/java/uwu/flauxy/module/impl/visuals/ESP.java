@@ -23,6 +23,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import uwu.flauxy.module.impl.other.ReportAlert;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
@@ -76,91 +77,97 @@ public class ESP extends Module {
 
 
 
-            for (EntityLivingBase entity : livingEntities) {
-                int fontSize = (int) mc.thePlayer.getDistanceSqToEntity(entity);
-                TTFFontRenderer fontRenderer = Flauxy.INSTANCE.fontManager.getFont("arial " + fontSize);
-                if (!RenderUtil.isEntityInFrustum(entity)) continue;
-                final double diffX = entity.posX - entity.lastTickPosX;
-                final double diffY = entity.posY - entity.lastTickPosY;
-                final double diffZ = entity.posZ - entity.lastTickPosZ;
-                final double deltaX = mc.thePlayer.posX - entity.posX;
-                final double deltaY = mc.thePlayer.posY - entity.posY;
-                final double deltaZ = mc.thePlayer.posZ - entity.posZ;
-                final float partialTicks = event.getParticalTicks();
-                final AxisAlignedBB interpolatedBB = new AxisAlignedBB(
-                        entity.lastTickPosX - entity.width / 2 + diffX * partialTicks,
-                        entity.lastTickPosY + diffY * partialTicks,
-                        entity.lastTickPosZ - entity.width / 2 + diffZ * partialTicks,
-                        entity.lastTickPosX + entity.width / 2 + diffX * partialTicks,
-                        entity.lastTickPosY + entity.height + diffY * partialTicks,
-                        entity.lastTickPosZ + entity.width / 2 + diffZ * partialTicks);
-                final double[][] vectors = new double[8][2];
-                final float[] coords = new float[4];
-                convertTo2D(interpolatedBB, vectors, coords);
-                float minX = coords[0], minY = coords[1], maxX = coords[2], maxY = coords[3];
-                float opacity = 255 - MathHelper.clamp_float(MathHelper.sqrt_double(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ) * 4, 0, 255);
+            try{
+                for (EntityLivingBase entity : livingEntities) {
+                    int fontSize = (int) mc.thePlayer.getDistanceSqToEntity(entity);
+                    TTFFontRenderer fontRenderer = Flauxy.INSTANCE.fontManager.getFont("arial " + fontSize);
+                    // if (!RenderUtil.isEntityInFrustum(entity)) continue;
+                    final double diffX = entity.posX - entity.lastTickPosX;
+                    final double diffY = entity.posY - entity.lastTickPosY;
+                    final double diffZ = entity.posZ - entity.lastTickPosZ;
+                    final double deltaX = mc.thePlayer.posX - entity.posX;
+                    final double deltaY = mc.thePlayer.posY - entity.posY;
+                    final double deltaZ = mc.thePlayer.posZ - entity.posZ;
+                    final float partialTicks = event.getParticalTicks();
+                    final AxisAlignedBB interpolatedBB = new AxisAlignedBB(
+                            entity.lastTickPosX - entity.width / 2 + diffX * partialTicks,
+                            entity.lastTickPosY + diffY * partialTicks,
+                            entity.lastTickPosZ - entity.width / 2 + diffZ * partialTicks,
+                            entity.lastTickPosX + entity.width / 2 + diffX * partialTicks,
+                            entity.lastTickPosY + entity.height + diffY * partialTicks,
+                            entity.lastTickPosZ + entity.width / 2 + diffZ * partialTicks);
+                    final double[][] vectors = new double[8][2];
+                    final float[] coords = new float[4];
+                    convertTo2D(interpolatedBB, vectors, coords);
+                    float minX = coords[0], minY = coords[1], maxX = coords[2], maxY = coords[3];
+                    float opacity = 255 - MathHelper.clamp_float(MathHelper.sqrt_double(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ) * 4, 0, 255);
+                    opacity = 255;
 
-                Color c;
-                switch(color.getMode()){
-                    case "Blend":{
-                        Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
-                        Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
-                        int off = (int) (2 * 75);
-                        c = ColorUtils.blendThingC(2F, (long) (8 * off), col1, col2);
-                        break;
+                    Color c;
+                    switch(color.getMode()){
+                        case "Blend":{
+                            Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
+                            Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
+                            int off = (int) (2 * 75);
+                            c = ColorUtils.blendThingC(2F, (long) (8 * off), col1, col2);
+                            break;
+                        }
+                        case "Rainbow":{
+                            c = ColorUtils.getRainbowC(3, 0.40f, 1, 8 * 180L);
+                            break;
+                        }
+                        case "Custom":{
+                            c = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue());
+                            break;
+                        }
+                        case "Astolfo":{
+                            c = ColorUtils.astolfoC(3, 0.45f, 1, 8 * 180L);
+                            break;
+                        }
+                        default:
+                            c = new Color(0, 0, 0);
                     }
-                    case "Rainbow":{
-                        c = ColorUtils.getRainbowC(3, 0.40f, 1, 8 * 180L);
-                        break;
-                    }
-                    case "Custom":{
-                        c = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue());
-                        break;
-                    }
-                    case "Astolfo":{
-                        c = ColorUtils.astolfoC(3, 0.45f, 1, 8 * 180L);
-                        break;
-                    }
-                    default:
-                        c = new Color(0, 0, 0);
-                }
 
-                if(!isValid(entity)) return;
-                if(nametags.getValue()){
-                    //if(entity instanceof EntityPlayer){
+                    if(!isValid(entity)) return;
+                    if(nametags.getValue()){
+                        //if(entity instanceof EntityPlayer){
                         float bottom = maxY + ((minY + maxY) / maxY);
                         float top = minY - ((maxY / minY)*10);
-                        fontRenderer.drawStringWithShadow(entity.getName(), (minX + maxX) / 2 - (fontRenderer.getWidth(entity.getName()) / 2), top, -1);
-                    //D}
-                }
-
-                switch(mode.getMode()){
-                    case "Box":{
-                        RenderUtil.pre3D();
-                        glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, opacity / 255f);
-                        glLineWidth((float) (thickness.getValue() * 4f));
-                        glBegin(GL_LINE_LOOP);
-                        //Wrapper.instance.log("" + c.getRed() + " " + c.getBlue() + "  " + c.getGreen());
-                        glVertex2f(minX, minY);
-                        glVertex2f(maxX, minY);
-                        glVertex2f(maxX, maxY);
-                        glVertex2f(minX, maxY);
-                        glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, 255);
-                        glEnd();
-
-                        glLineWidth((float) thickness.getValue());
-                        GlStateManager.color((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, (float) c.getAlpha() / 255);
-                        glBegin(GL_LINE_LOOP);
-                        glVertex2f(minX, minY);
-                        glVertex2f(maxX, minY);
-                        glVertex2f(maxX, maxY);
-                        glVertex2f(minX, maxY);
-                        glEnd();
-                        RenderUtil.post3D();
-                        break;
+                        boolean hacking = ReportAlert.hackers.contains(entity.getName());
+                        fontRenderer.drawStringWithShadow(hacking ? entity.getName() + " [HACKER]" : entity.getName(), (minX + maxX) / 2 - (fontRenderer.getWidth(hacking ? entity.getName() + " [HACKER]" : entity.getName()) / 2), top, hacking ? Color.red.getRGB() : -1);
+                        //D}
                     }
-                }
 
+                    switch(mode.getMode()){
+                        case "Box":{
+                            RenderUtil.pre3D();
+                            glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, opacity / 255f);
+                            glLineWidth((float) (thickness.getValue() * 4f));
+                            glBegin(GL_LINE_LOOP);
+                            //Wrapper.instance.log("" + c.getRed() + " " + c.getBlue() + "  " + c.getGreen());
+                            glVertex2f(minX, minY);
+                            glVertex2f(maxX, minY);
+                            glVertex2f(maxX, maxY);
+                            glVertex2f(minX, maxY);
+                            glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, 255);
+                            glEnd();
+
+                            glLineWidth((float) thickness.getValue());
+                            GlStateManager.color((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, (float) c.getAlpha() / 255);
+                            glBegin(GL_LINE_LOOP);
+                            glVertex2f(minX, minY);
+                            glVertex2f(maxX, minY);
+                            glVertex2f(maxX, maxY);
+                            glVertex2f(minX, maxY);
+                            glEnd();
+                            RenderUtil.post3D();
+                            break;
+                        }
+                    }
+
+                }
+            }catch (NullPointerException ed){
+                ed.printStackTrace();
             }
         }
 
@@ -191,19 +198,22 @@ public class ESP extends Module {
                 interpolatedBB.maxZ - z);
         vectors[7] = RenderUtil.project2D(interpolatedBB.maxX - x, interpolatedBB.maxY - y,
                 interpolatedBB.maxZ - z);
-
-        float minW = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
-        float maxW = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
-        if (maxW > 1 || minW < 0) return;
-        float minX = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
-        float maxX = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
-        final float top = (mc.displayHeight / (float) new ScaledResolution(mc).getScaleFactor());
-        float minY = (float) (top - Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
-        float maxY = (float) (top - Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
-        coords[0] = minX;
-        coords[1] = minY;
-        coords[2] = maxX;
-        coords[3] = maxY;
+        try{
+            float minW = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
+            float maxW = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
+            if (maxW > 1 || minW < 0) return;
+            float minX = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
+            float maxX = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
+            final float top = (mc.displayHeight / (float) new ScaledResolution(mc).getScaleFactor());
+            float minY = (float) (top - Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
+            float maxY = (float) (top - Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
+            coords[0] = minX;
+            coords[1] = minY;
+            coords[2] = maxX;
+            coords[3] = maxY;
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
     }
 
     public boolean isValid(Entity e){

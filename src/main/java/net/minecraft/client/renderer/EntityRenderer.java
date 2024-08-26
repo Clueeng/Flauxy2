@@ -438,7 +438,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             Reach reach = Flauxy.INSTANCE.getModuleManager().getModule(Reach.class);
             double reachValue = reach.range.getValue();
             boolean reachToggled = reach.isToggled();
-            double d0 = reachToggled ? reachValue : (double)this.mc.playerController.getBlockReachDistance();
+            double d0 = reachToggled ? reach.blockRange.getValue() : (double)this.mc.playerController.getBlockReachDistance();
             this.mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
             double d1 = d0;
             Vec3 vec3 = entity.getPositionEyes(partialTicks);

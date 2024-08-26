@@ -9,13 +9,24 @@ import net.minecraft.util.BlockPos;
 
 public class C08PacketPlayerBlockPlacement implements Packet<INetHandlerPlayServer>
 {
-    private static final BlockPos field_179726_a = new BlockPos(-1, -1, -1);
-    private BlockPos position;
-    private int placedBlockDirection;
+    public static final BlockPos field_179726_a = new BlockPos(-1, -1, -1);
+    public BlockPos position;
+
+    public void setPlacedBlockDirection(int placedBlockDirection) {
+        this.placedBlockDirection = placedBlockDirection;
+    }
+
+    public int placedBlockDirection;
     public ItemStack stack;
-    private float facingX;
-    private float facingY;
-    private float facingZ;
+    public float facingX;
+    public float facingY;
+    public float facingZ;
+
+    public void setFacing(float x, float y, float z){
+        this.facingX = x;
+        this.facingY = y;
+        this.facingZ = z;
+    }
 
     public C08PacketPlayerBlockPlacement()
     {

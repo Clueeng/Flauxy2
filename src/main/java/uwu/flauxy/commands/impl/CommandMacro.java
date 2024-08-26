@@ -73,11 +73,11 @@ public class CommandMacro extends Command {
     }
 
     public void load() {
-        String fileName = "macros";
         this.dir = new File(String.valueOf(Folder.dir)); // Assuming Folder.dir is a valid directory path
         if (!this.dir.exists()) {
             this.dir.mkdir();
         }
+        String fileName = "macros";
         this.dataFile = new File(this.dir, fileName + ".txt");
         if (!this.dataFile.exists()) {
             try {

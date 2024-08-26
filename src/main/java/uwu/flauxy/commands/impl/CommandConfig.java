@@ -46,8 +46,13 @@ public class CommandConfig extends Command {
         }
         if(true == true){
 
+            if(args[1].equalsIgnoreCase("test")) {
+                Flauxy.INSTANCE.loadHudPosition();
+            }
+
             if(args[1].equalsIgnoreCase("save")) {
                 Wrapper.instance.log("Saved the config " + args[2] +  ".");
+                Flauxy.INSTANCE.getModuleManager().saveHudPosition();
                 try {
                     Flauxy.INSTANCE.getConfigManager().save(args[2]);
                 } catch (Exception e) {

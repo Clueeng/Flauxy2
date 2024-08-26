@@ -1,6 +1,22 @@
 package uwu.flauxy.utils;
 
+import net.minecraft.item.ItemStack;
+
 public class MathHelper {
+
+    public static <T> void reverse(T[] array) {
+        int left = 0;
+        int right = array.length - 1;
+
+        while (left < right) {
+            T temp = array[left];
+            array[left] = array[right];
+            array[right] = temp;
+            left++;
+            right--;
+        }
+    }
+
 
     public static double lerp(double delta, double start, double end) {
         return start + delta * (end - start);

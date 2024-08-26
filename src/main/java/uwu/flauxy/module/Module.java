@@ -6,9 +6,12 @@ import net.minecraft.client.Minecraft;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.module.setting.Setting;
+import uwu.flauxy.module.setting.impl.GraphSetting;
+import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.Methods;
 import uwu.flauxy.utils.WorldUtil;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 
@@ -16,6 +19,11 @@ public class Module implements Methods {
 
     @Getter @Setter
     private boolean settingsShown = true;
+
+    @Getter @Setter
+    public boolean hudMoveable = false;
+    @Getter @Setter
+    public float moveX, moveY, moveW, moveH;
 
     @Getter @Setter
     protected String name, displayName;
@@ -76,6 +84,10 @@ public class Module implements Methods {
         for (final Setting setting : settings) {
             this.getSettings().add(setting);
         }
+    }
+
+    public Color getColorFromSettings(NumberSetting hue, GraphSetting saturationValue){
+        return Color.getHSBColor((float)hue.getValue() / 360f,(float)saturationValue.getX() / 100f,(float)saturationValue.getY() / 100f);
     }
 
     public void addSetting(final Setting setting){

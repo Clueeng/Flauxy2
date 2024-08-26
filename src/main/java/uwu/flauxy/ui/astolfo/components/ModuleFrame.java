@@ -6,10 +6,12 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.impl.display.ClickGUI;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
+import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.ui.astolfo.ColorHelper;
 import uwu.flauxy.ui.astolfo.components.impl.BooleanComponent;
+import uwu.flauxy.ui.astolfo.components.impl.GraphComponent;
 import uwu.flauxy.ui.astolfo.components.impl.ModeComponent;
 import uwu.flauxy.ui.astolfo.components.impl.NumberComponent;
 import uwu.flauxy.utils.animtations.Animate;
@@ -62,6 +64,14 @@ public class ModuleFrame implements ColorHelper {
                 if(setting instanceof NumberSetting)
                 {
                     this.components.add(new NumberComponent(0, 0, this, setting));
+                }
+                if(setting instanceof GraphSetting){
+                    GraphSetting graph = (GraphSetting)setting;
+                    if(graph.hue != null){
+                        this.components.add(new GraphComponent(0,0,this, setting, graph.hue));
+                    }else{
+                        this.components.add(new GraphComponent(0,0,this, setting));
+                    }
                 }
             }
 

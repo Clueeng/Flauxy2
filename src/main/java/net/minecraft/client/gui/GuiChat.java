@@ -1,6 +1,8 @@
 package net.minecraft.client.gui;
 
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import net.minecraft.network.play.client.C14PacketTabComplete;
@@ -16,9 +18,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.system.CallbackI;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.Module;
 import uwu.flauxy.module.impl.display.HUD;
+import uwu.flauxy.module.impl.display.InfoHUD;
 import uwu.flauxy.module.impl.display.KeyStrokes;
 import uwu.flauxy.module.impl.display.keystrokes.Keystroke;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.render.RenderUtil;
 
 import static uwu.flauxy.utils.font.FontManager.getFont;
@@ -306,37 +311,87 @@ public class GuiChat extends GuiScreen
     /**
      * Draws the screen and all the components in it. Args : mouseX, mouseY, renderPartialTicks
      */
-    int oldMouseX, oldMouseY;
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
+    int oldMouseX, oldMouseY, heldTick;
+    boolean holdingOther;
+    Module movingModule;
 
-        KeyStrokes keystroke = Flauxy.INSTANCE.getModuleManager().getModule(KeyStrokes.class);
-        if(keystroke.isToggled()){
-            boolean withinX = mouseX > keystroke.getAbsoluteX() - (32 * keystroke.size.getValue()) && mouseX < keystroke.getAbsoluteX() + (32 * keystroke.size.getValue());
-            boolean withinY = mouseY > keystroke.getAbsoluteY() - 20 - 4 && mouseY < keystroke.getAbsoluteY() + (42 * keystroke.size.getValue())+4;
-            if(withinY && withinX){
-                RenderUtil.drawUnfilledRectangle(keystroke.getAbsoluteX() - (32 * keystroke.size.getValue()),
-                        keystroke.getAbsoluteY() - 20, keystroke.getAbsoluteX() + (32 * keystroke.size.getValue()), keystroke.getAbsoluteY() + (42 * keystroke.size.getValue()), 4, -1);
-            }
-            if(withinY && withinX && Mouse.isButtonDown(0)){
-                keystroke.setAbsoluteX(keystroke.getAbsoluteX() + (mouseX - oldMouseX));
-                keystroke.setAbsoluteY(keystroke.getAbsoluteY() + (mouseY - oldMouseY));
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if(!Mouse.isButtonDown(0)){
+            heldTick = 0;
+        }
+        for (Module hudMod : Flauxy.INSTANCE.getModuleManager().getHudModules()) {
+            if (hudMod.isToggled()) {
+                boolean isKeyStrokes = hudMod instanceof KeyStrokes;
+                double xpos = hudMod.getMoveX();
+                double ypos = hudMod.getMoveY();
+                double width = isKeyStrokes ? 32 * ((KeyStrokes) hudMod).size.getValue() * 2 : hudMod.getMoveW();
+                double height = isKeyStrokes ? 42 * ((KeyStrokes) hudMod).size.getValue() : hudMod.getMoveH();
+                double endX = xpos + width;
+                double endY = ypos + height;
+                boolean withinX = mouseX > xpos - 4 && mouseX < xpos + width + 2;
+                boolean withinY = mouseY > ypos - 4 && mouseY < ypos + height + 2;
+                boolean closeX = mouseX > xpos - 2 && mouseX < xpos + 2;
+                boolean closeY = mouseY > ypos - 2 && mouseY < ypos + 2;
+                ScaledResolution sr = new ScaledResolution(mc);
+
+                // KeyStrokes-specific rendering
+                if (isKeyStrokes) {
+                    KeyStrokes keystroke = (KeyStrokes) hudMod;
+                    boolean keystrokeWithinX = mouseX > keystroke.getMoveX() - (32 * keystroke.size.getValue()) - 2 && mouseX < keystroke.getMoveX() + (32 * keystroke.size.getValue()) + 2;
+                    boolean keystrokeWithinY = mouseY > keystroke.getMoveY() - 20 - 6 && mouseY < keystroke.getMoveY() + (42 * keystroke.size.getValue()) + 6;
+
+                    if ((keystrokeWithinX && keystrokeWithinY && movingModule == null) || movingModule == keystroke) {
+                        RenderUtil.drawUnfilledRectangle(keystroke.getMoveX() - (32 * keystroke.size.getValue()), keystroke.getMoveY() - 20, keystroke.getMoveX() + (32 * keystroke.size.getValue()), keystroke.getMoveY() + (42 * keystroke.size.getValue()), 4, -1);
+                        RenderUtil.drawCircle(keystroke.getMoveX() - (32 * keystroke.size.getValue()) + 1, keystroke.getMoveY() - 20 + 1, 4, new Color(255, 0, 0).getRGB());
+                        Flauxy.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", keystroke.getMoveX() - (32 * keystroke.size.getValue()) - 2.5f, keystroke.getMoveY() - 23, -1);
+                    }
+
+                    if (keystrokeWithinX && keystrokeWithinY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == keystroke)) {
+                        movingModule = keystroke;
+                        keystroke.setMoveX(keystroke.getMoveX() + (mouseX - oldMouseX));
+                        keystroke.setMoveY(keystroke.getMoveY() + (mouseY - oldMouseY));
+                        heldTick += Math.max(heldTick + 1,3);
+                    }
+
+                    if (closeX && closeY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == keystroke) && heldTick < 2) {
+                        keystroke.toggle();
+                    }
+
+                } else {
+                    if ((withinX && withinY && movingModule == null) || movingModule == hudMod) {
+                        RenderUtil.drawUnfilledRectangle(xpos, ypos, xpos + width, ypos + height, 4, -1, 2);
+                        RenderUtil.drawCircle(xpos, ypos, 4, new Color(255, 0, 0).getRGB());
+                        Flauxy.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", xpos - 3.5f, ypos - 4, -1);
+                    }
+
+                    if (withinX && withinY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod) || (movingModule == hudMod)) {
+                        heldTick = Math.min(heldTick + 1,3);
+                        movingModule = hudMod;
+                        if (endX + 1 > sr.getScaledWidth()) {
+                            hudMod.setMoveX(hudMod.getMoveX() - 1);
+                        } else if (xpos - 1 < 0) {
+                            hudMod.setMoveX(hudMod.getMoveX() + 1);
+                        } else {
+                            hudMod.setMoveX(hudMod.getMoveX() + (mouseX - oldMouseX));
+                        }
+                        if (endY + 1 > sr.getScaledHeight()) {
+                            hudMod.setMoveY(hudMod.getMoveY() - 1);
+                        } else if (ypos - 1 < 0) {
+                            hudMod.setMoveY(hudMod.getMoveY() + 1);
+                        } else {
+                            hudMod.setMoveY(hudMod.getMoveY() + (mouseY - oldMouseY));
+                        }
+                    }
+
+                    if (closeX && closeY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod)  && heldTick < 2) {
+                        hudMod.toggle();
+                    }
+                }
             }
         }
-        HUD hud = Flauxy.INSTANCE.getModuleManager().getModule(HUD.class);
-        if(hud.isToggled() && hud.showRotations.getValue()){
-            float width = hud.width;
-            int infocount = hud.infocount;
-            float hudHeight = (12 * infocount);
-            boolean withinX = mouseX > hud.getAbsoluteX() - 2 && mouseX < width;
-            boolean withinY = mouseY > hud.getAbsoluteY() && mouseY < hud.getAbsoluteY() + hudHeight;
-            if(withinY && withinX){
-                RenderUtil.drawUnfilledRectangle(hud.getAbsoluteX()-2, hud.getAbsoluteY()-2,width, hud.getAbsoluteY() + hudHeight,4,-1);
-            }
-            if(withinY && withinX && Mouse.isButtonDown(0)){
-                hud.setAbsoluteX(hud.getAbsoluteX() + (mouseX - oldMouseX));
-                hud.setAbsoluteY(hud.getAbsoluteY() + (mouseY - oldMouseY));
-            }
+
+        if (!Mouse.isButtonDown(0)) {
+            movingModule = null;  // Reset the movingModule when the mouse button is released
         }
 
         oldMouseX = mouseX;
@@ -346,8 +401,7 @@ public class GuiChat extends GuiScreen
         this.inputField.drawTextBox();
         IChatComponent ichatcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
 
-        if (ichatcomponent != null && ichatcomponent.getChatStyle().getChatHoverEvent() != null)
-        {
+        if (ichatcomponent != null && ichatcomponent.getChatStyle().getChatHoverEvent() != null) {
             this.handleComponentHover(ichatcomponent, mouseX, mouseY);
         }
 

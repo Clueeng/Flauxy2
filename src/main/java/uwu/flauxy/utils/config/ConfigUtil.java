@@ -1,10 +1,12 @@
 package uwu.flauxy.utils.config;
 
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
+import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 
@@ -50,6 +52,10 @@ public class ConfigUtil {
         for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
             toSave.add("Module:" + m.getName() + ":" + m.isToggled() + ":" + m.getKey() + ":" + '\001');
             for (Setting s : m.getSettings()) {
+                if(s instanceof GraphSetting){
+                    GraphSetting set = (GraphSetting) s;
+                    toSave.add("Graph:" + m.getName() + ":" + set.name + ":" + set.getX() + ":" + set.getY());
+                }
                 if (s instanceof NumberSetting) {
                     NumberSetting set = (NumberSetting)s;
                     toSave.add("Number:" + m.getName() + ":" + set.name + ":" + set.getValue());
@@ -125,6 +131,31 @@ public class ConfigUtil {
                             if (args.length > 4);
                         }
                     }
+                if (s.toLowerCase().startsWith("graph:")) {
+                    // Split the string into components
+                    String[] parts = s.split(":");
+
+                    if (parts.length == 5) {  // Ensure the correct number of arguments
+                        String moduleName = parts[1];
+                        String settingName = parts[2];
+                        double valueX = Double.parseDouble(parts[3]);
+                        double valueY = Double.parseDouble(parts[4]);
+
+                        // Loop through the modules to find the correct one
+                        for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
+                            if (m.getName().equalsIgnoreCase(moduleName)) {
+                                // Loop through the settings to find the correct GraphSetting
+                                for (Setting setting : m.getSettings()) {
+                                    if (setting instanceof GraphSetting && setting.name.equalsIgnoreCase(settingName)) {
+                                        GraphSetting graphSetting = (GraphSetting) setting;
+                                        graphSetting.setX((float) valueX);  // Set the X value
+                                        graphSetting.setY((float) valueY);  // Set the Y value
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 if (s.toLowerCase().startsWith("number:"))
                     for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                         if (m.getName().equalsIgnoreCase(args[1]) )

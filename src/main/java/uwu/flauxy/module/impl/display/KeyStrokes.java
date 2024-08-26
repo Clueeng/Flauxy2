@@ -29,9 +29,6 @@ public class KeyStrokes extends Module {
     int cpsLeft, cpsRight;
     boolean leftHeld, leftClicked, rightHeld, rightClicked;
 
-    @Getter @Setter
-    public int absoluteX = 100, absoluteY = 100;
-
     public KeyStrokes(){
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindForward,0,0,0));
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindLeft,0,-16,16));
@@ -39,7 +36,10 @@ public class KeyStrokes extends Module {
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindRight,0,16,16));
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindAttack,0,-16,32)); // 24 w
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindUseItem,0,8,32)); // 24 w
+        setHudMoveable(true);
         addSetting(size);
+        moveX = 100;
+        moveY = 100;
     }
 
     @Override
@@ -52,9 +52,9 @@ public class KeyStrokes extends Module {
                 k.setSize((float) size.getValue());
                 k.updatePressed();
                 if(k.keyBinding.equals(mc.gameSettings.keyBindUseItem) || k.keyBinding.equals(mc.gameSettings.keyBindAttack)){
-                    k.renderClicks(absoluteX, absoluteY, cpsLeft, cpsRight);
+                    k.renderClicks(moveX, moveY, cpsLeft, cpsRight);
                 }else{
-                    k.render(absoluteX,absoluteY);
+                    k.render(moveX,moveY);
                 }
             }
 

@@ -115,7 +115,22 @@ public enum Flauxy implements MinecraftInstance {
         }
         discordRP.init();
         nonShittyConfigManager.init();
+        loadHudPosition();
         initialized = true;
+    }
+
+    public void loadHudPosition(){
+        for(Module hudMod : getModuleManager().getHudModules()){
+            int[] pos = getModuleManager().load(hudMod.getName());
+            if(pos != null){
+                hudMod.setMoveX(pos[0]);
+
+                hudMod.setMoveY(pos[1]);
+                System.out.println("Loaded " + hudMod.getDisplayName() + " at " + pos[0] + " " + pos[1]);
+            }else{
+                System.out.println("No position for " + hudMod.getDisplayName() + ", returning default");
+            }
+        }
     }
 
     public java.util.ArrayList<Changelog> getLogs(){
@@ -177,6 +192,9 @@ public enum Flauxy implements MinecraftInstance {
     public void onShutDownApplet(){
         discordRP.close();
         waypointManager.saveWaypoints();
+
+        // here we're gonna try to save all the modules that aare moveable in the gui
+        getModuleManager().saveHudPosition();
     }
 
 

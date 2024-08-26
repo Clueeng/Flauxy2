@@ -35,30 +35,43 @@ public class NumberComponent extends Component implements ColorHelper {
     @Override
     public void drawScreen(int mouseX, int mouseY) {
 
-        if(!Mouse.isButtonDown(0)) drag = false;
+        if (!Mouse.isButtonDown(0)) drag = false;
 
         NumberSetting slide = (NumberSetting) getSetting();
+        boolean isColor = slide.colorDisplay;
+
         double min = slide.getMinimum();
         double max = slide.getMaximum();
         double diff = Math.min(defaultWidth + 5, Math.max(0, mouseX - (this.x)));
         double renderWidth = defaultWidth * (slide.getValue() - min) / (max - min);
-        Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(125, 125, 125).getRGB());
-        Gui.drawRect(x, y + 20, x + (int) renderWidth, y + getOffset() - 10 + 5 + 8, owner.getParent().getCategory().getCategoryColor().getRGB());
 
+        // Draw the hue scale if isColor is true
+        if (isColor) {
+            for (int i = 0; i < defaultWidth; i++) {
+                float hue = (float) i / (float) defaultWidth; // Calculate hue from position
+                int color = Color.HSBtoRGB(hue, 1.0f, 1.0f); // Convert hue to RGB color
+                Gui.drawRect(x + i, y + 20, x + i + 1, y + getOffset() - 10 + 5 + 8, color);
+            }
+        } else {
+            // Draw normal color slider
+            Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(125, 125, 125).getRGB());
+            Gui.drawRect(x, y + 20, x + (int) renderWidth, y + getOffset() - 10 + 5 + 8, owner.getParent().getCategory().getCategoryColor().getRGB());
+        }
 
-        if(drag)
-        {
-            if(diff == 0)
+        // Handle dragging to adjust the slider value
+        if (drag) {
+            if (diff == 0) {
                 slide.setValue(min);
-            else
-            {
+            } else {
                 double newValue = roundToPlace((diff / defaultWidth) * (max - min) + min, 2);
-                if(newValue <= max)
+                if (newValue <= max) {
                     this.setValue(newValue);
+                }
             }
         }
 
-        getFont().drawString(getSetting().name.toLowerCase() + ": " + roundToPlace(((NumberSetting) getSetting()).getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
+        // Draw the setting label with its current value
+        getFont().drawString(getSetting().name.toLowerCase() + ": " + roundToPlace(slide.getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
         GlStateManager.resetColor();
     }
 

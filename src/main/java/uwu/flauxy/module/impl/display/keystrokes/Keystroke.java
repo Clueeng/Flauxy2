@@ -30,11 +30,11 @@ public class Keystroke {
     public void updatePressed(){
         Minecraft mc = Minecraft.getMinecraft();
         AutoClicker ac = Flauxy.INSTANCE.getModuleManager().getModule(AutoClicker.class);
-        if(keyBinding.equals(mc.gameSettings.keyBindAttack) || keyBinding.equals(mc.gameSettings.keyBindUseItem)){
+        if(keyBinding.equals(mc.gameSettings.keyBindAttack) || keyBinding.equals(mc.gameSettings.keyBindUseItem) || ac.isClickingLeft || ac.isClickingRight ){
             if(keyBinding.equals(mc.gameSettings.keyBindAttack) || ac.isClickingLeft){
-                this.pressed = mc.gameSettings.keyBindAttack.isKeyDown();
+                this.pressed = mc.gameSettings.keyBindAttack.isKeyDown() || ac.isClickingLeft;
             }else if(keyBinding.equals(mc.gameSettings.keyBindUseItem) || ac.isClickingRight){
-                this.pressed = mc.gameSettings.keyBindUseItem.isKeyDown();
+                this.pressed = mc.gameSettings.keyBindUseItem.isKeyDown() || ac.isClickingRight;
             }
         }else{
             this.pressed = Keyboard.isKeyDown(this.keyBinding.getKeyCode());

@@ -179,32 +179,7 @@ public class RenderUtil  {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    public static void drawGradientRect(float x, float y, float x1, float y1, int topColor, int bottomColor) {
-        GL11.glDisable((int) 2929);
-        GL11.glEnable((int) 3042);
-        GL11.glDisable((int) 3553);
-        GL11.glBlendFunc((int) 770, (int) 771);
-        GL11.glDepthMask((boolean) true);
-        GL11.glEnable((int) 2848);
-        GL11.glHint((int) 3154, (int) 4354);
-        GL11.glHint((int) 3155, (int) 4354);
-        GL11.glShadeModel((int) 7425);
-        GL11.glBegin((int) 7);
-        RenderUtil.glColor(topColor);
-        GL11.glVertex2f((float) x, (float) y1);
-        GL11.glVertex2f((float) x1, (float) y1);
-        RenderUtil.glColor(bottomColor);
-        GL11.glVertex2f((float) x1, (float) y);
-        GL11.glVertex2f((float) x, (float) y);
-        GL11.glEnd();
-        GL11.glShadeModel((int) 7424);
-        GL11.glEnable((int) 3553);
-        GL11.glDisable((int) 3042);
-        GL11.glEnable((int) 2929);
-        GL11.glDisable((int) 2848);
-        GL11.glHint((int) 3154, (int) 4352);
-        GL11.glHint((int) 3155, (int) 4352);
-    }
+
 
     public static void drawRoundedRectangle(double left, double top, double right, double bottom, double radius, int color) {
         glScaled(0.5D, 0.5D, 0.5D);
@@ -463,6 +438,54 @@ public class RenderUtil  {
         }
     }
 
+    public static void drawUnfilledRectangle(double left, double top, double right, double bottom, double radius, int color, float lineWidth) {
+        // Set the line width
+        glLineWidth(lineWidth);
+
+        // Scale and adjust coordinates
+        glScaled(0.5D, 0.5D, 0.5D);
+        left *= 2.0D;
+        top *= 2.0D;
+        right *= 2.0D;
+        bottom *= 2.0D;
+
+        // Disable texturing and enable line smoothing
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_LINE_SMOOTH);
+        GlStateManager.enableBlend();
+
+        // Set the color
+        glColor(color);
+
+        // Begin drawing the line loop
+        glBegin(GL_LINE_LOOP);
+
+        // Draw the top-left corner (arc)
+        int i;
+        for (i = 0; i <= 90; i += 1)
+            glVertex2d(left + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, top + radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+
+        // Draw the bottom-left corner (arc)
+        for (i = 90; i <= 180; i += 1)
+            glVertex2d(left + radius + Math.sin(i * Math.PI / 180.0D) * radius * -1.0D, bottom - radius + Math.cos(i * Math.PI / 180.0D) * radius * -1.0D);
+
+        // Draw the bottom-right corner (arc)
+        for (i = 0; i <= 90; i += 1)
+            glVertex2d(right - radius + Math.sin(i * Math.PI / 180.0D) * radius, bottom - radius + Math.cos(i * Math.PI / 180.0D) * radius);
+
+        // Draw the top-right corner (arc)
+        for (i = 90; i <= 180; i += 1)
+            glVertex2d(right - radius + Math.sin(i * Math.PI / 180.0D) * radius, top + radius + Math.cos(i * Math.PI / 180.0D) * radius);
+
+        // End drawing the line loop
+        glEnd();
+
+        // Restore default settings
+        glEnable(GL_TEXTURE_2D);
+        glScaled(2.0D, 2.0D, 2.0D);
+        glColor4d(1, 1, 1, 1);
+    }
+
     public static void drawRect2(double left, double top, double right, double bottom, int color) {
         if (left < right) {
             double i = left;
@@ -556,7 +579,32 @@ public class RenderUtil  {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
     }
-
+    public static void drawGradientRect(float x, float y, float x1, float y1, int topColor, int bottomColor) {
+        GL11.glDisable((int) 2929);
+        GL11.glEnable((int) 3042);
+        GL11.glDisable((int) 3553);
+        GL11.glBlendFunc((int) 770, (int) 771);
+        GL11.glDepthMask((boolean) true);
+        GL11.glEnable((int) 2848);
+        GL11.glHint((int) 3154, (int) 4354);
+        GL11.glHint((int) 3155, (int) 4354);
+        GL11.glShadeModel((int) 7425);
+        GL11.glBegin((int) 7);
+        RenderUtil.glColor(topColor);
+        GL11.glVertex2f((float) x, (float) y1);
+        GL11.glVertex2f((float) x1, (float) y1);
+        RenderUtil.glColor(bottomColor);
+        GL11.glVertex2f((float) x1, (float) y);
+        GL11.glVertex2f((float) x, (float) y);
+        GL11.glEnd();
+        GL11.glShadeModel((int) 7424);
+        GL11.glEnable((int) 3553);
+        GL11.glDisable((int) 3042);
+        GL11.glEnable((int) 2929);
+        GL11.glDisable((int) 2848);
+        GL11.glHint((int) 3154, (int) 4352);
+        GL11.glHint((int) 3155, (int) 4352);
+    }
     public static void drawGradientSideways(double left, double top, double right, double bottom, int col1, int col2) {
         float f = (col1 >> 24 & 255) / 255.0f;
         float f1 = (col1 >> 16 & 255) / 255.0f;
@@ -715,6 +763,34 @@ public class RenderUtil  {
         }
 
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glEnd();
+
+        glPopAttrib();
+    }
+
+    public static void drawUnfilledCircle(final int xx, final int yy, final float radius, final Color color) {
+        int sections = 50;
+        double dAngle = 2 * Math.PI / sections;
+        float x, y;
+
+        glPushAttrib(GL_ENABLE_BIT);
+
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(2.0f); // Adjust the line width as needed
+
+        glBegin(GL_LINE_LOOP);
+
+        for (int i = 0; i < sections; i++) {
+            x = (float) (radius * Math.sin(i * dAngle));
+            y = (float) (radius * Math.cos(i * dAngle));
+
+            glColor(color);
+            glVertex2f(xx + x, yy + y);
+        }
 
         glEnd();
 

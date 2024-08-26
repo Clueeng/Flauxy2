@@ -47,31 +47,24 @@ public class HUD extends Module {
 
     public BooleanSetting fps = new BooleanSetting("FPS", true);
     public ModeSetting positionFps = new ModeSetting("FPS Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> fps.getValue());
-    public BooleanSetting showRotations = new BooleanSetting("Show Rotations",true);
 
     public BooleanSetting customfont = new BooleanSetting("Custom Font", true);
-    public BooleanSetting showPosition = new BooleanSetting("Show Position",true).setCanShow(s -> showRotations.getValue());
-    public BooleanSetting showVelocity = new BooleanSetting("Show Velocity",true).setCanShow(s -> showRotations.getValue());
-    public BooleanSetting showAction = new BooleanSetting("Show Action",true).setCanShow(s -> showRotations.getValue()); // vlock sneak ground
-    public BooleanSetting showSpeed = new BooleanSetting("Show Speed",true).setCanShow(s -> showRotations.getValue());
 
     public int infocount;
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
     float deltaYaw = 0.0f, deltaPitch = 0.0f;
     float velocityX, velocityZ, velocityY, opacityEnd, opacity = 0.0f;
+    public float maxSpeed, resetSpeed;
     long lastKnockback = 0;
-    public long lastBlockPlace;
     boolean updatePing;
 
     @Getter @Setter
     public int absoluteX, absoluteY;
     public long ping;
-    public float maxSpeed, resetSpeed;
     private final Map<Integer, Long> keepAliveTimestamps = new HashMap<>();
     public float width;
-    public List<InfoEntry> infoEntries = new java.util.ArrayList<>();
     public HUD() {
-        addSettings(watermark, showRotations, showPosition, showVelocity, showAction, showSpeed, customfont, fps, positionFps);
+        addSettings(watermark, customfont, fps, positionFps);
     }
 
     @Override
@@ -86,27 +79,6 @@ public class HUD extends Module {
                     longjump.seconds = 0;
                     longjump.shouldWait = false;
                 }
-            }
-            if(e.getPacket() instanceof S12PacketEntityVelocity){
-                S12PacketEntityVelocity s = (S12PacketEntityVelocity) e.getPacket();
-                if(s.getEntityID() == mc.thePlayer.getEntityId()){
-                    if(Math.abs(s.getMotionY()) > 1E-3f){
-                        velocityY = s.getMotionY() / 8000f;
-                    }
-                    if(Math.abs(s.getMotionX()) > 1E-3f){
-                        velocityX = s.getMotionX() / 8000f;
-                    }
-                    if(Math.abs(s.getMotionZ()) > 1E-3f){
-                        velocityZ = s.getMotionZ() / 8000f;
-                    }
-                    if(Math.abs(s.getMotionZ()) > 1E-3f || Math.abs(s.getMotionX()) > 1E-3f || Math.abs(s.getMotionY()) > 1E-3f){
-                        lastKnockback = System.currentTimeMillis();
-                        opacityEnd = 255;
-                        opacity = 255;
-                    }
-
-                }
-
             }
             if (e.getPacket() instanceof S00PacketKeepAlive) {
                 S00PacketKeepAlive keepAlivePacket = (S00PacketKeepAlive) e.getPacket();
@@ -132,29 +104,8 @@ public class HUD extends Module {
         if(event instanceof EventUpdate){
             EventUpdate e = (EventUpdate)event;
             if(e.getType().equals(EventType.PRE)){
-
-                if (mc.thePlayer.ticksExisted % 5 == 0) {
-                    loadInformation();
-                }
                 opacity = (float) MathHelper.lerp(0.2f,opacity,opacityEnd);
-                deltaYaw = mc.thePlayer.rotationYaw - mc.thePlayer.prevPrevRotationYaw;
-                deltaPitch = mc.thePlayer.rotationPitch - mc.thePlayer.prevPrevRotationPitch;
-                if(Math.abs(System.currentTimeMillis() - lastKnockback) > 2500){
-                    velocityZ = 0;
-                    velocityY = 0;
-                    velocityX = 0;
-                    opacityEnd = 0;
-                }
-                float threshold = 1e-4f;
-                if(maxSpeed + threshold < MoveUtils.getSpeed()){
-                    maxSpeed = (float) MoveUtils.getSpeed();
-                    resetSpeed = 2.5f * 20;
-                }
-                resetSpeed -= 1;
-                if(resetSpeed <= 0){
-                    maxSpeed = 0;
-                }
-                resetSpeed = Math.max(0, resetSpeed);
+
             }
             Longjump longjump = Flauxy.INSTANCE.getModuleManager().getModule(Longjump.class);
             if(longjump.shouldWait) {
@@ -203,27 +154,6 @@ public class HUD extends Module {
                                     , 100, Color.RED.getRGB());
                         }
                     }
-                }
-            }
-
-            if(showRotations.getValue()){
-                infocount = infoEntries.size(); // 20 for blocking sneaking ground
-                int maxWidth = infoEntries.stream()
-                        .mapToInt(entry -> customfont.getValue() ? (int) getFont().getWidth(entry.getFormattedText()) : mc.fontRendererObj.getStringWidth(entry.getFormattedText()))
-                        .max().orElse(0);
-
-                int offsetY = 0;
-                width = absoluteX + maxWidth;
-                RenderUtil.drawRoundedRect2(absoluteX-2,absoluteY-2,width,
-                        absoluteY + (12 * infocount), 4, new Color(0, 0, 0, 120).getRGB());
-
-                for (InfoEntry entry : infoEntries) {
-                    if (customfont.getValue()) {
-                        getFont().drawStringWithShadow(entry.getFormattedText(), absoluteX, absoluteY + offsetY, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
-                    } else {
-                        mc.fontRendererObj.drawStringWithShadow(entry.getFormattedText(), absoluteX, absoluteY + offsetY, Flauxy.INSTANCE.moduleManager.getModule(ArrayList.class).stringColor);
-                    }
-                    offsetY += 12;
                 }
             }
 
@@ -356,41 +286,7 @@ public class HUD extends Module {
 
     }
 
-    public void loadInformation(){
-        infoEntries.clear();
 
-        infoEntries.add(new InfoEntry("Client Brand", ClientBrandRetriever::getClientModName));
-        if(showPosition.getValue()){
-            infoEntries.add(new InfoEntry("Yaw / Pitch", () -> mc.thePlayer.rotationYaw + " / " + mc.thePlayer.rotationPitch));
-            infoEntries.add(new InfoEntry("Delta Yaw", () -> String.valueOf(deltaYaw)));
-            infoEntries.add(new InfoEntry("Delta Pitch", () -> String.valueOf(deltaPitch)));
-            infoEntries.add(new InfoEntry("X", () -> String.valueOf(mc.thePlayer.posX)));
-            infoEntries.add(new InfoEntry("Y", () -> String.valueOf(mc.thePlayer.posY)));
-            infoEntries.add(new InfoEntry("Z", () -> String.valueOf(mc.thePlayer.posZ)));
-            infoEntries.add(new InfoEntry("Facing", () -> mc.thePlayer.getHorizontalFacing().toString()));
-        }
-        infoEntries.add(new InfoEntry("Fast Math", () -> net.minecraft.util.MathHelper.fastMath + " / " + mc.gameSettings.ofFastMath));
-        infoEntries.add(new InfoEntry("Protocol Version", () -> ViaUtil.toReadableVersion(ViaMCP.getInstance().getVersion())));
-        if(showVelocity.getValue()){
-            infoEntries.add(new InfoEntry("Velocity X", () -> String.valueOf(velocityX)));
-            infoEntries.add(new InfoEntry("Velocity Y", () -> String.valueOf(velocityY)));
-            infoEntries.add(new InfoEntry("Velocity Z", () -> String.valueOf(velocityZ)));
-        }
-        infoEntries.add(new InfoEntry("Ping", () -> String.valueOf(ping)));
-        if(showSpeed.getValue()){
-            infoEntries.add(new InfoEntry("Speed", () -> String.valueOf(MoveUtils.getMotion())));
-            infoEntries.add(new InfoEntry("MotionX", () -> String.valueOf(mc.thePlayer.motionX)));
-            infoEntries.add(new InfoEntry("MotionZ", () -> String.valueOf(mc.thePlayer.motionZ)));
-            infoEntries.add(new InfoEntry("Max Speed", () -> String.valueOf(maxSpeed)));
-        }
-        if(showAction.isEnabled()){
-            infoEntries.add(new InfoEntry("Sneaking", () -> String.valueOf(mc.thePlayer.isSneaking())));
-            infoEntries.add(new InfoEntry("Ground", () -> String.valueOf(mc.thePlayer.onGround)));
-            infoEntries.add(new InfoEntry("Blocking", () -> String.valueOf(mc.thePlayer.isBlocking())));
-            infoEntries.add(new InfoEntry("Last Place", () -> String.valueOf(Math.abs(lastBlockPlace - System.currentTimeMillis()))));
-        }
-
-    }
 
 
     @Override

@@ -52,6 +52,8 @@ import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.render.ColorUtils;
 
+import javax.annotation.Nullable;
+
 public class GuiIngame extends Gui
 {
     private static final ResourceLocation vignetteTexPath = new ResourceLocation("textures/misc/vignette.png");
@@ -609,13 +611,15 @@ public class GuiIngame extends Gui
         }
     }
 
-    private void renderScoreboard(ScoreObjective p_180475_1_, ScaledResolution p_180475_2_)
+    private void renderScoreboard(ScoreObjective scoreObjective, ScaledResolution scaledResolution)
     {
-        Scoreboard scoreboard = p_180475_1_.getScoreboard();
-        Collection collection = scoreboard.getSortedScores(p_180475_1_);
-        ArrayList arraylist = Lists.newArrayList(Iterables.filter(collection, new Predicate()
+        uwu.flauxy.module.impl.display.Scoreboard scoreMod = Flauxy.INSTANCE.getModuleManager().getModule(uwu.flauxy.module.impl.display.Scoreboard.class);
+        if(!scoreMod.isToggled())return;
+
+        Scoreboard scoreboard = scoreObjective.getScoreboard();
+        Collection scores = scoreboard.getSortedScores(scoreObjective);
+        ArrayList collectionScores = Lists.newArrayList(Iterables.filter(scores,new Predicate()
         {
-            private static final String __OBFID = "CL_00001958";
             public boolean apply(Score p_apply_1_)
             {
                 return p_apply_1_.getPlayerName() != null && !p_apply_1_.getPlayerName().startsWith("#");
@@ -625,65 +629,57 @@ public class GuiIngame extends Gui
                 return this.apply((Score)p_apply_1_);
             }
         }));
-        ArrayList arraylist1;
-
-        if (arraylist.size() > 15)
-        {
-            arraylist1 = Lists.newArrayList(Iterables.skip(arraylist, collection.size() - 15));
+        ArrayList toRenderCollectionScores;
+        if (collectionScores.size() > 15) {
+            toRenderCollectionScores = Lists.newArrayList(Iterables.skip(collectionScores, scores.size() - 15));
+        } else {
+            toRenderCollectionScores = collectionScores;
         }
-        else
-        {
-            arraylist1 = arraylist;
-        }
+        int maxScoreWidth = getFontRenderer().getStringWidth(scoreObjective.getDisplayName());
 
-        int i = this.getFontRenderer().getStringWidth(p_180475_1_.getDisplayName());
-
-        for (Object score0 : arraylist1)
-        {
-            Score score = (Score) score0;
-            ScorePlayerTeam scoreplayerteam = scoreboard.getPlayersTeam(score.getPlayerName());
-            String s = ScorePlayerTeam.formatPlayerName(scoreplayerteam, score.getPlayerName()) + ": " + EnumChatFormatting.RED + score.getScorePoints();
-            i = Math.max(i, this.getFontRenderer().getStringWidth(s));
+        for(Object score0 : toRenderCollectionScores){
+            Score score = (Score)score0;
+            ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score.getPlayerName());
+            String scoreLine = ScorePlayerTeam.formatPlayerName(scorePlayerTeam, score.getPlayerName()) + ": " + EnumChatFormatting.RED + score.getScorePoints();
+            maxScoreWidth = Math.max(maxScoreWidth, getFontRenderer().getStringWidth(scoreLine));
         }
 
-        int j1 = arraylist1.size() * this.getFontRenderer().FONT_HEIGHT;
-        int k1 = p_180475_2_.getScaledHeight() / 2 + j1 / 3;
-        byte b0 = 3;
-        int j = p_180475_2_.getScaledWidth() - i - b0;
-        int k = 0;
+        int scoreboardHeight = toRenderCollectionScores.size() * getFontRenderer().FONT_HEIGHT;
+        int scoreboardY = (int) (scoreboardHeight + 10 + scoreMod.getMoveY());
+        byte xPadding = 3;
+        int scoreboardX = (int) scoreMod.getMoveX() + 2; // scaledResolution.getScaledWidth() - xPadding - 2
+        scoreMod.setMoveH(scoreboardHeight + 11);
+        scoreMod.setMoveW(maxScoreWidth + 2);
+        int scoreIndex = 0;
 
-        for (Object score10 : arraylist1)
-        {
-            Score score1 = (Score) score10;
-            ++k;
-            ScorePlayerTeam scoreplayerteam1 = scoreboard.getPlayersTeam(score1.getPlayerName());
-            String s1 = ScorePlayerTeam.formatPlayerName(scoreplayerteam1, score1.getPlayerName());
-            String s2 = EnumChatFormatting.RED + "" + score1.getScorePoints();
-            int l = k1 - k * this.getFontRenderer().FONT_HEIGHT;
-            int i1 = p_180475_2_.getScaledWidth() - b0 + 2;
-            drawRect(j - 2, l, i1, l + this.getFontRenderer().FONT_HEIGHT, 1342177280);
-            int color = 553648127;
-            if(s1.contains(".net") || s1.contains(".com") || s1.contains("play.") || s1.contains(".fun") || (s1.contains(".lol") && !s1.equalsIgnoreCase("flauxy.lol")) || s1.contains(".club")){
-                String spaced = "";
-                for(int index = 0; index < i1; index++){
-                    spaced+=" ";
-                }
-                s1 = EnumChatFormatting.WHITE + "F" + EnumChatFormatting.WHITE + "lauxy." + EnumChatFormatting.RESET + "lol";
-                color = ColorUtils.getRainbow(9f, 0.4f, 1f, 8);
+        for(Object scoring : toRenderCollectionScores){
+            Score score = (Score) scoring;
+            scoreIndex++;
+            ScorePlayerTeam scorePlayerTeam = scoreboard.getPlayersTeam(score.getPlayerName());
+            String formattedPlayerName = ScorePlayerTeam.formatPlayerName(scorePlayerTeam,score.getPlayerName());
+            String scored = EnumChatFormatting.RED + "" + score.getScorePoints();
+            int scoreY = scoreboardY - scoreIndex * getFontRenderer().FONT_HEIGHT;
+            int renderEndX = scaledResolution.getScaledWidth() - xPadding + 2;
+            renderEndX = scoreboardX + maxScoreWidth;
+
+            drawRect(scoreboardX - 2,scoreY,renderEndX,scoreY + getFontRenderer().FONT_HEIGHT,1342177280);
+            getFontRenderer().drawString(formattedPlayerName, scoreboardX, scoreY, 553648127);
+            if(scoreMod.showScore.isEnabled()){
+                getFontRenderer().drawString(scored,renderEndX - getFontRenderer().getStringWidth(scored),scoreY,553648127);
             }
-            this.getFontRenderer().drawString(s1, j, l, color);
-            this.getFontRenderer().drawString(s2, i1 - this.getFontRenderer().getStringWidth(s2), l, 553648127);
 
-            if (k == arraylist1.size())
-            {
-                String s3 = p_180475_1_.getDisplayName();
-
-                drawRect(j - 2, l - this.getFontRenderer().FONT_HEIGHT - 1, i1, l - 1, 1610612736);
-                drawRect(j - 2, l - 1, i1, l, 1342177280);
-                this.getFontRenderer().drawString(s3, j + i / 2 - this.getFontRenderer().getStringWidth(s3) / 2, l - this.getFontRenderer().FONT_HEIGHT, 553648127);
+            if(scoreIndex == toRenderCollectionScores.size()){
+                // scorebaord title ??
+                String title = scoreObjective.getDisplayName();
+                drawRect(scoreboardX - 2,scoreY - getFontRenderer().FONT_HEIGHT, renderEndX, scoreY - 1, 1610612736);
+                drawRect(scoreboardX - 2, scoreY - 1,renderEndX,scoreY,1342177280);
+                getFontRenderer().drawString(title,scoreboardX + maxScoreWidth / 2 - getFontRenderer().getStringWidth(title) / 2,scoreY - getFontRenderer().FONT_HEIGHT, 553648127);
             }
         }
+        totalHeight = getFontRenderer().FONT_HEIGHT * scoreIndex;
     }
+
+    int totalHeight = 0;
 
     private void renderPlayerStats(ScaledResolution p_180477_1_)
     {

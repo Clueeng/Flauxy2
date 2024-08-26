@@ -19,9 +19,10 @@ import java.awt.*;
 public class Reach extends Module {
 
     public NumberSetting range = new NumberSetting("Reach", 3.0, 3.0, 6.0, 0.05);
+    public NumberSetting blockRange = new NumberSetting("Block Reach", 3.0, 3.0, 12.0, 0.1);
 
     public Reach(){
-        addSettings(range);
+        addSettings(range, blockRange);
     }
 
     @Override

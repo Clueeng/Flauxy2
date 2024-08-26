@@ -235,7 +235,7 @@ public class Speed extends Module {
                         if (speedV < 0.2805) {
                             speedV = 0.2805;
                         }
-                        speedV *= 2.149;
+                        speedV *= 1.949;
                         stage = 0;
                     }
 
@@ -410,18 +410,22 @@ public class Speed extends Module {
                 case "NCP":{
                     switch(ncpMode.getMode()){
                         case "Funcraft":{
-                            mc.timer.timerSpeed = 1.2f;
+                            if(mc.thePlayer.fallDistance > 1.0){
+                                mc.timer.timerSpeed = 0.8f;
+                            }else{
+                                mc.timer.timerSpeed = 1.9f;
+                            }
                             if(mc.thePlayer.onGround){
                                 double perfect = 1.724;
                                 //MoveUtils.strafe(MoveUtils.getMotion() * 1.728);
                                 mc.thePlayer.motionY = 0.42f;
-                                float speed = 0.0320f; //0.0320f
+                                float speed = 0.0310f; //0.0320f
                                 if(mc.thePlayer.speedInAir < speed){
                                    // Wrapper.instance.log(mc.thePlayer.speedInAir + "");
                                     if(mc.thePlayer.speedInAir < 0.025){
                                         mc.thePlayer.speedInAir = (float) (0.025f + (Math.random() / 100));
                                     }
-                                    mc.thePlayer.speedInAir += 0.0101f;
+                                    mc.thePlayer.speedInAir += 0.0091f;
                                 }else{
                                     mc.thePlayer.speedInAir = speed;
                                 }
@@ -433,10 +437,10 @@ public class Speed extends Module {
                                 if(mc.thePlayer.fallDistance > 0){
                                     mc.thePlayer.motionY *= 1.00;
                                 }else{
-                                    mc.thePlayer.motionY *= 1.0;
+                                    mc.thePlayer.motionY *= 1.00;
                                 }
-                                mc.thePlayer.motionX *= 0.988f;
-                                mc.thePlayer.motionZ *= 0.988f;
+                                mc.thePlayer.motionX *= 0.982f;
+                                mc.thePlayer.motionZ *= 0.982f;
                                 mc.thePlayer.speedInAir -= 0.00019f;
                                 if(mc.thePlayer.fallDistance > 0.4 && mc.thePlayer.fallDistance < 0.41){
                                     mc.thePlayer.motionY -= 0.1f;

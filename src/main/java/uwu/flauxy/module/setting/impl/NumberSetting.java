@@ -20,6 +20,9 @@ public class NumberSetting extends Setting<Double> {
     @Getter @Setter
     public double increment;
 
+    @Getter @Setter
+    public boolean colorDisplay;
+
     public NumberSetting(String name, double value, Supplier<Boolean> dependency, double minimum, double maximum, double increment) {
         super(name, value, dependency);
         this.name = name;

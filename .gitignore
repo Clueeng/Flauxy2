@@ -1,3 +1,10 @@
 srcout
 logs
 .idea
+/srcout/
+/srcout/
+/srcout/artifacts/
+/srcout/artifacts/Flauxy_jar/
+/srcout/artifacts/Flauxy_jar/Flauxy.jar
+/srcout/artifacts/Flauxy_jar/Flauxy.zip
+/srcout/production/

@@ -1018,9 +1018,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void shutdownMinecraftApplet()
     {
+        Flauxy.INSTANCE.onShutDownApplet();
         try
         {
-            Flauxy.INSTANCE.onShutDownApplet();
             logger.info("Stopping!");
 
             try
