@@ -1068,8 +1068,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
         super.moveEntity(x, y, z);
     }
 
-
-    @Override
+    // i hate myself what the fuck is this ??? WHAT IS THIS WHEN WAS THIS ADDED
+    /*@Override
     public Vec3 getLook(float partialTicks) {
         if (partialTicks == 1.0F)
         {
@@ -1081,5 +1081,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
             float f1 = this.prevServerYaw + (this.serverYaw - this.prevServerYaw) * partialTicks;
             return this.getVectorForRotation(f, f1);
         }
-    }
+    }*/
+
 }

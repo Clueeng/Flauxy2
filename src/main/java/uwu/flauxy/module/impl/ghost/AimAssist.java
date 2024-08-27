@@ -7,7 +7,10 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemSword;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventFrame;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
@@ -36,6 +39,7 @@ public class AimAssist extends Module {
     NumberSetting maxDistance = new NumberSetting("Distance",4.0,3.0,8.0,0.1);
 
     BooleanSetting drawFov = new BooleanSetting("DrawFov", true);
+    BooleanSetting onClick = new BooleanSetting("On Click", true);
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
     BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
@@ -43,7 +47,7 @@ public class AimAssist extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
 
     public AimAssist(){
-        addSettings(strength, drawFov, FOV, maxDistance, onlySword, showTargets, players, mobs, animals, shop);
+        addSettings(strength, drawFov, FOV, maxDistance, onClick, onlySword, showTargets, players, mobs, animals, shop);
     }
 
     List<Entity> targets;
@@ -58,10 +62,16 @@ public class AimAssist extends Module {
                 RenderUtil.drawUnfilledCircle(middleX + 1, middleY+1, (float) FOV.getValue() * 4f, new Color(255,255,255,30));
             }
         }
-        if (e instanceof EventUpdate) {
+        if (e instanceof EventFrame) {
             Entity target = getClosest();
             if (target == null) {
                 return;
+            }
+            if(onClick.getValue() && !Mouse.isButtonDown(0))return;
+            if(onlySword.getValue() && mc.thePlayer.inventory.getCurrentItem() != null){
+                if(!(mc.thePlayer.inventory.getCurrentItem().getItem() instanceof ItemSword )){
+                    return;
+                }
             }
 
             float[] rotations = getRotations(target);
@@ -69,7 +79,7 @@ public class AimAssist extends Module {
             float targetPitch = rotations[1];
             float playerYaw = net.minecraft.util.MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw);
             float playerPitch = mc.thePlayer.rotationPitch;
-            float yawDifference = net.minecraft.util.MathHelper.wrapAngleTo180_float(targetYaw) % 360;
+            float yawDifference = Math.abs(playerYaw - targetYaw);
             float pitchDifference = targetPitch - playerPitch;
             if (Math.abs(yawDifference) > FOV.getValue() || Math.abs(pitchDifference) > FOV.getValue()) {
                 return;
@@ -78,7 +88,15 @@ public class AimAssist extends Module {
                 return;
             }
 
-            mc.thePlayer.rotationYaw = (float) MathHelper.lerp(strength.getX() / 200f, mc.thePlayer.rotationYaw, yawDifference);
+            //mc.thePlayer.rotationYaw = mc.thePlayer.rotationYaw % 360;
+            //mc.thePlayer.rotationYaw = (float) MathHelper.lerp(0.1f,mc.thePlayer.rotationYaw,targetYaw % 360);
+            if(mc.thePlayer.rotationYaw % 360 > targetYaw % 360){
+                mc.thePlayer.rotationYaw -= (float) strength.getX();
+            }
+            if(mc.thePlayer.rotationYaw % 360 < targetYaw % 360){
+                mc.thePlayer.rotationYaw += (float) strength.getX();
+            }
+            //mc.thePlayer.rotationYaw = (float) MathHelper.lerp(strength.getX() / 200f, mc.thePlayer.rotationYaw % 360, targetYaw % 360);
             //mc.thePlayer.rotationPitch += (float) MathHelper.lerp(lerpFactor, mc.thePlayer.rotationYaw, pitchDifference);
         }
     }

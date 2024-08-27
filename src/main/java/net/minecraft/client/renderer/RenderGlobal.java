@@ -2292,9 +2292,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
             BlockOutline outline = Flauxy.INSTANCE.getModuleManager().getModule(BlockOutline.class);
             if(outline.isToggled()){
-                float red = (float) (outline.red.getValue() / outline.red.getMaximum());
-                float green = (float) (outline.green.getValue() / outline.green.getMaximum());
-                float blue = (float) (outline.blue.getValue() / outline.blue.getMaximum());
+                float red = outline.getOutlineColor().getRed() / 255f;
+                float green = outline.getOutlineColor().getGreen() / 255f;
+                float blue = outline.getOutlineColor().getBlue() / 255f;
                 float opacity = (float) (outline.opacity.getValue() / outline.opacity.getMaximum());
                 float linewidth = (float) (outline.linewidth.getValue());
                 boolean fullblock = outline.fullblock.getValue();

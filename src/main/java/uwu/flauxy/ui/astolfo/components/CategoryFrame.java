@@ -69,7 +69,7 @@ public class CategoryFrame implements ColorHelper {
         Gui.drawRect(getX() - 2, getY() - 2, getX() + width + 2, getY() + getHeight() + 2, category.getCategoryColor().getRGB());
         Gui.drawRect(getX() - 1, getY() - 1, getX() + width + 1, getY() + getHeight() + 1, darkerMainColor);
         AtomicInteger offCat = new AtomicInteger();
-        this.modules.forEach(module -> offCat.addAndGet(module.getOffset()));
+        this.modules.forEach(module -> offCat.addAndGet(module.getOffset()+1));
 
         // Calculate height
         height = Math.min(categoryNameHeight + offCat.get(), defaultHeight);

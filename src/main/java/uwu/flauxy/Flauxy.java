@@ -41,7 +41,7 @@ import java.util.Objects;
 public enum Flauxy implements MinecraftInstance {
     INSTANCE;
 
-    public String name = "Flauxy", version = "1.18";
+    public String name = "Flauxy", version = "1.2 (PvP Edition)";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
     public ModuleManager moduleManager;
     public FontManager fontManager;
@@ -135,6 +135,8 @@ public enum Flauxy implements MinecraftInstance {
 
     public java.util.ArrayList<Changelog> getLogs(){
         java.util.ArrayList<Changelog> list = new java.util.ArrayList<>();
+        list.add(new Changelog("1.2", Changelog.Type.TITLE));
+        list.add(new Changelog("Added way too many things to list em all", Changelog.Type.ADDED));
         list.add(new Changelog("1.18", Changelog.Type.TITLE));
         list.add(new Changelog("Added Parkour", Changelog.Type.ADDED));
         list.add(new Changelog("Fixed autoclicker being bad", Changelog.Type.EDITED));
@@ -145,20 +147,6 @@ public enum Flauxy implements MinecraftInstance {
         list.add(new Changelog("Spammer", Changelog.Type.ADDED));
         list.add(new Changelog("Creative+", Changelog.Type.ADDED));
         list.add(new Changelog("Self Nametags", Changelog.Type.ADDED));
-        list.add(new Changelog("1.16", Changelog.Type.TITLE));
-        list.add(new Changelog("Freelook", Changelog.Type.ADDED));
-        list.add(new Changelog("Restore Alt Button", Changelog.Type.ADDED));
-        list.add(new Changelog("Fixed ViaMCP", Changelog.Type.EDITED));
-        list.add(new Changelog("Fixed Client Spoofer", Changelog.Type.ADDED));
-        list.add(new Changelog("Keystrokes", Changelog.Type.ADDED));
-        list.add(new Changelog("Draggable hud elements", Changelog.Type.ADDED));
-        list.add(new Changelog("1.15", Changelog.Type.TITLE));
-        list.add(new Changelog("Added Plugin Finder", Changelog.Type.ADDED));
-        list.add(new Changelog("Added modern motion", Changelog.Type.ADDED));
-        list.add(new Changelog("Added macros", Changelog.Type.ADDED));
-        list.add(new Changelog("Removed shaders due to bug", Changelog.Type.REMOVED));
-        list.add(new Changelog("Added Performance Module (WIP)", Changelog.Type.ADDED));
-        list.add(new Changelog("Fixed some things in FastMathHack", Changelog.Type.EDITED));
         return list;
     }
 

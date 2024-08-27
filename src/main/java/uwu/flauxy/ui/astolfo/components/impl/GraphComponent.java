@@ -73,21 +73,19 @@ public class GraphComponent extends Component implements ColorHelper {
         Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(125, 125, 125).getRGB());
 
         if (isColor && hue != null) {
-            /*drawGradientSideways(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8,
-                    Color.HSBtoRGB(0, 1, 1),
-                    Color.HSBtoRGB(1, 1, 1)
-            );*/
+            GL11.glEnable(GL11.GL_ALPHA_TEST);
             Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, Color.getHSBColor((float) hue.getValue() / 360f,1,1).getRGB());
 
-            // 2. Draw saturation overlay from white to transparent
+            // 2. sat overlay
 
             drawGradientSideways(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(255, 255, 255, 255).getRGB(), new Color(255, 255, 255, 0).getRGB());
 
-            // 3. Draw brightness overlay from transparent to black
+            // 3. bright overlay
             drawGradientRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8,
                     new Color(0, 0, 0, 255).getRGB(),
                     new Color(0, 0, 0, 0).getRGB()
             );
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
 
         } else {
             Gui.drawRect(x + 1, y + 21, x + defaultWidth - 1, y + getOffset() - 10 + 5 + 8 - 1, new Color(55, 55, 55).getRGB());

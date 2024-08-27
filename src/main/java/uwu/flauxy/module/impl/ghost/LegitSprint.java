@@ -11,6 +11,7 @@ import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.render.RenderUtil;
 
 import java.awt.*;
 
@@ -46,7 +47,7 @@ public class LegitSprint extends Module {
                 setMoveW(mc.fontRendererObj.getStringWidth(text) + size);
                 setMoveH(mc.fontRendererObj.FONT_HEIGHT + size);
                 if(drawBackground.isEnabled()){
-                    Gui.drawRect(getMoveX(),getMoveY(),getMoveX() + getMoveW(),getMoveY() + getMoveH(),new Color(0,0,0,90).getRGB());
+                    RenderUtil.drawRoundedRect2(getMoveX(),getMoveY(),getMoveX() + getMoveW(),getMoveY() + getMoveH(), 4,new Color(0,0,0,90).getRGB());
                 }
                 mc.fontRendererObj.drawStringWithShadow(text,getMoveX() + (size/2),getMoveY() + (size/2),c.getRGB());
             }

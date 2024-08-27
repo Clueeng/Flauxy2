@@ -187,6 +187,7 @@ import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.ghost.FastPlace;
 import uwu.flauxy.module.impl.ghost.NoClickDelay;
 import uwu.flauxy.utils.DiscordPresenceUtil;
+import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.config.KeyLoader;
 import viamcp.utils.AttackOrder;
 
@@ -2117,7 +2118,12 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
                 while (this.gameSettings.keyBindAttack.isPressed())
                 {
-                    ((EntityLivingBase)thePlayer).swingItem(); // added that for 1.7 block animation but idk
+                    if (thePlayer.worldObj != null && Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
+                        MovingObjectPosition objectMouseOver = Minecraft.getMinecraft().objectMouseOver;
+                        if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                            thePlayer.swingItem();
+                        }
+                    }
                     ;
                 }
 

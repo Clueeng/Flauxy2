@@ -111,7 +111,7 @@ public class ModuleFrame implements ColorHelper {
 
                 component.drawScreen(mouseX, mouseY);
 
-                offset += component.getOffset() + 0;
+                offset += component.getOffset();
             }
         }
 
@@ -120,7 +120,11 @@ public class ModuleFrame implements ColorHelper {
 
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
-        if(RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, moduleHeight) && RenderUtil.hover(owner.getX(), owner.getY(), mouseX, mouseY, defaultWidth, owner.getHeight()))
+
+        System.out.println(mouseY);
+        System.out.println((owner.getY() + 16) + " " + owner);
+
+        if(RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, moduleHeight) && RenderUtil.hover(owner.getX(), owner.getY(), mouseX, mouseY, defaultWidth, owner.getHeight()) && !(mouseY < owner.getY() + 16))
         {
             switch(mouseButton)
             {

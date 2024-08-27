@@ -1,12 +1,16 @@
 package uwu.flauxy.module.impl.display;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import net.minecraft.client.gui.Gui;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.render.RenderUtil;
 
 import java.awt.*;
 
@@ -16,6 +20,7 @@ public class CoordsMod extends Module {
 
     public NumberSetting hue = new NumberSetting("HUE",0,0,360,1);
     public GraphSetting saturationValue = new GraphSetting("Saturation", 0, 0, 0, 100, 0, 100, 1, 1, hue); // sat bri
+    public BooleanSetting background = new BooleanSetting("Background",true);
 
     public CoordsMod(){
         setHudMoveable(true);
@@ -34,9 +39,13 @@ public class CoordsMod extends Module {
             int y = mc.thePlayer.getPosition().getY();
             int z = mc.thePlayer.getPosition().getZ();
             String coords = "X: " + x + " Y:" + y + " Z:" + z;
-            setMoveW(mc.fontRendererObj.getStringWidth(coords));
-            setMoveH(mc.fontRendererObj.FONT_HEIGHT);
-            mc.fontRendererObj.drawStringWithShadow(coords,getMoveX(),getMoveY(),c.getRGB());
+            int padding = 6;
+            setMoveW(mc.fontRendererObj.getStringWidth(coords) + padding);
+            setMoveH(mc.fontRendererObj.FONT_HEIGHT + padding);
+            if(background.isEnabled()){
+                RenderUtil.drawRoundedRect2(getMoveX(),getMoveY(),getMoveX() + getMoveW(),getMoveY() + getMoveH(), 4,new Color(0,0,0,90).getRGB());
+            }
+            mc.fontRendererObj.drawStringWithShadow(coords,getMoveX()+(padding / 2f),getMoveY()+(padding / 2f),c.getRGB());
         }
     }
 }

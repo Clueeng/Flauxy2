@@ -26,9 +26,12 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.impl.combat.Killaura;
 import uwu.flauxy.module.impl.visuals.Animations;
+import uwu.flauxy.module.impl.visuals.NoRender;
 
 
 public class ItemRenderer
@@ -341,7 +344,7 @@ public class ItemRenderer
             {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
             }
-            else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock)
+            else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock || (Mouse.isButtonDown(1) && !mc.thePlayer.isSprinting() && mc.currentScreen == null))
             {
                 EnumAction enumaction = this.itemToRender.getItemUseAction();
 
@@ -354,12 +357,10 @@ public class ItemRenderer
                     case EAT:
                     case DRINK:
                         this.func_178104_a(abstractclientplayer, partialTicks);
-                        this.transformFirstPersonItem(f, 0.0F);
+                        this.transformFirstPersonItem(f, f1);
                         break;
 
                     case BLOCK:
-                        final float cock = MathHelper.sin(MathHelper.sqrt_float(f1) * (float)Math.PI);
-                        final float cock2 = MathHelper.sin(f1 * f1 * (float) Math.PI);
                         float var2 = 1.0F - (this.prevEquippedProgress + (this.equippedProgress - this.prevEquippedProgress) * partialTicks);
                         if(animations.isToggled()) {
                             switch (animations.mode.getMode()) {
@@ -430,7 +431,7 @@ public class ItemRenderer
                         break;
 
                     case BOW:
-                        this.transformFirstPersonItem(f, 0.0F);
+                        this.transformFirstPersonItem(f, f1);
                         this.func_178098_a(partialTicks, abstractclientplayer);
                 }
             }
@@ -618,9 +619,15 @@ public class ItemRenderer
      */
     private void renderFireInFirstPerson(float p_78442_1_)
     {
+        NoRender module = Flauxy.INSTANCE.getModuleManager().getModule(NoRender.class);
+        if(module.tweakFire.isEnabled() && module.disableFire.isEnabled())return;
+
+        float opacity = module.tweakFire.isEnabled() ? (float) module.fireOpacity.getValue() / 100f : 0.9f;
+        float translateY = module.tweakFire.isEnabled() ? (float) module.fireHeight.getValue() : 0.3f;
+
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 0.9F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, opacity);
         GlStateManager.depthFunc(519);
         GlStateManager.depthMask(false);
         GlStateManager.enableBlend();
@@ -641,7 +648,7 @@ public class ItemRenderer
             float f7 = 0.0F - f / 2.0F;
             float f8 = f7 + f;
             float f9 = -0.5F;
-            GlStateManager.translate((float)(-(i * 2 - 1)) * 0.24F, -0.3F, 0.0F);
+            GlStateManager.translate((float)(-(i * 2 - 1)) * 0.24F, -translateY, 0.0F);
             GlStateManager.rotate((float)(i * 2 - 1) * 10.0F, 0.0F, 1.0F, 0.0F);
             worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX);
             worldrenderer.pos((double)f5, (double)f7, (double)f9).tex((double)f2, (double)f4).endVertex();
