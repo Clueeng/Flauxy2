@@ -71,9 +71,20 @@ public class CommandGameMode extends CommandBase
     /**
      * Gets the Game Mode specified in the command.
      */
-    protected WorldSettings.GameType getGameModeFromCommand(ICommandSender p_71539_1_, String p_71539_2_) throws CommandException, NumberInvalidException
-    {
-        return !p_71539_2_.equalsIgnoreCase(WorldSettings.GameType.SURVIVAL.getName()) && !p_71539_2_.equalsIgnoreCase("s") ? (!p_71539_2_.equalsIgnoreCase(WorldSettings.GameType.CREATIVE.getName()) && !p_71539_2_.equalsIgnoreCase("c") ? (!p_71539_2_.equalsIgnoreCase(WorldSettings.GameType.ADVENTURE.getName()) && !p_71539_2_.equalsIgnoreCase("a") ? (!p_71539_2_.equalsIgnoreCase(WorldSettings.GameType.SPECTATOR.getName()) && !p_71539_2_.equalsIgnoreCase("sp") ? WorldSettings.getGameTypeById(parseInt(p_71539_2_, 0, WorldSettings.GameType.values().length - 2)) : WorldSettings.GameType.SPECTATOR) : WorldSettings.GameType.ADVENTURE) : WorldSettings.GameType.CREATIVE) : WorldSettings.GameType.SURVIVAL;
+    protected WorldSettings.GameType getGameModeFromCommand(ICommandSender sender, String gameMode) throws CommandException, NumberInvalidException {
+        if (gameMode.equalsIgnoreCase(WorldSettings.GameType.SURVIVAL.getName()) || gameMode.equalsIgnoreCase("s")) {
+            return WorldSettings.GameType.SURVIVAL;
+        } else if (gameMode.equalsIgnoreCase(WorldSettings.GameType.CREATIVE.getName()) || gameMode.equalsIgnoreCase("c")) {
+            return WorldSettings.GameType.CREATIVE;
+        } else if (gameMode.equalsIgnoreCase(WorldSettings.GameType.ADVENTURE.getName()) || gameMode.equalsIgnoreCase("a")) {
+            return WorldSettings.GameType.ADVENTURE;
+        } else if (gameMode.equalsIgnoreCase(WorldSettings.GameType.SPECTATOR.getName()) || gameMode.equalsIgnoreCase("sp")) {
+            return WorldSettings.GameType.SPECTATOR;
+        } else if (gameMode.equalsIgnoreCase(WorldSettings.GameType.NOT_SET.getName()) || gameMode.equalsIgnoreCase("not")){
+            return WorldSettings.GameType.NOT_SET;
+        }else {
+            return WorldSettings.getGameTypeById(parseInt(gameMode, 0, WorldSettings.GameType.values().length - 2));
+        }
     }
 
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)

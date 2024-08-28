@@ -56,6 +56,7 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.module.impl.falses.AutoHeadhitter;
 import uwu.flauxy.module.impl.falses.ModernMotionThreshold;
+import uwu.flauxy.module.impl.other.MouseDelayFix;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -2209,6 +2210,9 @@ public abstract class EntityLivingBase extends Entity
      */
     public Vec3 getLook(float partialTicks)
     {
+        if(this instanceof EntityPlayerSP && Flauxy.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()){
+            return super.getLook(1.0f);
+        }
         if (partialTicks == 1.0F)
         {
             return this.getVectorForRotation(this.rotationPitch, this.rotationYawHead);

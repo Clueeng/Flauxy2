@@ -117,13 +117,13 @@ public class AutoClicker extends Module {
                     if(cpsTimer.hasTimeElapsed(msTime, true)){
                         if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
                             KeyBinding.onTick(mc.gameSettings.keyBindAttack.getKeyCode());
-                            isClickingLeft = true;
+                            //isClickingLeft = true;
                             //legitAttack(ev);
                         }
                         if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
                             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.getKeyCode());
                             //legitRightClick();
-                            isClickingRight = true;
+                            //isClickingRight = true;
                         }
                     }else{
                         isClickingLeft = false;
