@@ -321,18 +321,23 @@ public class GuiChat extends GuiScreen
         }
         for (Module hudMod : Flauxy.INSTANCE.getModuleManager().getHudModules()) {
             if (hudMod.isToggled()) {
+                ScaledResolution sr = new ScaledResolution(mc);
                 boolean isKeyStrokes = hudMod instanceof KeyStrokes;
                 double xpos = hudMod.getMoveX();
                 double ypos = hudMod.getMoveY();
                 double width = isKeyStrokes ? 32 * ((KeyStrokes) hudMod).size.getValue() * 2 : hudMod.getMoveW();
                 double height = isKeyStrokes ? 42 * ((KeyStrokes) hudMod).size.getValue() : hudMod.getMoveH();
                 double endX = xpos + width;
+
+                if(endX > sr.getScaledWidth()){
+                    hudMod.setMoveX((float) (hudMod.getMoveX() - (Math.abs(endX - sr.getScaledWidth()))));
+                }
+
                 double endY = ypos + height;
                 boolean withinX = mouseX > xpos - 4 && mouseX < xpos + width + 2;
                 boolean withinY = mouseY > ypos - 4 && mouseY < ypos + height + 2;
                 boolean closeX = mouseX > xpos - 2 && mouseX < xpos + 2;
                 boolean closeY = mouseY > ypos - 2 && mouseY < ypos + 2;
-                ScaledResolution sr = new ScaledResolution(mc);
 
                 // KeyStrokes-specific rendering
                 if (isKeyStrokes) {
@@ -367,16 +372,16 @@ public class GuiChat extends GuiScreen
                     if (withinX && withinY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod) || (movingModule == hudMod)) {
                         heldTick = Math.min(heldTick + 1,3);
                         movingModule = hudMod;
-                        if (endX + 1 > sr.getScaledWidth()) {
+                        if (endX + 1 > sr.getScaledWidth() + 2) {
                             hudMod.setMoveX(hudMod.getMoveX() - 1);
                         } else if (xpos - 1 < 0) {
                             hudMod.setMoveX(hudMod.getMoveX() + 1);
                         } else {
                             hudMod.setMoveX(hudMod.getMoveX() + (mouseX - oldMouseX));
                         }
-                        if (endY + 1 > sr.getScaledHeight()) {
+                        if (endY + 1 > sr.getScaledHeight() + 1) {
                             hudMod.setMoveY(hudMod.getMoveY() - 1);
-                        } else if (ypos - 1 < 0) {
+                        } else if (ypos - 1 < -2) {
                             hudMod.setMoveY(hudMod.getMoveY() + 1);
                         } else {
                             hudMod.setMoveY(hudMod.getMoveY() + (mouseY - oldMouseY));

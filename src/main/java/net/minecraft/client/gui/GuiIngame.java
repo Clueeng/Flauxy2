@@ -29,10 +29,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
-import net.minecraft.scoreboard.Score;
-import net.minecraft.scoreboard.ScoreObjective;
-import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.*;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.FoodStats;
@@ -385,20 +382,37 @@ public class GuiIngame extends Gui
         ScoreObjective scoreobjective = null;
         ScorePlayerTeam scoreplayerteam = scoreboard.getPlayersTeam(this.mc.thePlayer.getName());
 
-        if (scoreplayerteam != null)
-        {
+        if (scoreplayerteam != null) {
             int j1 = scoreplayerteam.getChatFormat().getColorIndex();
 
-            if (j1 >= 0)
-            {
+            if (j1 >= 0) {
                 scoreobjective = scoreboard.getObjectiveInDisplaySlot(3 + j1);
             }
         }
 
         ScoreObjective scoreobjective1 = scoreobjective != null ? scoreobjective : scoreboard.getObjectiveInDisplaySlot(1);
 
-        if (scoreobjective1 != null)
-        {
+// Check if the scoreobjective1 is null and if the current GUI is an instance of GuiChat
+        if (scoreobjective1 == null && this.mc.currentScreen instanceof GuiChat) {
+            // Check if the "customScoreboard" objective already exists
+            ScoreObjective customObjective = scoreboard.getObjective("customScoreboard");
+
+            if (customObjective == null) {
+                // Create a new custom scoreboard objective if it does not exist
+                customObjective = scoreboard.addScoreObjective("customScoreboard", IScoreObjectiveCriteria.DUMMY);
+                customObjective.setDisplayName("Title");
+
+                // Add custom lines to the scoreboard using getValueFromObjective
+                scoreboard.getValueFromObjective("Line 1", customObjective).setScorePoints(1);
+                scoreboard.getValueFromObjective("Line 2", customObjective).setScorePoints(2);
+                scoreboard.getValueFromObjective("Line 3", customObjective).setScorePoints(3);
+                scoreboard.getValueFromObjective("Line 4", customObjective).setScorePoints(4);
+            }
+
+            scoreobjective1 = customObjective; // Use the custom objective
+        }
+
+        if (scoreobjective1 != null) {
             this.renderScoreboard(scoreobjective1, scaledresolution);
         }
 
@@ -651,6 +665,11 @@ public class GuiIngame extends Gui
         scoreMod.setMoveH(scoreboardHeight + 11);
         scoreMod.setMoveW(maxScoreWidth + 2);
         int scoreIndex = 0;
+        int renderEndX = scoreboardX + maxScoreWidth;
+        if(renderEndX > scaledResolution.getScaledWidth()){
+            scoreboardX -= Math.abs(renderEndX - scaledResolution.getScaledWidth());
+            scoreMod.setMoveX(scoreboardX);
+        }
 
         for(Object scoring : toRenderCollectionScores){
             Score score = (Score) scoring;
@@ -659,11 +678,17 @@ public class GuiIngame extends Gui
             String formattedPlayerName = ScorePlayerTeam.formatPlayerName(scorePlayerTeam,score.getPlayerName());
             String scored = EnumChatFormatting.RED + "" + score.getScorePoints();
             int scoreY = scoreboardY - scoreIndex * getFontRenderer().FONT_HEIGHT;
-            int renderEndX = scaledResolution.getScaledWidth() - xPadding + 2;
-            renderEndX = scoreboardX + maxScoreWidth;
 
             drawRect(scoreboardX - 2,scoreY,renderEndX,scoreY + getFontRenderer().FONT_HEIGHT,1342177280);
-            getFontRenderer().drawString(formattedPlayerName, scoreboardX, scoreY, 553648127);
+
+            int centering = 0;
+            if(formattedPlayerName.contains(".xyz") || formattedPlayerName.contains(".net") || formattedPlayerName.contains(".com") || formattedPlayerName.contains(".fr")
+            || formattedPlayerName.contains(".br") || formattedPlayerName.contains(".es") || formattedPlayerName.contains(".org") || formattedPlayerName.contains(".tk")){
+                formattedPlayerName = "Flauxy.lol";
+                centering = ((scoreboardX - renderEndX) / 2) - (getFontRenderer().getStringWidth(formattedPlayerName)/2) - (scoreboardX - renderEndX);
+            }
+
+            getFontRenderer().drawString(formattedPlayerName, scoreboardX + centering, scoreY, 553648127);
             if(scoreMod.showScore.isEnabled()){
                 getFontRenderer().drawString(scored,renderEndX - getFontRenderer().getStringWidth(scored),scoreY,553648127);
             }

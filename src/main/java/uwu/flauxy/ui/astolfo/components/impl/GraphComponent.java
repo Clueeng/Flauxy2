@@ -183,6 +183,6 @@ public class GraphComponent extends Component implements ColorHelper {
 
     @Override
     public int getOffset() {
-        return this.getSetting().getCanShow().test(null) ? 120 : 0;
+        return this.getSetting().getCanShow().test(null) ? 100 : 0;
     }
 }

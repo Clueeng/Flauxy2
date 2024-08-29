@@ -5,6 +5,8 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.other.AutoRespawn;
 
 public class GuiGameOver extends GuiScreen implements GuiYesNoCallback
 {
@@ -20,6 +22,7 @@ public class GuiGameOver extends GuiScreen implements GuiYesNoCallback
      */
     public void initGui()
     {
+
         this.buttonList.clear();
 
         if (this.mc.theWorld.getWorldInfo().isHardcoreModeEnabled())
@@ -104,6 +107,11 @@ public class GuiGameOver extends GuiScreen implements GuiYesNoCallback
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        AutoRespawn mod = Flauxy.INSTANCE.getModuleManager().getModule(AutoRespawn.class);
+        if(mod.isToggled()){
+            this.mc.thePlayer.respawnPlayer();
+            this.mc.displayGuiScreen((GuiScreen)null);
+        }
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
         GlStateManager.pushMatrix();
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
