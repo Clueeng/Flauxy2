@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javazoom.jl.player.Player;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -577,43 +578,30 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         RenderUtil.drawImage(0, 0, width, height, RL_Background);
         Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
-        tickToGenerate++;
-        if(tickToGenerate % (200) * timeLeftInSeconds == 0){
-            opacity = 0;
-            shouldAnimate = true;
-            shouldAnimateTicks = 0;
-        }
-        if(shouldAnimateTicks == 1){
-            shouldPlaySound = true;
-        }
-        if(shouldPlaySound){
-            System.out.println("Playing sound");
-            new Thread(() -> {
-                try {
-                    player = new Player(Objects.requireNonNull(this.getClass().getResourceAsStream("/assets/minecraft/sounds/hover.mp3")));
-                    player.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if(System.currentTimeMillis() % 10 == 0){
+            tickToGenerate++;
+            if(tickToGenerate % (1000) * timeLeftInSeconds == 0){
+                opacity = 0;
+                shouldAnimate = true;
+                shouldAnimateTicks = 0;
+            }
+            if(shouldAnimate && toggledAnimations){
+                shouldAnimateTicks++;
+                if(shouldAnimateTicks < 255 - opacity - 1){
+                    opacity += 8;
                 }
-            }).start();
-            shouldPlaySound = false;
-        }
-        if(shouldAnimate && toggledAnimations){
-            shouldAnimateTicks++;
-            if(shouldAnimateTicks < 255 - opacity - 1){
-                opacity += 8;
-            }
-            if(opacity > 230){
-                generateImage();
-                shouldDecreaseOpacity = true;
-            }
-            if(shouldDecreaseOpacity){ // gtg
-                int removeFactor = 16;
-                if(opacity <= removeFactor) opacity = removeFactor;
-                opacity -= removeFactor;
-                if(opacity <= removeFactor){
-                    shouldDecreaseOpacity = false;
-                    shouldAnimate = false;
+                if(opacity > 230){
+                    generateImage();
+                    shouldDecreaseOpacity = true;
+                }
+                if(shouldDecreaseOpacity){ // gtg
+                    int removeFactor = 16;
+                    if(opacity <= removeFactor) opacity = removeFactor;
+                    opacity -= removeFactor;
+                    if(opacity <= removeFactor){
+                        shouldDecreaseOpacity = false;
+                        shouldAnimate = false;
+                    }
                 }
             }
         }

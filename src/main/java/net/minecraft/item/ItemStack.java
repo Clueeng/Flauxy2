@@ -32,6 +32,8 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.visuals.EnchantGlint;
 
 public final class ItemStack
 {
@@ -858,7 +860,9 @@ public final class ItemStack
 
     public boolean hasEffect()
     {
-        return this.getItem().hasEffect(this);
+        // enchant all items
+        EnchantGlint mod = Flauxy.INSTANCE.getModuleManager().getModule(EnchantGlint.class);
+        return this.getItem().hasEffect(this) || mod.allItem.isEnabled();
     }
 
     public EnumRarity getRarity()

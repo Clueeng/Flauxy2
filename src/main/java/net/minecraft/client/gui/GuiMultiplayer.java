@@ -16,7 +16,10 @@ import org.lwjgl.input.Keyboard;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.DiscordPresenceUtil;
+import uwu.flauxy.utils.ViaUtil;
 import viamcp.ViaMCP;
 
 public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
@@ -167,6 +170,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
                 }
             }
             else if(button.id == 69420){
+                Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Panic", "Disabled all active modules", 2000));
                 for(Category c : Category.values()){
                     for(Module m : Flauxy.INSTANCE.getModuleManager().getModules(c)){
                         if(m.isToggled()){
@@ -413,6 +417,7 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
 
     private void connectToServer(ServerData server)
     {
+        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Multiplayer", "Connecting to " + server.serverIP + " in " + ViaUtil.toReadableVersion(ViaMCP.getInstance().getVersion())));
         this.mc.displayGuiScreen(new GuiConnecting(this, this.mc, server));
     }
 

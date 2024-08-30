@@ -49,14 +49,14 @@ public class PotionHUD extends Module {
             // Retrieve the color based on settings
             Color color = getColorFromSettings(hue, saturationValue);
             int heightGap = 24;
-            int padding = 10; // Padding around the text
+            int padding = 4; // Padding around the text
 
             //
             int fullHeight = 0;
             int maxTextWidth = 0;
             idlePotions = copied(mc.thePlayer.getActivePotionEffects());
             if((mc.thePlayer.getActivePotionEffects() == null || mc.thePlayer.getActivePotionEffects().isEmpty()) && mc.currentScreen instanceof GuiChat){
-                idlePotions.add(new PotionEffect(1, 20, 1, true, true));
+                idlePotions.add(new PotionEffect(1, 20, 0, true, true));
             }
             for (PotionEffect p : idlePotions) {
                 fullHeight += heightGap;
@@ -81,10 +81,10 @@ public class PotionHUD extends Module {
             lerpedWidth = (float) MathHelper.lerp(0.06f, lerpedWidth, fullWidth);
 
             RenderUtil.prepareScissorBox(x, y, x + (int) lerpedWidth, y + (int) lerpedHeight);
-            Gui.drawRect(x, y, x + (int) lerpedWidth, y + (int) lerpedHeight, new Color(0, 0, 0, 90).getRGB());
+            RenderUtil.drawRoundedRect2(x, y, x + (int) lerpedWidth, y + (int) lerpedHeight, 4, new Color(0, 0, 0, 90).getRGB());
 
             int currentY = y + 5;
-            for (PotionEffect p : mc.thePlayer.getActivePotionEffects()) {
+            for (PotionEffect p : idlePotions) {
                 String name = StatCollector.translateToLocal(p.getEffectName());
                 int amplifier = p.getAmplifier() + 1;
                 String text = name + " " + romanNumber(amplifier) + " (" + Potion.getDurationString(p) + ")";

@@ -14,12 +14,13 @@ public class Scoreboard extends Module {
     public float scoreBoardWidth = 120, scoreboardHeight = 120;
 
     public BooleanSetting showScore = new BooleanSetting("Show Score",true);
+    public BooleanSetting blur = new BooleanSetting("Blur",true);
 
     public Scoreboard(){
         setHudMoveable(true);
         setMoveX(0);
         setMoveY(0);
-        addSettings(showScore);
+        addSettings(showScore, blur);
     }
 
     @Override

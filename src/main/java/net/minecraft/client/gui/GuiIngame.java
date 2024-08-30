@@ -3,6 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,13 +43,18 @@ import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import optfine.Config;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.impl.CommandSetupCPS;
 import uwu.flauxy.event.impl.EventRender2D;
 import uwu.flauxy.module.impl.combat.Killaura;
+import uwu.flauxy.notification.Notification;
 import uwu.flauxy.utils.NumberUtil;
 import uwu.flauxy.utils.Wrapper;
 import uwu.flauxy.utils.render.ColorUtils;
+import uwu.flauxy.utils.render.RenderUtil;
+import uwu.flauxy.utils.render.shader.StencilUtil;
+import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
 
 import javax.annotation.Nullable;
 
@@ -146,7 +153,6 @@ public class GuiIngame extends Gui
                         lastCurrentTime = Killaura.dataClickOne.get(clicks - 1);
                     }
                     Killaura.dataClickOne.add(Math.abs(currentTime - lastCurrentTime));
-                    System.out.println(clicks + " " + Killaura.dataClickOne);
                 } else if (clicks <= 20) {
                     long lastCurrentTime = currentTime;
                     if (Killaura.dataClickTwo.size() > 1) {
@@ -172,7 +178,6 @@ public class GuiIngame extends Gui
                     double averageInterval = NumberUtil.getAverage(allIntervals);
                     double cps = 1000 / averageInterval;
                     Wrapper.instance.log("Thanks for setting up the custom CPS. Your average CPS will be: " + cps);
-                    System.out.println(Killaura.dataClickOne);
 
                     // Reset for the next setup
                     clicks = 0;
@@ -391,27 +396,21 @@ public class GuiIngame extends Gui
         }
 
         ScoreObjective scoreobjective1 = scoreobjective != null ? scoreobjective : scoreboard.getObjectiveInDisplaySlot(1);
-
-// Check if the scoreobjective1 is null and if the current GUI is an instance of GuiChat
+        shouldReset = scoreobjective1 == null;
         if (scoreobjective1 == null && this.mc.currentScreen instanceof GuiChat) {
-            // Check if the "customScoreboard" objective already exists
             ScoreObjective customObjective = scoreboard.getObjective("customScoreboard");
 
             if (customObjective == null) {
-                // Create a new custom scoreboard objective if it does not exist
                 customObjective = scoreboard.addScoreObjective("customScoreboard", IScoreObjectiveCriteria.DUMMY);
-                customObjective.setDisplayName("Title");
-
-                // Add custom lines to the scoreboard using getValueFromObjective
+                customObjective.setDisplayName("Flauxy Title");
                 scoreboard.getValueFromObjective("Line 1", customObjective).setScorePoints(1);
-                scoreboard.getValueFromObjective("Line 2", customObjective).setScorePoints(2);
-                scoreboard.getValueFromObjective("Line 3", customObjective).setScorePoints(3);
+                scoreboard.getValueFromObjective("Lorem ipsum", customObjective).setScorePoints(2);
+                scoreboard.getValueFromObjective("Lorem ipsum dolor sit amet", customObjective).setScorePoints(3);
                 scoreboard.getValueFromObjective("Line 4", customObjective).setScorePoints(4);
             }
 
-            scoreobjective1 = customObjective; // Use the custom objective
+            scoreobjective1 = customObjective;
         }
-
         if (scoreobjective1 != null) {
             this.renderScoreboard(scoreobjective1, scaledresolution);
         }
@@ -438,6 +437,13 @@ public class GuiIngame extends Gui
         }
 
         Flauxy.onEvent(new EventRender2D(partialTicks));
+
+        if(Flauxy.INSTANCE.getNotificationManager().queuedNotifications != null && !Flauxy.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
+            Notification notification = Flauxy.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
+            if(mc.currentScreen == null){
+                notification.render(partialTicks);
+            }
+        }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.disableLighting();
@@ -624,11 +630,14 @@ public class GuiIngame extends Gui
             return true;
         }
     }
-
+    public static float lerpedX, lerpedY;
+    public static boolean shouldReset;
     private void renderScoreboard(ScoreObjective scoreObjective, ScaledResolution scaledResolution)
     {
         uwu.flauxy.module.impl.display.Scoreboard scoreMod = Flauxy.INSTANCE.getModuleManager().getModule(uwu.flauxy.module.impl.display.Scoreboard.class);
         if(!scoreMod.isToggled())return;
+        lerpedX = (float) uwu.flauxy.utils.MathHelper.lerp(0.06f,lerpedX,scoreMod.getMoveW());
+        lerpedY = (float) uwu.flauxy.utils.MathHelper.lerp(0.06f,lerpedY,scoreMod.getMoveH());
 
         Scoreboard scoreboard = scoreObjective.getScoreboard();
         Collection scores = scoreboard.getSortedScores(scoreObjective);
@@ -664,11 +673,23 @@ public class GuiIngame extends Gui
         int scoreboardX = (int) scoreMod.getMoveX() + 2; // scaledResolution.getScaledWidth() - xPadding - 2
         scoreMod.setMoveH(scoreboardHeight + 11);
         scoreMod.setMoveW(maxScoreWidth + 2);
+
+
+        GL11.glPushMatrix();
+        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        RenderUtil.prepareScissorBox(scoreMod.getMoveX(),scoreMod.getMoveY(),scoreMod.getMoveX() + lerpedX,scoreMod.getMoveY() + lerpedY);
+
+
         int scoreIndex = 0;
         int renderEndX = scoreboardX + maxScoreWidth;
         if(renderEndX > scaledResolution.getScaledWidth()){
             scoreboardX -= Math.abs(renderEndX - scaledResolution.getScaledWidth());
             scoreMod.setMoveX(scoreboardX);
+        }
+        if(scoreMod.isToggled() && scoreMod.blur.isEnabled()){
+            GaussianBlur.renderBlur(9f);
+            drawRect(scoreboardX - 2,scoreboardY - totalHeight,renderEndX,scoreboardY,1342177280);
+            StencilUtil.uninitStencilBuffer();
         }
 
         for(Object scoring : toRenderCollectionScores){
@@ -679,7 +700,11 @@ public class GuiIngame extends Gui
             String scored = EnumChatFormatting.RED + "" + score.getScorePoints();
             int scoreY = scoreboardY - scoreIndex * getFontRenderer().FONT_HEIGHT;
 
-            drawRect(scoreboardX - 2,scoreY,renderEndX,scoreY + getFontRenderer().FONT_HEIGHT,1342177280);
+
+            if(!scoreMod.blur.isEnabled()){
+                drawRect(scoreboardX - 2,scoreY,renderEndX,scoreY + getFontRenderer().FONT_HEIGHT,1342177280);
+            }
+            //StencilUtil.uninitStencilBuffer();
 
             int centering = 0;
             if(formattedPlayerName.contains(".xyz") || formattedPlayerName.contains(".net") || formattedPlayerName.contains(".com") || formattedPlayerName.contains(".fr")
@@ -702,6 +727,8 @@ public class GuiIngame extends Gui
             }
         }
         totalHeight = getFontRenderer().FONT_HEIGHT * scoreIndex;
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        GL11.glPopMatrix();
     }
 
     int totalHeight = 0;

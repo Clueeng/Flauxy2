@@ -1,5 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import net.minecraft.block.Block;
@@ -57,6 +58,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3i;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.module.impl.visuals.EnchantGlint;
 
 public class RenderItem implements IResourceManagerReloadListener
 {
@@ -162,6 +165,8 @@ public class RenderItem implements IResourceManagerReloadListener
 
     private void renderEffect(IBakedModel model)
     {
+        EnchantGlint glint = Flauxy.INSTANCE.moduleManager.getModule(EnchantGlint.class);
+        int glintColor = glint.isToggled() ? glint.getColor().getRGB() : -8372020;
         GlStateManager.depthMask(false);
         GlStateManager.depthFunc(514);
         GlStateManager.disableLighting();
@@ -173,7 +178,8 @@ public class RenderItem implements IResourceManagerReloadListener
         float f = (float)(Minecraft.getSystemTime() % 3000L) / 3000.0F / 8.0F;
         GlStateManager.translate(f, 0.0F, 0.0F);
         GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
-        this.renderModel(model, -8372020);
+        // color this
+        this.renderModel(model, glintColor);
         GlStateManager.popMatrix();
         GlStateManager.pushMatrix();
         GlStateManager.scale(8.0F, 8.0F, 8.0F);

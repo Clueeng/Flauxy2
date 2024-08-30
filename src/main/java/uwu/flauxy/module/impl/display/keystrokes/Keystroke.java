@@ -54,7 +54,7 @@ public class Keystroke {
         this.whiteEnd = (int)net.minecraft.util.MathHelper.clamp_float(this.white,0,254);
     }
 
-    public void render(float absoluteX, float absoluteY){
+    public void render(float absoluteX, float absoluteY, int pressCol){
         String keyString = Keyboard.getKeyName(this.keyBinding.getKeyCode());
         clamp_color();
         float expandSize = 8.0f;
@@ -66,11 +66,16 @@ public class Keystroke {
         Gui.drawRect(absoluteX - expandSize + renderedRelativeX,absoluteY - expandSize + renderedRelativeY, absoluteX + expandSize + renderedRelativeX,absoluteY + expandSize + renderedRelativeY
                 ,new Color(this.white, this.white, this.white, 90).getRGB());
         float textExpand = expandSize / size;
+        if(this.pressed){
+            pressCol = pressCol;
+        }else{
+            pressCol = new Color(255,255,255).getRGB();
+        }
         Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(keyString,absoluteX + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(keyString)) + (renderedRelativeX),
-                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT/1.25f) + renderedRelativeY, new Color((int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), 255).getRGB());
+                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT/1.25f) + renderedRelativeY, pressCol);
         //GlStateManager.popMatrix();
     }
-    public void renderClicks(float absoluteX, float absoluteY, float cpsLeft, float cpsRight){
+    public void renderClicks(float absoluteX, float absoluteY, float cpsLeft, float cpsRight, int pressCol){
         String keyString = keyBinding.equals(Minecraft.getMinecraft().gameSettings.keyBindAttack) ? "L" : "R";
         String cps = keyString.equals("L") ? String.valueOf(cpsLeft) : String.valueOf(cpsRight);
         clamp_color();
@@ -86,10 +91,15 @@ public class Keystroke {
         Gui.drawRect(absoluteX - expandSize + renderedRelativeX,absoluteY - expandSize + renderedRelativeY, absoluteX + expandSize + renderedRelativeX + (expandSizeX * 2 * size),absoluteY + expandSize + renderedRelativeY
                 ,new Color(this.white, this.white, this.white, 90).getRGB());
         float textExpand = expandSize / size;
+        if(this.pressed){
+            pressCol = pressCol;
+        }else{
+            pressCol = new Color(255,255,255).getRGB();
+        }
         Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(keyString,absoluteX + (textExpand) - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(keyString)) + (renderedRelativeX),
-                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT*1.5f) + renderedRelativeY, new Color((int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), 255).getRGB());
+                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT*1.5f) + renderedRelativeY, pressCol);
         Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow("[" + cps + "]",absoluteX + (textExpand) - (Minecraft.getMinecraft().fontRendererObj.getStringWidth("[" + cps + "]")/1.75f) + (renderedRelativeX),
-                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT/2.75f) + renderedRelativeY, new Color((int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), (int)(255 - (this.white / 2f)), 255).getRGB());
+                absoluteY + (textExpand / 2.0f) - (Minecraft.getMinecraft().fontRendererObj.FONT_HEIGHT/2.75f) + renderedRelativeY, pressCol);
 
         //GlStateManager.translate(-x,-y,1.0f);
         //GlStateManager.popMatrix();

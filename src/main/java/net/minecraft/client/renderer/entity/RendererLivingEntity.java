@@ -31,6 +31,7 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.ModuleManager;
 import uwu.flauxy.module.impl.visuals.Chams;
 import uwu.flauxy.module.impl.visuals.Freelook;
+import uwu.flauxy.module.impl.visuals.HitColor;
 import uwu.flauxy.module.impl.visuals.SelfNametag;
 import uwu.flauxy.utils.WorldUtil;
 import uwu.flauxy.utils.render.RenderUtil;
@@ -372,10 +373,24 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
             if (flag1)
             {
-                this.brightnessBuffer.put(1.0F);
-                this.brightnessBuffer.put(0.0F);
-                this.brightnessBuffer.put(0.0F);
-                this.brightnessBuffer.put(0.3F);
+                // color
+                HitColor mod = Flauxy.INSTANCE.getModuleManager().getModule(HitColor.class);
+                if(mod.isToggled()){
+                    Color c = mod.getColor();
+                    float red = c.getRed() / 255f;
+                    float green = c.getGreen() / 255f;
+                    float blue = c.getBlue() / 255f;
+                    float opacity = (float) (mod.opacity.getValue() / mod.opacity.getMaximum());
+                    this.brightnessBuffer.put(red); // red
+                    this.brightnessBuffer.put(green); // gree n
+                    this.brightnessBuffer.put(blue); // blue
+                    this.brightnessBuffer.put(opacity); // opacity
+                }else{
+                    this.brightnessBuffer.put(1.0F);
+                    this.brightnessBuffer.put(0.0F);
+                    this.brightnessBuffer.put(0.0F);
+                    this.brightnessBuffer.put(0.3F);
+                }
             }
             else
             {

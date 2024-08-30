@@ -3,6 +3,7 @@ package uwu.flauxy.ui.astolfo.components;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import uwu.flauxy.Flauxy;
@@ -61,7 +62,7 @@ public class CategoryFrame implements ColorHelper {
 
     public void initGui()
     {
-        this.animation.setSpeed(100).reset();
+        this.animation.setSpeed(30);
     }
 
     public void drawScreen(int mouseX, int mouseY)
@@ -89,20 +90,22 @@ public class CategoryFrame implements ColorHelper {
 
         RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + getHeight(), 5, mainColor);
         RenderUtil.drawRoundedRect2(getX(), getY(), getX() + width, getY() + categoryNameHeight, 5, darkerMainColor);
-
+        //Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(category.name().toLowerCase(), x + 2, (int) (y + ((categoryNameHeight / 2F) - getFont().getHeight("A") / 2F) + 1), stringColor);
+        getFont().drawStringWithShadow(category.name(), x + 2, y + (categoryNameHeight / 2f - getFont().getHeight("A") / 2f), stringColor);
 
         // Drag ClickGUI
         if(drag) {
             setX(this.xDrag + mouseX);
             setY(this.yDrag + mouseY);
         }
+        GlStateManager.color(1f,1f,1f,1f);
 
         // Drawing category name
-        Minecraft.getMinecraft().fontRendererObj.drawString(category.name().toLowerCase(), x + 2, (int) (y + ((categoryNameHeight / 2F) - getFont().getHeight("A") / 2F) + 1), stringColor);
         GL11.glPushMatrix();
         GL11.glEnable(3089);
         RenderUtil.prepareScissorBox(getX() + (width / 2F) - animation.update().getValue(), getY() + categoryNameHeight, x + (width / 2F) + animation.getValue(), y + getHeight());
 
+        GlStateManager.color(1f,1f,1f,1f);
         // Drawing modules
         int i = 0;
         for (ModuleFrame module : this.modules)
@@ -112,6 +115,7 @@ public class CategoryFrame implements ColorHelper {
             module.drawScreen(mouseX, mouseY);
             i += module.getOffset();
         }
+
 
         GL11.glDisable(3089);
         GL11.glPopMatrix();

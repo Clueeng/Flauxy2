@@ -13,6 +13,7 @@ import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
+import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.MathHelper;
@@ -33,12 +34,17 @@ public class ArrayList extends Module {
     public ModeSetting animAlgo = new ModeSetting("Animation","Lerp","Lerp", "Quad");
     public NumberSetting animSpeed = new NumberSetting("Animation Speed", 0, 1, 10, 1); // divide by 20
 
-    public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    //public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    //public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    //public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    //public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    //public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
+    public GraphSetting sat2 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
+
     public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend") || color.is("Theme"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
     //public BooleanSetting glow = new BooleanSetting("Glow", true);
@@ -52,7 +58,11 @@ public class ArrayList extends Module {
     public BooleanSetting background = new BooleanSetting("Background", true);
     public NumberSetting background_opacity = new NumberSetting("Background opacity", 90, 0, 255, 1).setCanShow(m -> background.getValue());
     public ArrayList() {
-        addSettings(color, themes, animAlgo, animSpeed, line_width, padding, customfont, red, green, blue, red2, green2, blue2, offset, barLeft, barRight, outline, background, background_opacity);
+        hue1.setColorDisplay(true);
+        hue2.setColorDisplay(true);
+        sat1.setColorDisplay(true);
+        sat2.setColorDisplay(true);
+        addSettings(color, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -133,8 +143,8 @@ public class ArrayList extends Module {
                 // Color
                 switch(color.getMode()){
                     case "Blend":{
-                        Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
-                        Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
+                        Color col1 = getColorFromSettings(hue1,sat1);
+                        Color col2 = getColorFromSettings(hue2,sat2);
                         int off = (int) (offset.getValue() * 75);
                         stringColor = ColorUtils.blendThing(2F, (long) (cn * off), col1, col2);
                         break;
@@ -165,7 +175,7 @@ public class ArrayList extends Module {
                         break;
                     }
                     case "Custom":{
-                        stringColor = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue()).getRGB();
+                        stringColor = getColorFromSettings(hue1,sat1).getRGB();
                         break;
                     }
                     case "Astolfo":{

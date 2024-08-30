@@ -1,0 +1,34 @@
+{
+    "targets": [
+      "swap",
+      "previous"
+    ],
+    "passes": [
+      {
+        "name": "blur_horizontal",
+        "intarget": "minecraft:main",
+        "outtarget": "swap",
+        "program": "blurs/blur_horizontal",
+        "auxtargets": [],
+        "uniforms": [
+          {
+            "name": "Radius",
+            "values": [5.0]
+          }
+        ]
+      },
+      {
+        "name": "blur_vertical",
+        "intarget": "swap",
+        "outtarget": "previous",
+        "program": "blurs/blur_vertical",
+        "auxtargets": [],
+        "uniforms": [
+          {
+            "name": "Radius",
+            "values": [5.0]
+          }
+        ]
+      }
+    ]
+  }

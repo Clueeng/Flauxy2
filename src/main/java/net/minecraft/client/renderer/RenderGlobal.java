@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -2319,14 +2321,66 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)partialTicks;
                 double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)partialTicks;
                 double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
-                func_181561_a(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
+                drawOutline(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
+
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
+                GlStateManager.enableBlend();
+                GL11.glDisable(GL11.GL_CULL_FACE);
+                GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                GlStateManager.disableTexture2D();
+                if(outline.fullblock.isEnabled() && outline.isToggled()){
+                    drawBoxOverlay(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2), new Color(255, 0 ,0 , 90));
+
+                }
             }
             GlStateManager.depthMask(true);
             GlStateManager.enableTexture2D();
             GlStateManager.disableBlend();
         }
     }
-    public static void func_181561_a(AxisAlignedBB p_181561_0_)
+    public static void drawBoxOverlay(AxisAlignedBB boundingBox, Color color) {
+        GL11.glBegin(GL11.GL_QUADS);
+
+        // Bottom face (Y = minY)
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
+
+        // Top face (Y = maxY)
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+
+        // North face (Z = minZ)
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
+
+        // South face (Z = maxZ)
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+
+        // West face (X = minX)
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.minY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.minX, boundingBox.maxY, boundingBox.minZ);
+
+        // East face (X = maxX)
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.minZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ);
+        GL11.glVertex3d(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ);
+
+        // End drawing
+        GL11.glEnd();
+    }
+    public static void drawOutline(AxisAlignedBB p_181561_0_)
     {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();

@@ -38,7 +38,7 @@ public class CoordsMod extends Module {
             int x = mc.thePlayer.getPosition().getX();
             int y = mc.thePlayer.getPosition().getY();
             int z = mc.thePlayer.getPosition().getZ();
-            String coords = "X: " + x + " Y:" + y + " Z:" + z;
+            String coords = "X: " + x + " Y: " + y + " Z: " + z;
             int padding = 6;
             setMoveW(mc.fontRendererObj.getStringWidth(coords) + padding);
             setMoveH(mc.fontRendererObj.FONT_HEIGHT + padding);

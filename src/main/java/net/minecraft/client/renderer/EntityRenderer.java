@@ -76,6 +76,7 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.impl.falses.Zoom;
 import uwu.flauxy.module.impl.ghost.Reach;
 import uwu.flauxy.module.impl.other.Performance;
+import uwu.flauxy.module.impl.visuals.BlockOutline;
 import uwu.flauxy.module.impl.visuals.Freelook;
 import uwu.flauxy.utils.Wrapper;
 
@@ -1605,6 +1606,9 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
         GlStateManager.shadeModel(7424);
         GlStateManager.alphaFunc(516, 0.1F);
 
+        BlockOutline block = Flauxy.INSTANCE.getModuleManager().getModule(BlockOutline.class);
+        boolean overlay = block.isToggled() && block.fullblock.isEnabled();
+
         if (!this.debugView)
         {
             GlStateManager.matrixMode(5888);
@@ -1634,13 +1638,16 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             if (this.mc.objectMouseOver != null && entity.isInsideOfMaterial(Material.water) && flag)
             {
                 EntityPlayer entityplayer = (EntityPlayer)entity;
-                GlStateManager.disableAlpha();
                 this.mc.mcProfiler.endStartSection("outline");
                 boolean flag1 = Reflector.ForgeHooksClient_onDrawBlockHighlight.exists();
 
                 if ((!flag1 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderglobal, entityplayer, this.mc.objectMouseOver, Integer.valueOf(0), entityplayer.getHeldItem(), Float.valueOf(partialTicks)})) && !this.mc.gameSettings.hideGUI)
                 {
+
                     renderglobal.drawSelectionBox(entityplayer, this.mc.objectMouseOver, 0, partialTicks);
+                    if(overlay){
+                        //renderglobal.drawBlockOverlay(entityplayer,this.mc.objectMouseOver,partialTicks);
+                    }
                 }
                 GlStateManager.enableAlpha();
             }
@@ -1656,9 +1663,12 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             this.mc.mcProfiler.endStartSection("outline");
             boolean flag2 = Reflector.ForgeHooksClient_onDrawBlockHighlight.exists();
 
-            if ((!flag2 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, new Object[] {renderglobal, entityplayer1, this.mc.objectMouseOver, Integer.valueOf(0), entityplayer1.getHeldItem(), Float.valueOf(partialTicks)})) && !this.mc.gameSettings.hideGUI)
+            if ((!flag2 || !Reflector.callBoolean(Reflector.ForgeHooksClient_onDrawBlockHighlight, renderglobal, entityplayer1, this.mc.objectMouseOver, Integer.valueOf(0), entityplayer1.getHeldItem(), Float.valueOf(partialTicks))) && !this.mc.gameSettings.hideGUI)
             {
                 renderglobal.drawSelectionBox(entityplayer1, this.mc.objectMouseOver, 0, partialTicks);
+                if(overlay){
+                    //renderglobal.drawBlockOverlay(entityplayer1,this.mc.objectMouseOver,partialTicks);
+                }
             }
             GlStateManager.enableAlpha();
         }

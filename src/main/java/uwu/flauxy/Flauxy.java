@@ -21,6 +21,7 @@ import uwu.flauxy.module.impl.display.HUD;
 import uwu.flauxy.module.impl.player.Noslow;
 import uwu.flauxy.module.impl.player.Sprint;
 import uwu.flauxy.module.impl.visuals.Animations;
+import uwu.flauxy.notification.NotificationManager;
 import uwu.flauxy.utils.MinecraftInstance;
 import uwu.flauxy.utils.config.ConfigManager;
 import uwu.flauxy.utils.config.ConfigUtil;
@@ -29,6 +30,7 @@ import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.waypoint.WaypointManager;
 import viamcp.ViaMCP;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,6 +48,7 @@ public enum Flauxy implements MinecraftInstance {
     public ModuleManager moduleManager;
     public FontManager fontManager;
     public AltManager altManager;
+    public final NotificationManager notificationManager = new NotificationManager();
     private ConfigUtil configManager;
     private CapeManager capeManager;
     private CommandManager commandManager;
@@ -57,6 +60,8 @@ public enum Flauxy implements MinecraftInstance {
     public boolean initialized = false;
     @Getter
     private DiscordRP discordRP = new DiscordRP();
+
+    public Color copiedColor = new Color(0, 0, 0);
 
     public void init(){
         discordRPC = DiscordRPC.INSTANCE;

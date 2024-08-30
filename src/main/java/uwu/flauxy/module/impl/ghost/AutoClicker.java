@@ -7,7 +7,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.item.*;
-import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
@@ -18,7 +17,6 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventFrame;
 import uwu.flauxy.event.impl.EventRender2D;
-import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
@@ -143,16 +141,14 @@ public class AutoClicker extends Module {
                     double percentToFail = 18;
                     if(anyClick){
                         if(failPercent < percentToFail){
-                           // Wrapper.instance.log("Failed click");
+                            // Wrapper.instance.log("Failed click");
                         }
                         if(cpsTimer.hasTimeElapsed(msTime, true) && failPercent > percentToFail){
                             if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
-                                //legitAttack(ev);
-                                KeyBinding.onTick(mc.gameSettings.keyBindAttack.getKeyCode());
+                                legitAttack(ev);
                             }
                             if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
-                                //legitRightClick();
-                                KeyBinding.onTick(mc.gameSettings.keyBindUseItem.getKeyCode());
+                                legitRightClick();
                             }
                         }
                     }else{
@@ -172,12 +168,10 @@ public class AutoClicker extends Module {
                     if(cpsTimer.hasTimeElapsed(time, true)){
                         //Wrapper.instance.log("Test (" + (amountOfClicks > 2) + ") " + time);
                         if(holdingLeft && shouldUseLeftClick() && leftClicking.getValue()){
-                            //legitAttack(ev);
-                            KeyBinding.onTick(mc.gameSettings.keyBindAttack.getKeyCode());
+                            legitAttack(ev);
                         }
                         if(holdingRight && shouldUseRightClick() && rightClicking.getValue()){
-                            //legitRightClick();
-                            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.getKeyCode());
+                            legitRightClick();
                         }
                         amountOfClicks++;
                         amountOfClicks2++;
@@ -217,9 +211,9 @@ public class AutoClicker extends Module {
     public void legitRightClick() {
         ItemStack heldItem = mc.thePlayer.getHeldItem();
         if(heldItem == null
-        || ( !(heldItem.getItem() instanceof ItemEgg
-        || heldItem.getItem() instanceof ItemPotion
-        || heldItem.getItem() instanceof ItemBlock
+                || ( !(heldItem.getItem() instanceof ItemEgg
+                || heldItem.getItem() instanceof ItemPotion
+                || heldItem.getItem() instanceof ItemBlock
         ))){
             return;
         }
@@ -255,10 +249,9 @@ public class AutoClicker extends Module {
     }
 
     public void legitAttack(EventUpdate e) {
-        if (mc.objectMouseOver == null) {
+        if (mc.objectMouseOver == null || mc.thePlayer.ridingEntity instanceof EntityBoat) {
             return;
         }
-        if(Mouse.isButtonDown(1))return;
         if(e.isPre()){
             mc.thePlayer.swingItem();
         }

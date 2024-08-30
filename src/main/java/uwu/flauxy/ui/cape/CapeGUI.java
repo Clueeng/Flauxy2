@@ -31,6 +31,7 @@ public class CapeGUI extends GuiScreen {
     private int capeHeight = 32, capeWidth = 64, boxExpand = 8, maxPerRow = 5;
     private int startX = 0, endX = 0,
             startY = 0, endY = 0;
+    float animX, animY, animX2, animY2;
     private final CapeManager capeManager = Flauxy.INSTANCE.getCapeManager();
 
     private final Color outline = new Color(23,23,23), // outline bg
@@ -42,6 +43,8 @@ public class CapeGUI extends GuiScreen {
 
     @Override
     public void initGui() {
+        animX = animX2 = sr.getScaledWidth() / 2f;
+        animY = animY2 = sr.getScaledHeight() / 2f;
         super.initGui();
         ModuleCapeGUI c = Flauxy.INSTANCE.getModuleManager().getModule(ModuleCapeGUI.class);
         c.setToggled(false);
@@ -74,8 +77,22 @@ public class CapeGUI extends GuiScreen {
             }
         }
          */
-
         sr = new ScaledResolution(mc);
+
+        if(System.currentTimeMillis() % 1 == 0){
+            animX = (float) MathHelper.lerp(0.01,animX,0);
+            animY = (float) MathHelper.lerp(0.01,animY,0);
+            animX2 = (float) MathHelper.lerp(0.01,animX2,sr.getScaledWidth());
+            animY2 = (float) MathHelper.lerp(0.01,animY2,sr.getScaledHeight());
+        }
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(animX
+                ,animY
+                ,animX2,
+                animY2);
+
         startX = sr.getScaledWidth() / 5;
         endX = sr.getScaledWidth() - startX - startX;
         startY = sr.getScaledHeight() / 4;
@@ -110,6 +127,8 @@ public class CapeGUI extends GuiScreen {
         opacity = (float) MathHelper.lerp(0.01f,opacity,opacityEnd);
 
 
+
+
         RenderUtil.drawRoundedRect3(startX-3,startY-3,endX+6,endY+6, 4,outline.darker().getRGB());
         RenderUtil.drawRoundedRect3(startX,startY,endX,endY, 4,bg.getRGB());
         RenderUtil.drawRoundedRect3(startX,startY,endX,16, 0,outline.getRGB());
@@ -129,12 +148,7 @@ public class CapeGUI extends GuiScreen {
         // fade in
         for(Cape c : capeManager.capes){
             index++;
-            // GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
-            //RenderUtil.drawRoundedRect2(capeX-1,capeY-1,capeWidth+1,capeHeight+1,4, brightAccent.getRGB());
             int modelWidth = boxExpand * 2;
-            //RenderUtil.drawRoundedRect3(capeX,capeY + 1,capeX,capeY + 1,4, capeBack.getRGB());
-            //Gui.drawRect(capeX, capeY, capeX + capeWidth, capeY + capeHeight,-1);
-            // capeManager.CURRENT_CAPE = index-1;
             if(capeManager.CURRENT_CAPE == index-1){
                 RenderUtil.drawRoundedRect2(capeX-1,capeY-1, capeX + capeWidth + 1, capeY  + capeHeight + 1,4,brightAccent.getRGB());
             }else{
@@ -176,6 +190,8 @@ public class CapeGUI extends GuiScreen {
 
         RenderUtil.drawGradientRect(startX,startY + 14, endX + startX,startY + 64, new Color(outline.getRed()/255f,outline.getGreen()/255f,outline.getBlue()/255f,0).getRGB(),new Color(outline.getRed()/255f,outline.getGreen()/255f,outline.getBlue()/255f,opacity).getRGB());
 
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
     }
 
 

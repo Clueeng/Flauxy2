@@ -19,13 +19,11 @@ public class ClickGUI extends GuiScreen {
         this.categories = new ArrayList<>();
 
         int index = -1;
-        // Creating category instance foreach listed category
         for(Category category : Category.values()) {
-            index++;
-            categories.add(new CategoryFrame(category, category.id > 6 ? 10 + ((index-6) * (125 + 10)) : 10 + (index * (125 + 10)), category.id > 6 ? height + 280 : 10));
-        }
-        for(Config config : Flauxy.INSTANCE.getNonShittyConfigManager().getConfigs()){
-            //non shitty code run here :D
+            if(!category.equals(Category.Macro)){
+                index++;
+                categories.add(new CategoryFrame(category, category.id > 6 ? 10 + ((index-6) * (125 + 10)) : 10 + (index * (125 + 10)), category.id > 6 ? height + 280 : 10));
+            }
         }
     }
 

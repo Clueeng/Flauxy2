@@ -42,6 +42,8 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import tv.twitch.chat.ChatUserInfo;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.notification.Notification;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 {
@@ -94,6 +96,13 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         for (int j = 0; j < this.labelList.size(); ++j)
         {
             ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
+        }
+        //mc.fontRendererObj.drawString("hi",4,4,-1);
+        if(Flauxy.INSTANCE.getNotificationManager().queuedNotifications != null && !Flauxy.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
+            Notification notification = Flauxy.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
+            if(mc.currentScreen != null){
+                notification.render(partialTicks);
+            }
         }
     }
 

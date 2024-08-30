@@ -13,6 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Session;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 
 public final class AltLoginThread
 extends Thread {
@@ -61,7 +63,7 @@ extends Thread {
             AltManager altManager = Flauxy.INSTANCE.altManager;
             AltManager.lastAlt = new Alt(this.username, this.password);
             this.status = (Object)((Object)EnumChatFormatting.GREEN) + "Logged in. (" + auth.getUsername() + ")";
-
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Alt Manager", "Logged into " + auth.getUsername(), 1500));
             this.mc.session = auth;
         }
     }

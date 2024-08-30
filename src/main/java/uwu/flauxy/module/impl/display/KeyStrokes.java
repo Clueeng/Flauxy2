@@ -13,6 +13,7 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.impl.display.keystrokes.Keystroke;
 import uwu.flauxy.module.impl.ghost.AutoClicker;
+import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.Wrapper;
 
@@ -24,6 +25,8 @@ public class KeyStrokes extends Module {
 
     java.util.ArrayList<Keystroke> keystrokes = new java.util.ArrayList<>();
     public NumberSetting size = new NumberSetting("Size", 1.25,0.75,2,0.0125);
+    public NumberSetting hue = new NumberSetting("HUE",0,0,360,1);
+    public GraphSetting satBright = new GraphSetting("Saturation", 100,100,0,100,0,100,1,1, hue);
     java.util.ArrayList<Long> cpsTimeLeft = new java.util.ArrayList<>();
     java.util.ArrayList<Long> cpsTimeRight = new java.util.ArrayList<>();
     int cpsLeft, cpsRight;
@@ -37,7 +40,9 @@ public class KeyStrokes extends Module {
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindAttack,0,-16,32)); // 24 w
         keystrokes.add(new Keystroke(mc.gameSettings.keyBindUseItem,0,8,32)); // 24 w
         setHudMoveable(true);
-        addSetting(size);
+        hue.setColorDisplay(true);
+        satBright.setColorDisplay(true);
+        addSettings(size, hue, satBright);
         moveX = 100;
         moveY = 100;
     }
@@ -52,9 +57,9 @@ public class KeyStrokes extends Module {
                 k.setSize((float) size.getValue());
                 k.updatePressed();
                 if(k.keyBinding.equals(mc.gameSettings.keyBindUseItem) || k.keyBinding.equals(mc.gameSettings.keyBindAttack)){
-                    k.renderClicks(moveX, moveY, cpsLeft, cpsRight);
+                    k.renderClicks(moveX, moveY, cpsLeft, cpsRight, getColorFromSettings(hue, satBright).getRGB());
                 }else{
-                    k.render(moveX,moveY);
+                    k.render(moveX,moveY, getColorFromSettings(hue, satBright).getRGB());
                 }
             }
 

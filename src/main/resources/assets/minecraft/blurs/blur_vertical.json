@@ -1,0 +1,19 @@
+{
+  "targets": [
+    "previous"
+  ],
+  "passes": [
+    {
+      "name": "vertical_pass",
+      "intarget": "swap",
+      "outtarget": "minecraft:main",
+      "auxtargets": [],
+      "uniforms": [
+        {
+          "name": "Radius",
+          "values": [5.0]
+        }
+      ]
+    }
+  ]
+}

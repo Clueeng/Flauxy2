@@ -2,12 +2,16 @@ package uwu.flauxy.ui.astolfo.components.impl;
 
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.setting.Setting;
 import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.ui.astolfo.components.Component;
 import uwu.flauxy.ui.astolfo.components.ModuleFrame;
 import uwu.flauxy.ui.astolfo.ColorHelper;
@@ -45,11 +49,47 @@ public class GraphComponent extends Component implements ColorHelper {
         dragX = dragY = false;
     }
 
+    public Color getColorFromSettings(NumberSetting hue, GraphSetting saturationValue){
+        return Color.getHSBColor((float)hue.getValue() / 360f,(float)saturationValue.getX() / 100f,(float)saturationValue.getY() / 100f);
+    }
+    public void setColorFromSettings(Color c, NumberSetting hue, GraphSetting saturationValue) {
+        float[] hsbValues = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+        float hueValue = hsbValues[0] * 360f;
+        float saturationValuePercentage = hsbValues[1] * 100f;
+        float brightnessValuePercentage = hsbValues[2] * 100f;
+        hue.setValue(hueValue);
+        saturationValue.setX(saturationValuePercentage);
+        saturationValue.setY(brightnessValuePercentage);
+    }
+
     @Override
     public void drawScreen(int mouseX, int mouseY) {
 
         if (!Mouse.isButtonDown(0)) {
             dragX = dragY = false;
+        }
+
+        if(hue != null && RenderUtil.hover(x, y + 20, mouseX, mouseY, defaultWidth, getOffset() - 20)){
+
+            if(Keyboard.isKeyDown(Keyboard.KEY_C)){
+                if(!Flauxy.INSTANCE.copiedColor.equals(getColorFromSettings(hue,(GraphSetting) this.getSetting()))){
+                    Flauxy.INSTANCE.copiedColor = getColorFromSettings(hue, (GraphSetting) this.getSetting());
+                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Copied color, press V to paste it elsewhere"));
+                }
+            }
+            if(Keyboard.isKeyDown(Keyboard.KEY_V)){
+                if(!Flauxy.INSTANCE.copiedColor.equals(getColorFromSettings(hue,(GraphSetting) this.getSetting()))){
+                    Color copied = Flauxy.INSTANCE.getCopiedColor();
+                    float[] hsbValues = Color.RGBtoHSB(copied.getRed(), copied.getGreen(), copied.getBlue(), null);
+                    float hueValue = hsbValues[0] * 360f;
+                    float saturationValuePercentage = hsbValues[1] * 100f;
+                    float brightnessValuePercentage = hsbValues[2] * 100f;
+                    hue.setValue(hueValue);
+                    ((GraphSetting) this.getSetting()).setX(saturationValuePercentage);
+                    ((GraphSetting) this.getSetting()).setY(brightnessValuePercentage);
+                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Pasted color"));
+                }
+            }
         }
 
         GraphSetting graph = (GraphSetting) getSetting();

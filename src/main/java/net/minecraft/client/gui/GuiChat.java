@@ -66,6 +66,9 @@ public class GuiChat extends GuiScreen
      */
     public void initGui()
     {
+        if(GuiIngame.shouldReset){
+            GuiIngame.lerpedX = GuiIngame.lerpedY = 0;
+        }
         Keyboard.enableRepeatEvents(true);
         this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
         this.inputField = new GuiTextField(0, this.fontRendererObj, 4, this.height - 12, this.width - 4, 12);
