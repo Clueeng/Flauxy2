@@ -54,9 +54,9 @@ public class Velocity extends Module {
                     if(event.getPacket() instanceof S12PacketEntityVelocity){
                         S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
                         if(x.getValue() > 0 || y.getValue() > 0){
-                            packet.setMotionX((int) ((packet.getMotionX() / 100) * x.getValue()) );
-                            packet.setMotionY((int) ((packet.getMotionY() / 100) * y.getValue()) );
-                            packet.setMotionZ((int) ((packet.getMotionZ() / 100) * x.getValue()) );
+                            packet.setMotionX((int) ((packet.getMotionX() / 8000) * x.getValue()) );
+                            packet.setMotionY((int) ((packet.getMotionY() / 8000) * y.getValue()) );
+                            packet.setMotionZ((int) ((packet.getMotionZ() / 8000) * x.getValue()) );
                         }else{
                             event.setCancelled(true);
                         }

@@ -286,8 +286,10 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             // thats where the magic happens
             Chams chams = Flauxy.INSTANCE.getModuleManager().getModule(Chams.class);
             if(chams.isToggled() && chams.mode.is("Colored") && WorldUtil.isValidChams(entitylivingbaseIn)){
-                Color color = new Color((int) chams.red.getValue(), (int) chams.green.getValue(), (int) chams.blue.getValue(), (int) chams.alpha.getValue());
-                Color hiddenColor = new Color((int) chams.red2.getValue(), (int) chams.green2.getValue(), (int) chams.blue2.getValue(), (int) chams.alpha.getValue());
+                Color shown = chams.getColorFromSettings(chams.hue1,chams.sat1);
+                Color hidden = chams.getColorFromSettings(chams.hue2,chams.sat2);
+                Color color = new Color(shown.getRed(), shown.getGreen(), shown.getBlue(), (int) chams.alpha.getValue());
+                Color hiddenColor = new Color(hidden.getRed(), hidden.getGreen(), hidden.getBlue(), (int) chams.alpha.getValue());
                 glPushAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

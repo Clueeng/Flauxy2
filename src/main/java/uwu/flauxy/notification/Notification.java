@@ -53,8 +53,8 @@ public class Notification {
     }
     public void render(float partialTicks){
         long dif = Math.abs(msCreated - msNow);
-        updatePosition();
 
+        updatePosition();
 
         GL11.glPushMatrix();
         GL11.glEnable(3089);

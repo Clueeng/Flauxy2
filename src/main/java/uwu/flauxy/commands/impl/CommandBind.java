@@ -6,6 +6,8 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.Command;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.Wrapper;
 
 public class CommandBind extends Command {
@@ -27,17 +29,18 @@ public class CommandBind extends Command {
     @Override
     public void onCommandRun(Minecraft mc, String[] args) throws Exception {
         if(args[1] == null){
-            Wrapper.instance.log("Error");
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Error", "Wrong usage, use .help"));
         }else{
             if(args[2] == null){
-                Wrapper.instance.log("Error");
+                Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Error", "Wrong usage, use .help"));
             }else{
                 int key = Keyboard.getKeyIndex(args[2].toUpperCase());
                 String modName = args[1];
                 if(Flauxy.INSTANCE.moduleManager.getModule(modName) != null){
                     Module mod = Flauxy.INSTANCE.moduleManager.getModule(modName);
                     mod.setKey(key);
-                    Wrapper.instance.log("Bound " + modName + " to " + args[2]);
+                    //Wrapper.instance.log("Bound " + modName + " to " + args[2]);
+                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Bind successful", "Bound " + mod.getName() + " to " + key));
                 }
             }
         }

@@ -128,7 +128,7 @@ public class ESP extends Module {
                             c = new Color(0, 0, 0);
                     }
 
-                    if(!isValid(entity)) return;
+                    if(!isValid(entity)) continue;
                     if(nametags.getValue()){
                         //if(entity instanceof EntityPlayer){
                         float bottom = maxY + ((minY + maxY) / maxY);

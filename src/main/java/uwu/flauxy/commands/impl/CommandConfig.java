@@ -7,6 +7,8 @@ import uwu.flauxy.commands.Command;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleManager;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.Wrapper;
 
 import java.io.File;
@@ -51,7 +53,8 @@ public class CommandConfig extends Command {
             }
 
             if(args[1].equalsIgnoreCase("save")) {
-                Wrapper.instance.log("Saved the config " + args[2] +  ".");
+                Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Config", "Saved " + args[2] + " successfully"));
+                //Wrapper.instance.log("Saved the config " + args[2] +  ".");
                 Flauxy.INSTANCE.getModuleManager().saveHudPosition();
                 try {
                     Flauxy.INSTANCE.getConfigManager().save(args[2]);

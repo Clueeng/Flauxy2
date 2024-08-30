@@ -1,8 +1,6 @@
 package uwu.flauxy.module.impl.display;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventRender2D;
@@ -19,15 +17,15 @@ import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
 import java.awt.*;
 
 
-@ModuleInfo(name = "Coords", key = -1, cat = Category.Display, displayName = "Coords")
-public class CoordsMod extends Module {
+@ModuleInfo(name = "FPS", key = -1, cat = Category.Display, displayName = "FPS")
+public class FpsMod extends Module {
 
     public NumberSetting hue = new NumberSetting("HUE",0,0,360,1);
     public GraphSetting saturationValue = new GraphSetting("Saturation", 0, 0, 0, 100, 0, 100, 1, 1, hue); // sat bri
     public BooleanSetting background = new BooleanSetting("Background",true);
     BooleanSetting blur = new BooleanSetting("Blur",true);
 
-    public CoordsMod(){
+    public FpsMod(){
         setHudMoveable(true);
         setMoveX(100);
         setMoveY(500);
@@ -43,7 +41,7 @@ public class CoordsMod extends Module {
             int x = mc.thePlayer.getPosition().getX();
             int y = mc.thePlayer.getPosition().getY();
             int z = mc.thePlayer.getPosition().getZ();
-            String coords = "X: " + x + " Y: " + y + " Z: " + z;
+            String coords = "FPS: " + Minecraft.debugFPS;
             int padding = 6;
             setMoveW(mc.fontRendererObj.getStringWidth(coords) + padding);
             setMoveH(mc.fontRendererObj.FONT_HEIGHT + padding);
@@ -54,7 +52,6 @@ public class CoordsMod extends Module {
                     ,getMoveY()
                     ,getMoveX() + getMoveW(),
                     getMoveY() + getMoveH());
-            //StencilUtil.initStencilToWrite();
             if(blur.isEnabled()){
                 GaussianBlur.renderBlur(5f);
             }
