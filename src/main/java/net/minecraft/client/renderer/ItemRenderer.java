@@ -325,33 +325,28 @@ public class ItemRenderer
         float f = 1.0F - (this.prevEquippedProgress + (this.equippedProgress - this.prevEquippedProgress) * partialTicks);
         AbstractClientPlayer abstractclientplayer = this.mc.thePlayer;
         float f1 = abstractclientplayer.getSwingProgress(partialTicks);
-        float f4 = abstractclientplayer.getSwingProgress(partialTicks) * 0.8f;
         float f2 = abstractclientplayer.prevRotationPitch + (abstractclientplayer.rotationPitch - abstractclientplayer.prevRotationPitch) * partialTicks;
         float f3 = abstractclientplayer.prevRotationYaw + (abstractclientplayer.rotationYaw - abstractclientplayer.prevRotationYaw) * partialTicks;
-        final float sqrtPI = MathHelper.sin(MathHelper.sqrt_float(f1) * (float) Math.PI);
-        final float piMulti = MathHelper.sin(f1 * f1 * (float) Math.PI);
         this.func_178101_a(f2, f3);
         this.func_178109_a(abstractclientplayer);
         this.func_178110_a((EntityPlayerSP)abstractclientplayer, partialTicks);
         GlStateManager.enableRescaleNormal();
         GlStateManager.pushMatrix();
-        float var9 = MathHelper.sin(MathHelper.sqrt_float(f1) * MathHelper.PI);
 
         if (this.itemToRender != null)
         {
-            Animations animations = Animations.instance();
             if (this.itemToRender.getItem() == Items.filled_map)
             {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
             }
-            else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock || (Mouse.isButtonDown(1) && !mc.thePlayer.isSprinting() && mc.currentScreen == null))
+            else if (abstractclientplayer.getItemInUseCount() > 0)
             {
                 EnumAction enumaction = this.itemToRender.getItemUseAction();
 
                 switch (enumaction)
                 {
                     case NONE:
-                        this.transformFirstPersonItem(f, 0.0F);
+                        this.transformFirstPersonItem(f, f1);
                         break;
 
                     case EAT:
@@ -361,73 +356,8 @@ public class ItemRenderer
                         break;
 
                     case BLOCK:
-                        float var2 = 1.0F - (this.prevEquippedProgress + (this.equippedProgress - this.prevEquippedProgress) * partialTicks);
-                        if(animations.isToggled()) {
-                            switch (animations.mode.getMode()) {
-                                case "Vanilla": {
-                                    this.transformFirstPersonItem(f, f1);
-                                    this.func_178103_d();
-                                }
-                                break;
-                                case "Plain": {
-                                    this.transformFirstPersonItem((float) 0, (float) Math.sin(f1 * var9) / 2);
-                                    GlStateManager.translate(0, 0.5F, 0);
-                                    this.func_178103_d();
-                                    break;
-                                }
-                                case "Knock": {
-                                    this.transformFirstPersonItem(f, 1);
-                                    GlStateManager.rotate(sqrtPI * 60f, -sqrtPI * 10, 0.3f, -sqrtPI * 20f);
-                                    GlStateManager.rotate(sqrtPI * -4, 0, 0, 0);
-                                    this.func_178103_d();
-                                    break;
-                                }
-                                case "Swipe": {
-                                    transformFirstPersonItem(0, 0.0f);
-                                    doBlockTransformations();
-                                    GlStateManager.translate(-0.05f, -0.0f, 0.3f);
-                                    GlStateManager.rotate(-sqrtPI * (float) 60.0 / 2.0f, -15.0f, -0.0f, 9.0f);
-                                    GlStateManager.rotate(-sqrtPI * (float) 70.0, 1.0f, -0.4f, -0.0f);
-                                    break;
-                                }
-                                case "Test": {
-                                    GlStateManager.translate(0, -0.003 * 25, 0);
-                                    // GlStateManager.translate(0.1F, 0.135F, -0.15F);
-                                    this.transformFirstPersonItem(var2 / 1.8f, 0.0f);
-                                    GL11.glTranslatef(0.1F, 0.4F, -0.1F);
-                                    GL11.glRotated(-var9 * 12.0F * 1.2, var9 / 2, 0.0F, 9.0F);
-                                    GL11.glRotated(-var9 * 29.0F * 1.2, 0.8F, var9 / 2, 0F);
-                                    //  this.func_178103_d();
-                                    this.doBlockTransformations();
-                                    break;
-                                }
-                                case "Up":{
-                                    this.transformFirstPersonItem(0, f * 0.1f);
-                                    GlStateManager.translate(0, 0.15 + (mc.thePlayer.swingProgress * 0.5), 0);
-                                    this.func_178103_d();
-                                    break;
-                                }
-                                case "Punch":{
-                                    this.transformFirstPersonItem(0, f * 0.05f);
-                                    float a = mc.thePlayer.swingProgress * 2;
-                                    float b = 0;
-                                    if(b < a) b+=0.14f;
-                                    GlStateManager.translate(-0, 0.15f + b, -0);
-                                    GlStateManager.scale(1 - a, 1 - a, 1 - a);
-                                    this.func_178103_d();
-                                    break;
-                                }
-                                case "Smooth":{
-                                    high(0.2f);
-                                    this.transformFirstPersonItem(f, f1 * 0.75f);
-                                    this.func_178103_d();
-                                    break;
-                                }
-                            }
-                        } else {
-                            this.transformFirstPersonItem(f, 0.0F);
-                            this.func_178103_d();
-                        }
+                        this.transformFirstPersonItem(f, f1);
+                        this.func_178103_d();
                         break;
 
                     case BOW:
@@ -437,24 +367,10 @@ public class ItemRenderer
             }
             else
             {
-                if(animations.isToggled()) {
-                    switch (animations.hit.getMode()) {
-                        case "Vanilla": {
-                            this.func_178105_d(f1 * 1);
-                            this.transformFirstPersonItem(f, f1);
-                        }
-                        break;
-                        case "Smooth": {
-                            this.transformFirstPersonItem(f * 0.5f, f1);
-                        }
-                        break;
-                    }
-                } else {
-                    this.func_178105_d(f1);
-                    this.transformFirstPersonItem(f, f1);
-                }
+                this.func_178105_d(f1);
+                this.transformFirstPersonItem(f, f1);
             }
-            GlStateManager.scale(animations.scale.getValue(), animations.scale.getValue(), animations.scale.getValue());
+
             this.renderItem(abstractclientplayer, this.itemToRender, ItemCameraTransforms.TransformType.FIRST_PERSON);
         }
         else if (!abstractclientplayer.isInvisible())
@@ -538,11 +454,12 @@ public class ItemRenderer
 
     private void func_178108_a(float p_178108_1_, TextureAtlasSprite p_178108_2_)
     {
+
         this.mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         float f = 0.1F;
-        GlStateManager.color(0.1F, 0.1F, 0.1F, 0.5F);
+        GlStateManager.color(0.1F, 0.1F, 0.1F, 0.5f);
         GlStateManager.pushMatrix();
         float f1 = -1.0F;
         float f2 = 1.0F;
@@ -587,6 +504,12 @@ public class ItemRenderer
      */
     private void renderWaterOverlayTexture(float p_78448_1_)
     {
+
+        NoRender norender = Flauxy.INSTANCE.getModuleManager().getModule(NoRender.class);
+        boolean tweak = norender.tweakOverlays.isEnabled();
+
+        float opacity = (norender.isToggled() && tweak) ? norender.disableOverlays.isEnabled() ? 0.0f : (float) norender.overlayOpacity.getValue() : 0.5f;
+
         this.mc.getTextureManager().bindTexture(RES_UNDERWATER_OVERLAY);
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -664,40 +587,6 @@ public class ItemRenderer
         GlStateManager.depthMask(true);
         GlStateManager.depthFunc(515);
     }
-
-    private void nigger() {
-        float var1 = (float)(int)(System.currentTimeMillis() / 1.5 % 360.0);
-        var1 = ((var1 > 180.0f) ? (360.0f - var1) : var1) * 2.0f;
-        var1 /= 180.0f;
-        float var2 = (float)(int)(System.currentTimeMillis() / 3.5 % 120.0);
-        var2 = ((var2 > 30.0f) ? (120.0f - var2) : var2) * 2.0f;
-        var2 /= 1.0f;
-        float var3 = (float)(int)(System.currentTimeMillis() / 3.5 % 120.0);
-        var3 = ((var3 > 30.0f) ? (110.0f - var3) : var3) * 2.0f;
-        var3 /= 1.0f;
-        final boolean var4 = false;
-        final boolean var5 = false;
-        final byte var6 = 0;
-        boolean var7 = false;
-        float var8 = 0.0f;
-        final boolean var9 = false;
-        final boolean var10 = false;
-        final float var11 = 0.0f;
-        final boolean var12 = false;
-        var7 = false;
-        final int var13 = (int)(System.currentTimeMillis() / 2L % 360L);
-        final byte var14 = 1;
-        var8 = 1.0f;
-        final byte var15 = -59;
-        final byte var16 = -1;
-        final byte var17 = 0;
-        final byte var18 = 3;
-        GlStateManager.translate(0.0f, 0.2f, -var8);
-        GlStateManager.rotate(-59.0f, -1.0f, 0.0f, 3.0f);
-        GlStateManager.rotate((float)(-var13), 1.0f, 0.0f, 0.0f);
-        GlStateManager.rotate(60.0f, 0.0f, 1.0f, 0.0f);
-    }
-
 
     public void updateEquippedItem()
     {

@@ -48,6 +48,7 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.impl.EventStrafe;
 import uwu.flauxy.module.impl.exploit.NoPitchLimit;
@@ -630,7 +631,7 @@ public abstract class Entity implements ICommandSender
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
             Safewalk sf = Flauxy.INSTANCE.getModuleManager().getModule(Safewalk.class);
             if(sf.isToggled()){
-                flag = this.onGround && this instanceof EntityPlayer && this.rotationPitch > 60;
+                flag = (this.onGround && this instanceof EntityPlayer && this.rotationPitch > 60 && !(sf.requireClick.isEnabled() && !Mouse.isButtonDown(1))) || (this.isSneaking() && this.onGround);
             }
 
             if (flag)

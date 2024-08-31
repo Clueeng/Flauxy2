@@ -1548,9 +1548,11 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         if (!this.playerController.isHittingBlock())
         {
-            int newDelay = (int) Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class).delay.getValue();
-            boolean toggled = Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class).isToggled();
-            this.rightClickDelayTimer = toggled ? newDelay : 4;
+            FastPlace fastPlace = Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class);
+            int newDelay = (int) fastPlace.delay.getValue();
+            boolean toggled = fastPlace.isToggled();
+            int defaultValue = 4;
+            this.rightClickDelayTimer = toggled ? fastPlace.heldTicks >= (int)fastPlace.holdDelay.getValue() ? newDelay : defaultValue : defaultValue;
             boolean flag = true;
             ItemStack itemstack = this.thePlayer.inventory.getCurrentItem();
 
@@ -2116,8 +2118,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     this.playerController.onStoppedUsingItem(this.thePlayer);
                 }
 
-                while (this.gameSettings.keyBindAttack.isPressed())
+                if (this.gameSettings.keyBindAttack.isKeyDown())
                 {
+                    System.out.println("Hi!");
                     if (thePlayer.worldObj != null && Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
                         MovingObjectPosition objectMouseOver = Minecraft.getMinecraft().objectMouseOver;
                         if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
@@ -2159,8 +2162,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             {
                 this.rightClickMouse();
             }
-
-            this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && this.inGameHasFocus);
+            //                                                                                                        Added this useitem check to override break when you start using an item
+            this.sendClickBlockToController(this.currentScreen == null && this.gameSettings.keyBindAttack.isKeyDown() && !this.gameSettings.keyBindUseItem.isKeyDown() && this.inGameHasFocus);
         }
 
         if (this.theWorld != null)

@@ -53,6 +53,7 @@ extends Thread {
         if (this.password.equals("")) {
             this.mc.session = new Session(this.username, "", "", "mojang");
             this.status = (Object)((Object)EnumChatFormatting.GREEN) + "Logged in. (" + this.username + " - offline name)";
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Alt Manager", "Username is now " + this.username, 1500));
             return;
         }
         this.status = (Object)((Object)EnumChatFormatting.YELLOW) + "Logging in...";

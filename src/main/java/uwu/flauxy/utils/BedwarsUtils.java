@@ -6,6 +6,14 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class BedwarsUtils implements Utils{
 
+    public String getWinMessage(Server server) {
+        switch (server){
+            default:
+            case BLOCKSMC:
+                return "global points for winning the game";
+        }
+    }
+
     public enum Server{
         BLOCKSMC;
     }
@@ -73,26 +81,32 @@ public class BedwarsUtils implements Utils{
     }
 
 
-    public String getTrapName(Upgrades upgrade){
-        switch (upgrade){
-            case TRAP:{
-                return "Trapper";
-            }
-            case PROTECTION:{
-                return "Reinforced Armor";
-            }
-            case MINING_FATIGUE:{
-                return "Miner Fatigue";
-            }
-            case SHARPNESS:{
-                return "Sharpened Swords";
-            }
-            case HEAL_POOL:{
-                return "Heal Pool";
-            }
+    public String getTrapName(Upgrades upgrade, Server server){
+        switch (server){
             default:
-                return "None";
+            case BLOCKSMC:{
+                switch (upgrade){
+                    case TRAP:{
+                        return "Trapper";
+                    }
+                    case PROTECTION:{
+                        return "Reinforced Armor";
+                    }
+                    case MINING_FATIGUE:{
+                        return "Miner Fatigue";
+                    }
+                    case SHARPNESS:{
+                        return "Sharpened Swords";
+                    }
+                    case HEAL_POOL:{
+                        return "Heal Pool";
+                    }
+                    default:
+                        return "None";
+                }
+            }
         }
+
     }
 
 }

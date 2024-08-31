@@ -87,26 +87,7 @@ public enum Flauxy implements MinecraftInstance {
         fontManager = new FontManager();
         // Trying to add before altmanager i guess
         altManager = new AltManager();
-        File altsFile = new File(clientDirectory + "/alts.txt");
-        if(altsFile.exists()){
-            System.out.println("[FLAUXY DEBUG] Found alts file containing at least one alt");
-            try{
-                List<String> alts = Files.readAllLines(altsFile.toPath());
-                for(String alt : alts){
-                    String mail = alt.split(":", 2)[0];
-                    String pass = alt.split(":", 2)[1];
-                    AltManager.registry.add(new Alt(mail, pass));
-                }
-                if(!Objects.isNull(alts.get(0))){
-                    String alt = alts.get(0);
-                    String mail = alt.split(":", 2)[0];
-                    String pass = alt.split(":", 2)[1];
-                    AltManager.lastAlt = new Alt(mail, pass);
-                }
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
+        altManager.loadAlts();
         capeManager = new CapeManager();
         Display.setTitle("Minecraft 1.8.9");
         moduleManager.getModule(HUD.class).toggle();

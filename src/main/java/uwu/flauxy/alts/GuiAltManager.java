@@ -79,6 +79,10 @@ extends GuiScreen {
                 this.offset += 26;
                 if (this.offset < 0) {
                     this.offset = 0;
+                } // 17 alts qui se show up en un screen
+
+                if(this.offset > (Flauxy.INSTANCE.altManager.getRegistry().size() * 26) - 52){
+                    this.offset -= 26;
                 }
             } else if (wheel > 0) {
                 this.offset -= 26;
@@ -130,6 +134,15 @@ extends GuiScreen {
         } else {
             this.login.enabled = true;
             this.remove.enabled = true;
+            if(Keyboard.isKeyDown(Keyboard.KEY_DELETE) || Keyboard.isKeyDown(Keyboard.KEY_D)){
+                if (this.loginThread != null) {
+                    this.loginThread = null;
+                }
+                AltManager altManager = Flauxy.INSTANCE.altManager;
+                AltManager.registry.remove(this.selectedAlt);
+                this.status = "\u00a7aRemoved.";
+                this.selectedAlt = null;
+            }
         }
         if (Keyboard.isKeyDown(200)) {
             this.offset -= 26;
@@ -146,6 +159,7 @@ extends GuiScreen {
 
     @Override
     public void initGui() {
+        Flauxy.INSTANCE.getAltManager().loadAlts();
     	this.buttonList.add(new GuiButton(0, width / 2 + 4 + 50, height - 24, 100, 20, "Cancel"));
         this.login = new GuiButton(1, width / 2 - 154, height - 48, 100, 20, "Login");
         this.buttonList.add(this.login);

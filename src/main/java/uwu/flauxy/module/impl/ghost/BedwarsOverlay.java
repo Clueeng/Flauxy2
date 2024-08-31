@@ -34,6 +34,7 @@ import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.notification.Notification;
 import uwu.flauxy.notification.NotificationType;
@@ -51,7 +52,10 @@ import java.util.List;
 @ModuleInfo(name = "BedwarsOverlay", displayName = "BedwarsOverlay", key = -1, cat = Category.Ghost)
 public class BedwarsOverlay extends Module {
 
+    BooleanSetting autoRestart = new BooleanSetting("Auto Restart",true);
+
     public BedwarsOverlay(){
+        addSettings(autoRestart);
     }
 
     @Override
@@ -115,24 +119,34 @@ public class BedwarsOverlay extends Module {
                 BedwarsUtils util = new BedwarsUtils();
                 S02PacketChat chat = (S02PacketChat) ev.getPacket();
                 String msg = chat.getChatComponent().getUnformattedText().toLowerCase();
-                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.SHARPNESS).toLowerCase())){
+                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.SHARPNESS, BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
                     sharpLevel++;
-                    playerEnchantments.put("Sharpness",String.valueOf(sharpLevel));
+                    playerEnchantments.put("Sharpness", String.valueOf(sharpLevel));
                 }
                 if(msg.contains(util.getStartGame(BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
                     gameStarted = true;
                 }
-                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.PROTECTION).toLowerCase())){
-                    protLevel++;
-                    playerEnchantments.put("Protection",String.valueOf(protLevel));
+                if(msg.contains(util.getWinMessage(BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
+                    mc.thePlayer.playSound("fireworks.blast", 2.0f, 1.0f);
+                    Flauxy.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Bedwars Overlay", "Game won!"));
+                    if(autoRestart.isEnabled()){
+                        Flauxy.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Bedwars Overlay", "Sending you in a new game"));
+                        mc.thePlayer.inventory.currentItem = 7;
+                        Minecraft.getMinecraft().rightClickMouse();
+                    }
+
                 }
-                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.TRAP).toLowerCase())){
+                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.PROTECTION, BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
+                    protLevel++;
+                    playerEnchantments.put("Protection", String.valueOf(protLevel));
+                }
+                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.TRAP, BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
                     playerTraps.put("Trap", true);
                 }
-                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.MINING_FATIGUE).toLowerCase())){
+                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.MINING_FATIGUE, BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
                     playerTraps.put("Mining Fatigue", true);
                 }
-                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.HEAL_POOL).toLowerCase())){
+                if(msg.contains(util.getTrapName(BedwarsUtils.Upgrades.HEAL_POOL, BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
                     playerTraps.put("Heal Pool", true);
                 }
                 if(msg.contains(util.getDestroyedBed(BedwarsUtils.Server.BLOCKSMC).toLowerCase())){
@@ -162,16 +176,16 @@ public class BedwarsOverlay extends Module {
                 scanAreaForBeds(mc.theWorld, mc.thePlayer.getPosition(), 100);
                 BedwarsUtils util = new BedwarsUtils();
                 Iterator<String> iterator = playersArmor.keySet().iterator();
-                while (iterator.hasNext()) {
+                while (iterator.hasNext() && gameStarted) {
                     String name = iterator.next();
                     if (!allPlayers.contains(name)) {
                         iterator.remove();
                         playersColor.remove(name);
-                        if(allPlayers.size() <= 1){
-                            mc.thePlayer.playSound("fireworks.blast", 2.0f, 1.0f);
-                            Flauxy.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Bedwars Overlay", "Game won!"));
+                        if(allPlayers.size() <= 1 && allPlayers.contains(mc.thePlayer.getName())){
                         }else{
-                            Flauxy.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Bedwars Overlay", name + " was final killed"));
+                            if(!name.equals(mc.thePlayer.getName())){
+                                Flauxy.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Bedwars Overlay", name + " was final killed"));
+                            }
                         }
                     }
                 }
@@ -232,10 +246,14 @@ public class BedwarsOverlay extends Module {
                 if (hex.startsWith("#")) {
                     hex = hex.substring(1);
                 }
-                int colorInt = Integer.parseInt(hex, 16);
-                Color c = new Color(colorInt);
+                if(hex.equals("None")){
+                    mc.fontRendererObj.drawStringWithShadow(entry + ": " + EnumChatFormatting.WHITE + "Unknown",x,y + h, -1);
+                }else{
+                    int colorInt = Integer.parseInt(hex, 16);
+                    Color c = new Color(colorInt);
 
-                mc.fontRendererObj.drawStringWithShadow(entry + ": " + EnumChatFormatting.WHITE + value,x,y + h, c.getRGB());
+                    mc.fontRendererObj.drawStringWithShadow(entry + ": " + EnumChatFormatting.WHITE + value,x,y + h, c.getRGB());
+                }
                 h += mc.fontRendererObj.FONT_HEIGHT;
             }
             int upgradeY = y + h + 12;

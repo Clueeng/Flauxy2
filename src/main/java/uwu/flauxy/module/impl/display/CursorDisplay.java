@@ -72,7 +72,7 @@ public class CursorDisplay extends Module {
             //StencilUtil.initStencilToWrite();
             //StencilUtil.readStencilBuffer(1);
             if(blur.isEnabled()){
-                GaussianBlur.renderBlur(3f);
+                GaussianBlur.renderBlur(9f);
             }
 
             Gui.drawRect(getMoveX(),getMoveY(),getMoveX() + getMoveW(),getMoveY() + getMoveH(),new Color(0, 0, 0, 90).getRGB());

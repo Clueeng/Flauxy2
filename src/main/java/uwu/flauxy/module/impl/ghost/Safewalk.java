@@ -1,6 +1,7 @@
 package uwu.flauxy.module.impl.ghost;
 
 import net.minecraft.entity.Entity;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
@@ -15,13 +16,14 @@ import uwu.flauxy.utils.timer.Timer;
 public class Safewalk extends Module {
 
     public BooleanSetting sneak = new BooleanSetting("Sneak", true);
+    public BooleanSetting requireClick = new BooleanSetting("On Click",true);
     //public NumberSetting range = new NumberSetting("Reach", 3.0, 3.0, 6.0, 0.05);
     private Timer timer = new Timer();
     boolean runTimer = false;
 
 
     public Safewalk(){
-        addSettings(sneak);
+        addSettings(sneak, requireClick);
     }
 
     @Override
@@ -31,7 +33,7 @@ public class Safewalk extends Module {
     @Override
     public void onEvent(Event e) {
         if (e instanceof EventUpdate) {
-            if(mc.thePlayer.rotationPitch < 60) return;
+            if(mc.thePlayer.rotationPitch < 60 || (requireClick.isEnabled() && !Mouse.isButtonDown(1))) return;
             if (sneak.getValue()) {
                 if(Entity.sneak2){
                     mc.gameSettings.keyBindSneak.pressed = true;

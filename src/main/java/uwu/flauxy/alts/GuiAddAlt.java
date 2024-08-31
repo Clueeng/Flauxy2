@@ -1,9 +1,6 @@
 package uwu.flauxy.alts;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Proxy;
 import java.util.Objects;
 
@@ -23,6 +20,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.config.ConfigUtil;
 import uwu.flauxy.utils.config.Folder;
 
@@ -33,7 +32,7 @@ extends GuiScreen {
     private PasswordField password;
     private String status = (Object)((Object)EnumChatFormatting.GRAY) + "Idle...";
     private GuiTextField username;
-    private AltLoginThread thread;
+    private AddAltThread login;
 
     public GuiAddAlt(GuiAltManager manager) {
         this.manager = manager;
@@ -43,7 +42,7 @@ extends GuiScreen {
     protected void actionPerformed(GuiButton button) {
         switch (button.id) {
             case 0: {
-                AddAltThread login = new AddAltThread(this.username.getText(), this.password.getText());
+                login = new AddAltThread(this.username.getText(), this.password.getText());
                 login.start();
                 /// Gonna add it to a file
                 String name = this.username.getText();
@@ -52,11 +51,30 @@ extends GuiScreen {
                     String altFolder = String.valueOf(new File(String.valueOf(Flauxy.INSTANCE.clientDirectory)));
                     File dataFile = new File(altFolder,"alts.txt");
                     try {
-                        PrintWriter pw = new PrintWriter(dataFile);
-                        pw.println(name + ":" + pass);
-                        pw.close();
+                        boolean needsNewLine = false;
+                        if (dataFile.exists() && dataFile.length() > 0) {
+                            RandomAccessFile raf = new RandomAccessFile(dataFile, "r");
+                            raf.seek(dataFile.length() - 1);
+                            char lastChar = (char) raf.readByte();
+                            raf.close();
+                            if (lastChar != '\n') {
+                                needsNewLine = true;
+                            }
+                        }
+
+
+                        FileWriter fw = new FileWriter(dataFile, true);
+                        if(needsNewLine){
+                            fw.write("\n");
+                        }
+                        fw.write(name + ":" + pass);
+                        fw.close();
+                        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Alt Manager", "Alt was saved"));
+                        Flauxy.INSTANCE.getAltManager().loadAlts();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 }
                 break;
@@ -79,6 +97,7 @@ extends GuiScreen {
         if (this.password.getText().isEmpty()) {
             this.drawString(this.mc.fontRendererObj, "Password", width / 2 - 96, 106, -7829368);
         }
+        this.status = login == null ? "Idle..." : login.getStatus() == null ? "Idle..." : login.getStatus();
         this.drawCenteredString(this.fontRendererObj, this.status, width / 2, 30, -1);
         super.drawScreen(i2, j2, f2);
     }
@@ -87,7 +106,7 @@ extends GuiScreen {
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(0, width / 2 - 100, height / 4 + 92 + 12, "Login"));
+        this.buttonList.add(new GuiButton(0, width / 2 - 100, height / 4 + 92 + 12, "Login And Add"));
         this.buttonList.add(new GuiButton(1, width / 2 - 100, height / 4 + 116 + 12, "Back"));
         this.username = new GuiTextField(this.eventButton, this.mc.fontRendererObj, width / 2 - 100, 60, 200, 20);
         this.password = new PasswordField(this.mc.fontRendererObj, width / 2 - 100, 100, 200, 20);

@@ -9,12 +9,15 @@ import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.Wrapper;
 
 import java.util.ArrayList;
@@ -33,7 +36,7 @@ public class ReportAlert extends Module {
                 C01PacketChatMessage chat = (C01PacketChatMessage) ev.getPacket();
                 String msg = chat.getMessage();
                 if(msg.startsWith("/report " + lastKiller)){
-                    Wrapper.instance.log("Reported " + lastKiller + " for cheating");
+                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Report Alert", "Reported " + lastKiller + " for cheating"));
                     hackers.add(lastKiller);
                 }
             }
