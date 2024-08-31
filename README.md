@@ -1,3 +1,7 @@
+# Erm actually x thing is skidded
+##  The only thing i recently skidded is tenatitty's blur, anything other than that is over 2 years old and i honestly dont remember jack shit
+
+
 # Flauxy Client
 ### All in one client
 
