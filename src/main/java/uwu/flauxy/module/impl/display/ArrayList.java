@@ -32,7 +32,7 @@ public class ArrayList extends Module {
     public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom", "Blend", "Theme");
     public ModeSetting themes = new ModeSetting("Theme","Cotton Candy","Cotton Candy", "Sunset").setCanShow(m -> color.is("Theme"));
     public ModeSetting animAlgo = new ModeSetting("Animation","Lerp","Lerp", "Quad");
-    public NumberSetting animSpeed = new NumberSetting("Animation Speed", 0, 1, 10, 1); // divide by 20
+    public NumberSetting animSpeed = new NumberSetting("Animation Speed", 7, 1, 10, 1); // divide by 20
 
     //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     //public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
