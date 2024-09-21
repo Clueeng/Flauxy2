@@ -62,6 +62,27 @@ public class GraphComponent extends Component implements ColorHelper {
         saturationValue.setY(brightnessValuePercentage);
     }
 
+    public void copyColor(){
+        Flauxy.INSTANCE.copiedColor = getColorFromSettings(hue, (GraphSetting) this.getSetting());
+        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Copied color, press V to paste it elsewhere"));
+    }
+
+    public void pasteColor(){
+        Color copied = Flauxy.INSTANCE.getCopiedColor();
+        if(copied == null){
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Copy a color first before pasting one"));
+        }else{
+            float[] hsbValues = Color.RGBtoHSB(copied.getRed(), copied.getGreen(), copied.getBlue(), null);
+            float hueValue = hsbValues[0] * 360f;
+            float saturationValuePercentage = hsbValues[1] * 100f;
+            float brightnessValuePercentage = hsbValues[2] * 100f;
+            hue.setValue(hueValue);
+            ((GraphSetting) this.getSetting()).setX(saturationValuePercentage);
+            ((GraphSetting) this.getSetting()).setY(brightnessValuePercentage);
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Pasted color"));
+        }
+    }
+    boolean stateCopy, statePaste;
     @Override
     public void drawScreen(int mouseX, int mouseY) {
 
@@ -70,26 +91,18 @@ public class GraphComponent extends Component implements ColorHelper {
         }
 
         if(hue != null && RenderUtil.hover(x, y + 20, mouseX, mouseY, defaultWidth, getOffset() - 20)){
+            boolean heldCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
+            boolean heldCopy = Keyboard.isKeyDown(Keyboard.KEY_C) && heldCtrl;
+            boolean heldPaste = Keyboard.isKeyDown(Keyboard.KEY_V) && heldCtrl;
 
-            if(Keyboard.isKeyDown(Keyboard.KEY_C)){
-                if(!Flauxy.INSTANCE.copiedColor.equals(getColorFromSettings(hue,(GraphSetting) this.getSetting()))){
-                    Flauxy.INSTANCE.copiedColor = getColorFromSettings(hue, (GraphSetting) this.getSetting());
-                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Copied color, press V to paste it elsewhere"));
-                }
+            if(heldCopy && !stateCopy){
+                copyColor();
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_V)){
-                if(!Flauxy.INSTANCE.copiedColor.equals(getColorFromSettings(hue,(GraphSetting) this.getSetting()))){
-                    Color copied = Flauxy.INSTANCE.getCopiedColor();
-                    float[] hsbValues = Color.RGBtoHSB(copied.getRed(), copied.getGreen(), copied.getBlue(), null);
-                    float hueValue = hsbValues[0] * 360f;
-                    float saturationValuePercentage = hsbValues[1] * 100f;
-                    float brightnessValuePercentage = hsbValues[2] * 100f;
-                    hue.setValue(hueValue);
-                    ((GraphSetting) this.getSetting()).setX(saturationValuePercentage);
-                    ((GraphSetting) this.getSetting()).setY(brightnessValuePercentage);
-                    Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Color Setting", "Pasted color"));
-                }
+            if(heldPaste && !statePaste) {
+                pasteColor();
             }
+            stateCopy = heldCopy;
+            statePaste = heldPaste;
         }
 
         GraphSetting graph = (GraphSetting) getSetting();

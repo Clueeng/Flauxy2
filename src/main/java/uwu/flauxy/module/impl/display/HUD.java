@@ -29,7 +29,6 @@ import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.utils.*;
 import uwu.flauxy.utils.render.RenderUtil;
-import viamcp.ViaMCP;
 
 import java.awt.*;
 import java.text.DecimalFormat;

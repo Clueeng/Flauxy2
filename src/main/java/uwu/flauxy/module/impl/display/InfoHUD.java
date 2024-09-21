@@ -1,5 +1,6 @@
 package uwu.flauxy.module.impl.display;
 
+import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import uwu.flauxy.Flauxy;
@@ -16,7 +17,6 @@ import uwu.flauxy.utils.InfoEntry;
 import uwu.flauxy.utils.MoveUtils;
 import uwu.flauxy.utils.ViaUtil;
 import uwu.flauxy.utils.render.RenderUtil;
-import viamcp.ViaMCP;
 
 import java.awt.*;
 import java.util.List;
@@ -129,7 +129,7 @@ public class InfoHUD extends Module {
             infoEntries.add(new InfoEntry("Facing", () -> mc.thePlayer.getHorizontalFacing().toString()));
         }
         infoEntries.add(new InfoEntry("Fast Math", () -> net.minecraft.util.MathHelper.fastMath + " / " + mc.gameSettings.ofFastMath));
-        infoEntries.add(new InfoEntry("Protocol Version", () -> ViaUtil.toReadableVersion(ViaMCP.getInstance().getVersion())));
+        infoEntries.add(new InfoEntry("Protocol Version", () -> ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
         if(showVelocity.getValue()){
             infoEntries.add(new InfoEntry("Velocity X", () -> String.valueOf(velocityX)));
             infoEntries.add(new InfoEntry("Velocity Y", () -> String.valueOf(velocityY)));

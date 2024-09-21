@@ -31,5 +31,6 @@
     <orderEntry type="library" name="lwjgl-platform-2.9.4-nightly-20150209-natives-windows" level="project" />
     <orderEntry type="library" name="lwjgl" level="project" />
     <orderEntry type="library" name="javassist" level="project" />
+    <orderEntry type="library" name="downgraded-ViaBackwards-5.0.2-SNAPSHOT" level="project" />
   </component>
 </module>

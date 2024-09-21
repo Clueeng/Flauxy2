@@ -3,6 +3,7 @@ package uwu.flauxy;
 import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
+import de.florianmichael.viamcp.ViaMCP;
 import lombok.Getter;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -28,7 +29,6 @@ import uwu.flauxy.utils.config.ConfigUtil;
 import uwu.flauxy.utils.config.Folder;
 import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.waypoint.WaypointManager;
-import viamcp.ViaMCP;
 
 import java.awt.*;
 import java.io.File;
@@ -68,8 +68,9 @@ public enum Flauxy implements MinecraftInstance {
         initDiscordApp();
         try
         {
-            ViaMCP.getInstance().start();
-            ViaMCP.getInstance().initAsyncSlider();
+            ViaMCP.create();
+            ViaMCP.INSTANCE.initAsyncSlider(); // For top left aligned slider
+            ViaMCP.INSTANCE.initAsyncSlider(4, 4, 120, 20); // For custom position and size slider
         }
         catch (Exception e)
         {

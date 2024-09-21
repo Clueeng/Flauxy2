@@ -236,7 +236,11 @@ public class BedwarsOverlay extends Module {
 
             height = addedHeight;
             int h = 0;
-            mc.fontRendererObj.drawStringWithShadow(bedAlive ? "Bed alive" : "No bed",x,y, bedAlive ? Color.green.getRGB() : Color.red.getRGB());
+            if(bedAlive){
+                mc.fontRendererObj.drawStringWithShadow("Bed alive",x,y, Color.green.getRGB());
+            }else{
+                mc.fontRendererObj.drawStringWithShadow(EnumChatFormatting.BOLD + "/!\\ No bed",x,y, Color.red.getRGB());
+            }
             h += mc.fontRendererObj.FONT_HEIGHT + 4;
             for(String entry : playersArmor.keySet()){
                 if(entry == null || playersArmor.isEmpty()) continue;

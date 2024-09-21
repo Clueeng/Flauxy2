@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
@@ -21,10 +23,7 @@ import net.minecraft.potion.Potion;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.EventType;
-import uwu.flauxy.event.impl.EventMotion;
-import uwu.flauxy.event.impl.EventPostMotionUpdate;
-import uwu.flauxy.event.impl.EventSendPacket;
-import uwu.flauxy.event.impl.EventUpdate;
+import uwu.flauxy.event.impl.*;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
@@ -33,10 +32,7 @@ import uwu.flauxy.module.impl.movement.Speed;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
-import uwu.flauxy.utils.BlockUtil;
-import uwu.flauxy.utils.MoveUtils;
-import uwu.flauxy.utils.PacketUtil;
-import uwu.flauxy.utils.WorldUtil;
+import uwu.flauxy.utils.*;
 
 @ModuleInfo(name = "Scaffold", displayName = "Scaffold", key = Keyboard.KEY_Z, cat = Category.Player)
 public class Scaffold extends Module {
@@ -70,7 +66,7 @@ public class Scaffold extends Module {
             Blocks.wooden_button, Blocks.lever, Blocks.enchanting_table, Blocks.red_flower, Blocks.double_plant,
             Blocks.yellow_flower, Blocks.web);
 
-    public ModeSetting mode = new ModeSetting("Mode", "NCP", "NCP", "UpdatedNCP", "Hypixel", "AAC4", "Redesky", "Verus", "Matrix");
+    public ModeSetting mode = new ModeSetting("Mode", "NCP", "NCP", "UpdatedNCP", "Hypixel", "AAC4", "Redesky", "Verus", "Matrix", "Godbridge");
     public ModeSetting tower = new ModeSetting("Tower", "NCP", "Vanilla", "NCP", "Quick Jump", "None");
     public ModeSetting autoblock = new ModeSetting("Switch", "Slot", "None", "Slot", "Silent");
     public NumberSetting timer = new NumberSetting("Timer", 1, 0.5, 4, 0.1);
@@ -125,6 +121,8 @@ public class Scaffold extends Module {
 
     public void onDisable() {
         placedBlocks = 0;
+        mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode());
+        mc.gameSettings.keyBindForward.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
         if(sneakTicks > 0) {
             mc.gameSettings.keyBindSneak.pressed = false;
         }
@@ -160,6 +158,9 @@ public class Scaffold extends Module {
         switch(mode.getMode()) {
             case "NCP":
                 NCP(e);
+                break;
+            case "Godbridge":
+                Godbridge(e);
                 break;
             case "UpdatedNCP":
                 UpdatedNCP(e);
@@ -649,6 +650,84 @@ public class Scaffold extends Module {
         }
     }
 
+    int stillTick, godBridgeBlocks;
+    float godBridgePitch = 83.52f, godBridgeYaw = 180f;
+    private void Godbridge(Event event){
+        if(event instanceof EventUpdate){
+            switch (mc.thePlayer.getHorizontalFacing().getName().toLowerCase()){
+                case "north":{
+                    godBridgeYaw = 180 - 180;
+                    break;
+                }
+                case "south":{
+                    godBridgeYaw = 0 - 180;
+                    break;
+                }
+                case "east":{
+                    godBridgeYaw = 270 - 180;
+                    break;
+                }
+                case "west":{
+                    godBridgeYaw = 90 - 180;
+                    break;
+                }
+            }
+        }
+        if(event instanceof EventStrafe){
+            EventStrafe e = (EventStrafe) event;
+            e.setYaw(godBridgeYaw);
+            mc.gameSettings.keyBindForward.pressed = false;
+            mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
+            if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){
+                mc.gameSettings.keyBindLeft.pressed = false;
+                mc.gameSettings.keyBindRight.pressed = true;
+            }else if(Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode())){
+                mc.gameSettings.keyBindRight.pressed = false;
+                mc.gameSettings.keyBindLeft.pressed = true;
+            }else{
+                mc.gameSettings.keyBindLeft.pressed = false;
+                mc.gameSettings.keyBindRight.pressed = false;
+            }
+        }
+        if(event instanceof EventMotion){
+            EventMotion e = (EventMotion) event;
+
+            clientRotations(finalYaw, finalPitch);
+            e.setYaw(finalYaw);
+            e.setPitch(finalPitch);
+
+            if(e.isPre())return;
+            BlockPos pos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+            if(godBridgeBlocks >= 7){
+                mc.thePlayer.motionZ *= 0.3f;
+                mc.thePlayer.motionX *= 0.3f;
+                KeyBinding.onTick(mc.gameSettings.keyBindJump.getKeyCode());
+                godBridgeBlocks = 0;
+            }
+
+            if(mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir) {
+                setBlockFacing(pos);
+
+                if(currentFacing != null) {
+                    lastPos = currentPos;
+                    lastFacing = currentFacing;
+                }
+            }
+            finalPitch = godBridgePitch;
+            finalYaw = godBridgeYaw;
+
+            e.setYaw(finalYaw);
+            e.setPitch(finalPitch);
+            clientRotations(finalYaw, finalPitch);
+
+            if(currentPos != null && currentFacing != null && raytraceBlock(finalYaw, finalPitch)) {
+                if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos,currentFacing))) {
+                    mc.thePlayer.swingItem();
+                }
+            }
+        }
+    }
+
     private void Matrix(Event event) {
         if(event instanceof EventUpdate) {
             mc.thePlayer.setSprinting(false);
@@ -737,6 +816,7 @@ public class Scaffold extends Module {
             if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos, currentFacing) /*new Vec3(currentPos).addVector(0.5, 0.5, 0.5).add(new Vec3(currentFacing.getDirectionVec()).scale(0.5))*/)) {
                 PacketUtil.sendPacket(new C0APacketAnimation());
                 placedBlocks++;
+                godBridgeBlocks++;
                 return true;
             }
         }
