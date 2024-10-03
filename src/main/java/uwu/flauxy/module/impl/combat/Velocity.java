@@ -5,6 +5,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.event.Event;
+import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.event.impl.packet.EventMove;
@@ -22,7 +23,7 @@ import uwu.flauxy.utils.Wrapper;
 @ModuleInfo(name = "Velocity", displayName = "Velocity", key = -1, cat = Category.Combat)
 public class Velocity extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Cancel", "Cancel", "Redesky");
+    public ModeSetting mode = new ModeSetting("Mode", "Cancel", "Cancel", "Redesky", "Hypixel");
     public NumberSetting x = new NumberSetting("X", 0, 0, 100, 1).setCanShow((m) -> mode.is("Cancel"));
     public NumberSetting y = new NumberSetting("Y", 0, 0, 100, 1).setCanShow((m) -> mode.is("Cancel"));
     public NumberSetting strength = new NumberSetting("DragClick amount", 5, 0, 20, 1).setCanShow(m -> mode.is("Redesky"));
@@ -40,6 +41,10 @@ public class Velocity extends Module {
                 Redesky(ev);
                 break;
             }
+            case "Hypixel":{
+                Hypixel(ev);
+                break;
+            }
         }
         if(ev instanceof EventUpdate){
             String addMode = "";
@@ -51,19 +56,50 @@ public class Velocity extends Module {
             EventReceivePacket event = (EventReceivePacket) ev;
             switch(mode.getMode()){
                 case "Cancel":{
-                    if(event.getPacket() instanceof S12PacketEntityVelocity){
+                    if (event.getPacket() instanceof S12PacketEntityVelocity) {
                         S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
-                        if(x.getValue() > 0 || y.getValue() > 0){
-                            packet.setMotionX((int) ((packet.getMotionX() / 8000) * x.getValue()) );
-                            packet.setMotionY((int) ((packet.getMotionY() / 8000) * y.getValue()) );
-                            packet.setMotionZ((int) ((packet.getMotionZ() / 8000) * x.getValue()) );
-                        }else{
-                            event.setCancelled(true);
+                        if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
+                            if(x.getValue() > 0 || y.getValue() > 0){
+                                double mx = (packet.getMotionX() / 8000.0 * x.getValue()) / 8000.0;
+                                double my = (packet.getMotionY() / 8000.0 * y.getValue()) / 8000.0;
+                                double mz = (packet.getMotionZ() / 8000.0 * x.getValue()) / 8000.0;
+                                packet.setMotionX((int) mx);
+                                packet.setMotionY((int) my);
+                                packet.setMotionZ((int) mz);
+                            }else{
+                                event.setCancelled(true);
+                            }
                         }
                     }
                     break;
                 }
 
+            }
+        }
+    }
+    int veloTick = 100;
+    private void Hypixel(Event event) {
+        if(event instanceof EventUpdate){
+            EventUpdate ev = (EventUpdate) event;
+            if(veloTick == 6){
+                mc.thePlayer.motionX = 0;
+                mc.thePlayer.motionZ = 0;
+            }
+            veloTick++;
+        }
+        if (event instanceof EventReceivePacket) {
+            EventReceivePacket e = (EventReceivePacket) event;
+            if (e.getPacket() instanceof S12PacketEntityVelocity) {
+                S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
+                if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
+                    double mx = (packet.getMotionX() / 8000.0 * 0) / 8000.0;
+                    double my = (packet.getMotionY() / 8000.0 * 100) / 8000.0;
+                    double mz = (packet.getMotionZ() / 8000.0 * 0) / 8000.0;
+                    packet.setMotionX((int) mx);
+                    packet.setMotionY((int) my);
+                    packet.setMotionZ((int) mz);
+                    veloTick = 0;
+                }
             }
         }
     }
@@ -79,10 +115,8 @@ public class Velocity extends Module {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
                 if(packet.getEntityID() == mc.thePlayer.getEntityId()) {
                     receivedVelocity = true;
-
                     e.setCancelled(true);
                     mc.thePlayer.motionY = packet.getMotionY() / 8000.0D;
-                    //MoveUtils.motionMult(0.2);
                     for(int i = 0; i < 10; i++) {
                         WorldUtil.attackFakePlayer();
                     }

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.*;
@@ -76,7 +77,7 @@ public class Killaura extends Module {
     NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
     BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky").setCanShow(m -> autoblock.getValue());
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky", "Hypixel").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
 
@@ -243,6 +244,7 @@ public class Killaura extends Module {
                 }
             }
         }
+
         if(ev instanceof  EventMotion){
             EventMotion event =(EventMotion)ev;
             if(shouldRun()){
@@ -259,6 +261,10 @@ public class Killaura extends Module {
                         fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
+                                case "Hypixel":{
+                                    hypixelBlock(ev);
+                                    break;
+                                }
                                 case "Hold":{
                                     if(isHoldingSword()) mc.gameSettings.keyBindUseItem.pressed = true;
                                     break;
@@ -361,6 +367,16 @@ public class Killaura extends Module {
             }
         }
 
+    }
+
+    private void hypixelBlock(Event ev) {
+        if(!isHoldingSword())return;
+        if(currentTarget == null)return;
+        if(mc.thePlayer.ticksExisted % 3 != 0){
+            mc.gameSettings.keyBindUseItem.pressed = true;
+        }else{
+            mc.gameSettings.keyBindUseItem.pressed = false;
+        }
     }
 
     @Override

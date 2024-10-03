@@ -2121,7 +2121,6 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
                 if (this.gameSettings.keyBindAttack.isKeyDown())
                 {
-                    System.out.println("Hi!");
                     if (thePlayer.worldObj != null && Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
                         MovingObjectPosition objectMouseOver = Minecraft.getMinecraft().objectMouseOver;
                         if (objectMouseOver != null && objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {

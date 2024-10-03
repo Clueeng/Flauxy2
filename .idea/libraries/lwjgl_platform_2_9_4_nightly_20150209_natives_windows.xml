@@ -7,7 +7,6 @@
       <root url="jar://$PROJECT_DIR$/libs/commons-codec-1.9.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/snakeyaml-2.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/librarylwjglopenal-20100824.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/ViaRewind-2.0.3-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/platform-3.4.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/netty-1.6.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/ibxm-0.0.1.jar!/" />
@@ -27,11 +26,9 @@
       <root url="jar://$PROJECT_DIR$/libs/jlayer-1.0.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/commons-lang3-3.3.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/twitch-6.5.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/fastutil-8.5.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-2.9.4-nightly-20150209.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/libraryjavasound-20101123.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/jopt-simple-4.6.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/ViaBackwards-4.2.1-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/DiscordIPC-0.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/jutils-1.0.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/slick.jar!/" />
@@ -54,11 +51,9 @@
       <root url="jar://$PROJECT_DIR$/libs/twitch-platform-6.5-natives-windows-64.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lombok.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/commons-compress-1.8.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/ViaVersion-4.2.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/openauth-1.1.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/soundsystem-20120107.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/authlib-1.5.21.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/ViaSnakeYaml-1.27.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/junixsocket-selftest-2.3.3-SNAPSHOT-jar-with-dependencies.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/codecwav-20101023.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/1.8.8.jar!/" />
@@ -68,6 +63,9 @@
       <root url="jar://$PROJECT_DIR$/libs/java-discord-rpc-2.0.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/slf4j-api-1.7.9.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/log4j-api-2.0-beta9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaBackwards-5.0.2-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaRewind-4.0.1-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaVersion-5.0.2-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

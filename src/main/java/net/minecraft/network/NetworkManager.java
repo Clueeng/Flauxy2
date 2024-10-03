@@ -61,6 +61,8 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.EventType;
 import uwu.flauxy.event.impl.EventReceivePacket;
 import uwu.flauxy.event.impl.EventSendPacket;
+import uwu.flauxy.utils.Wrapper;
+
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
     private static final Logger logger = LogManager.getLogger();
@@ -230,6 +232,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
             try
             {
+                Wrapper.instance.log("Sent silent packet");
                 this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, (GenericFutureListener[])null));
             }
             finally

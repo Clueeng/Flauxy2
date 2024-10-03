@@ -1,6 +1,5 @@
 package uwu.flauxy.module.impl.visuals;
 
-import it.unimi.dsi.fastutil.booleans.BooleanSet;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import uwu.flauxy.event.Event;
@@ -10,8 +9,6 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.utils.Wrapper;
-
-import java.security.Key;
 
 
 @ModuleInfo(name = "Freelook", displayName = "Free Look", key = Keyboard.KEY_F, cat = Category.Visuals)

@@ -11,7 +11,7 @@ import uwu.flauxy.module.setting.impl.NumberSetting;
 @ModuleInfo(name = "Animations", displayName = "Animations", key = 0, cat = Category.Visuals)
 public class Animations extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Smooth", "Smooth", "Up", "Punch", "Vanilla", "Knock", "Swipe", "idk", "Test");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Flauxy");
     public ModeSetting hit = new ModeSetting("Hit", "Smooth", "Vanilla", "Smooth");
     public NumberSetting slow = new NumberSetting("Slow", 6, 6, 18, 1);
     public NumberSetting scale = new NumberSetting("Scale", 1, 0.5, 2, 0.05);

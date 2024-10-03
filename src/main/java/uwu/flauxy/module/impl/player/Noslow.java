@@ -4,28 +4,35 @@ import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemSword;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventPostMotionUpdate;
+import uwu.flauxy.event.impl.EventSendPacket;
 import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
+import uwu.flauxy.utils.MoveUtils;
 import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.Wrapper;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ModuleInfo(name = "Noslow", displayName = "No Slow", key = -1, cat = Category.Player)
 public class Noslow extends Module {
 
-    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky");
+    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky", "Hypixel");
     NumberSetting redudeX = new NumberSetting("Reduce X", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
     NumberSetting redudeZ = new NumberSetting("Reduce Z", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
 
@@ -34,12 +41,18 @@ public class Noslow extends Module {
     }
 
     boolean blockStop;
+    ConcurrentLinkedQueue<Packet> blinks = new ConcurrentLinkedQueue<>();
+
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
             this.setDisplayName("Noslow " + EnumChatFormatting.WHITE + "" + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Hypixel":{
+                hypixel(e);
+                break;
+            }
             case "RedeSky":{
                 if(e instanceof EventUpdate){
                     if(shouldBeNoslowing()){
@@ -82,6 +95,11 @@ public class Noslow extends Module {
                 break;
             }
         }
+    }
+    boolean chokePackets;
+    int blockTick = 0;
+    private void hypixel(Event e) {
+        Wrapper.instance.log("A");
     }
 
     public boolean isUsingSword() {

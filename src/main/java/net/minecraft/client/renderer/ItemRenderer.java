@@ -339,9 +339,10 @@ public class ItemRenderer
             {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
             }
-            else if (abstractclientplayer.getItemInUseCount() > 0)
+            else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock)
             {
                 EnumAction enumaction = this.itemToRender.getItemUseAction();
+                Animations animations = Flauxy.INSTANCE.getModuleManager().getModule(Animations.class);
 
                 switch (enumaction)
                 {
@@ -356,8 +357,34 @@ public class ItemRenderer
                         break;
 
                     case BLOCK:
-                        this.transformFirstPersonItem(f, f1);
-                        this.func_178103_d();
+                        if(!animations.isToggled()){
+                            this.transformFirstPersonItem(f, f1);
+                            this.func_178103_d();
+                        }else{
+                            // animations module
+                            String mod = animations.mode.getMode();
+                            switch (mod){
+                                case "Vanilla":{
+                                    this.transformFirstPersonItem(f, f1);
+                                    this.func_178103_d();
+                                    break;
+                                }
+                                case "Flauxy":{
+                                    float ff = MathHelper.sin(f1 * f1 * (float)Math.PI);
+                                    float ff1 = MathHelper.sin(MathHelper.sqrt_float(f1) * (float)Math.PI);
+                                    GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
+                                    GlStateManager.translate(0.0F, f * -0.6F, 0.0F);
+                                    GlStateManager.rotate(25.0F, 0.0F, 1.0F * ff, 0.0F);
+                                    GlStateManager.rotate(ff * -20.0F, 0.0F, 1.0F, 0.0F);
+                                    GlStateManager.rotate(ff1 * -20.0F, 0.0F, 0.0F, 1.0F);
+                                    GlStateManager.rotate(ff1 * -80.0F, 1.0F, 0.0F, 0.0F);
+                                    GlStateManager.scale(0.4F, 0.4F, 0.4F);
+                                    this.func_178103_d();
+                                    break;
+                                }
+                            }
+                        }
+
                         break;
 
                     case BOW:

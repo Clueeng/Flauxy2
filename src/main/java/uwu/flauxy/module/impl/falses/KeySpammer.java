@@ -1,6 +1,5 @@
 package uwu.flauxy.module.impl.falses;
 
-import it.unimi.dsi.fastutil.booleans.BooleanSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;

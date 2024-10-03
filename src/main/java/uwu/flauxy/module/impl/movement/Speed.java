@@ -21,7 +21,7 @@ import uwu.flauxy.utils.Wrapper;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet", "Karhu");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet", "Karhu", "Hypixel");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Funcraft Funny", "Hypixel Like").setCanShow(m -> mode.is("NCP"));
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Fast").setCanShow(m -> mode.is("Verus"));
     public ModeSetting bmcMode = new ModeSetting("BMC Mode", "Strafe", "Strafe", "Low", "No Strafe").setCanShow(m -> mode.is("BlocksMC"));
@@ -60,6 +60,10 @@ public class Speed extends Module {
             this.setDisplayName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Hypixel":{
+                hypixel(event);
+                break;
+            }
             case "Karhu":{
                 karhuSpeed(event);
                 break;
@@ -455,6 +459,18 @@ public class Speed extends Module {
 
                     }
                     break;
+                }
+            }
+        }
+    }
+
+    private void hypixel(Event event) {
+        if(event instanceof EventMotion){
+            EventMotion e = (EventMotion) event;
+            if(e.isPre()){
+                if(mc.thePlayer.onGround && mc.thePlayer.isCollided){
+                    mc.thePlayer.jump();
+                    MoveUtils.strafe(MoveUtils.getBaseMoveSpeed() * 1.23f);
                 }
             }
         }
