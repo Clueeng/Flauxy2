@@ -72,13 +72,16 @@ public class Scaffold extends Module {
     public NumberSetting timer = new NumberSetting("Timer", 1, 0.5, 4, 0.1);
 
     public BooleanSetting jump = new BooleanSetting("Jump", false);
+    public BooleanSetting raytrace = new BooleanSetting("Raytrace", false).setCanShow(s -> mode.is("Godbridge"));
+    public BooleanSetting roundRots = new BooleanSetting("Round Yaw", false).setCanShow(s -> mode.is("Godbridge"));
+    public BooleanSetting sameY = new BooleanSetting("Same Y", true).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
     public NumberSetting vanillaTowerSpeed = new NumberSetting("Tower Speed", 0.42, 0.1, 1, 0.02).setCanShow(m -> tower.is("Vanilla"));
     public BooleanSetting redeskyTimer = new BooleanSetting("Redesky timer", true).setCanShow(m -> mode.is("Redesky"));
 
 
     public Scaffold() {
-        addSettings(mode, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
+        addSettings(mode, raytrace, roundRots, sameY, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
 
     public void onEnable() {
@@ -150,7 +153,7 @@ public class Scaffold extends Module {
             return;
         }
 
-        if (mc.thePlayer.isSprinting() && nosprint.isEnabled()) {
+        if (mc.thePlayer.isSprinting() && nosprint.isEnabled() && !mode.is("Godbridge")) {
             mc.thePlayer.setSprinting(false);
         }
 
@@ -654,23 +657,27 @@ public class Scaffold extends Module {
     float godBridgePitch = 83.52f, godBridgeYaw = 180f;
     private void Godbridge(Event event){
         if(event instanceof EventUpdate){
-            switch (mc.thePlayer.getHorizontalFacing().getName().toLowerCase()){
-                case "north":{
-                    godBridgeYaw = 180 - 180;
-                    break;
+            if(roundRots.isEnabled()){
+                switch (mc.thePlayer.getHorizontalFacing().getName().toLowerCase()){
+                    case "north":{
+                        godBridgeYaw = 180 - 180;
+                        break;
+                    }
+                    case "south":{
+                        godBridgeYaw = 0 - 180;
+                        break;
+                    }
+                    case "east":{
+                        godBridgeYaw = 270 - 180;
+                        break;
+                    }
+                    case "west":{
+                        godBridgeYaw = 90 - 180;
+                        break;
+                    }
                 }
-                case "south":{
-                    godBridgeYaw = 0 - 180;
-                    break;
-                }
-                case "east":{
-                    godBridgeYaw = 270 - 180;
-                    break;
-                }
-                case "west":{
-                    godBridgeYaw = 90 - 180;
-                    break;
-                }
+            }else{
+                godBridgeYaw = mc.thePlayer.rotationYaw - 180;
             }
         }
         if(event instanceof EventStrafe){
@@ -697,14 +704,15 @@ public class Scaffold extends Module {
             e.setPitch(finalPitch);
 
             if(e.isPre())return;
-            BlockPos pos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+            BlockPos pos = new BlockPos(mc.thePlayer.posX, sameY.isEnabled() ? oldY - 0.5 : mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+            mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
             if(godBridgeBlocks >= 7){
                 mc.thePlayer.motionZ *= 0.3f;
                 mc.thePlayer.motionX *= 0.3f;
-                KeyBinding.onTick(mc.gameSettings.keyBindJump.getKeyCode());
+                //KeyBinding.onTick(mc.gameSettings.keyBindJump.getKeyCode());
+                mc.gameSettings.keyBindJump.pressed = true;
                 godBridgeBlocks = 0;
             }
-
             if(mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir) {
                 setBlockFacing(pos);
 
@@ -720,8 +728,20 @@ public class Scaffold extends Module {
             e.setPitch(finalPitch);
             clientRotations(finalYaw, finalPitch);
 
-            if(currentPos != null && currentFacing != null && raytraceBlock(finalYaw, finalPitch)) {
+            if(sameY.isEnabled()){
+                if(mc.thePlayer.onGround){
+                    godBridgeYaw = mc.thePlayer.rotationYaw;
+                    mc.thePlayer.setSprinting(true);
+
+                    mc.thePlayer.jump();
+                }
+            }
+
+            boolean rayCheck = !raytrace.isEnabled() || raytraceBlock(finalYaw, finalPitch);
+
+            if(currentPos != null && currentFacing != null && rayCheck) {
                 if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos,currentFacing))) {
+                    godBridgeBlocks ++;
                     mc.thePlayer.swingItem();
                 }
             }

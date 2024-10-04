@@ -8,14 +8,16 @@ import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
 
 @ModuleInfo(name = "TimeChanger", displayName = "Time Changer", key = -1, cat = Category.Visuals)
 public class TimeChanger extends Module {
 
     public static NumberSetting time = new NumberSetting("Time", 19000, 0, 24000, 250);
+    public BooleanSetting removeLimit = new BooleanSetting("Unlimit CustomSky", true);
     public TimeChanger(){
-        addSettings(time);
+        addSettings(time, removeLimit);
     }
 
     @Override

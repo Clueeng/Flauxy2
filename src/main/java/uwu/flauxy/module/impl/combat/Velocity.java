@@ -60,9 +60,10 @@ public class Velocity extends Module {
                         S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
                         if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
                             if(x.getValue() > 0 || y.getValue() > 0){
-                                double mx = (packet.getMotionX() / 8000.0 * x.getValue()) / 8000.0;
-                                double my = (packet.getMotionY() / 8000.0 * y.getValue()) / 8000.0;
-                                double mz = (packet.getMotionZ() / 8000.0 * x.getValue()) / 8000.0;
+                                double mx = (packet.getMotionX() / 8000.0 * x.getValue()) * 80.0;
+                                double my = (packet.getMotionY() / 8000.0 * y.getValue()) * 80.0;
+                                double mz = (packet.getMotionZ() / 8000.0 * x.getValue()) * 80.0;
+                                Wrapper.instance.log("applied " + mx + " " + my + " " + mz);
                                 packet.setMotionX((int) mx);
                                 packet.setMotionY((int) my);
                                 packet.setMotionZ((int) mz);
@@ -92,9 +93,10 @@ public class Velocity extends Module {
             if (e.getPacket() instanceof S12PacketEntityVelocity) {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
                 if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
-                    double mx = (packet.getMotionX() / 8000.0 * 0) / 8000.0;
-                    double my = (packet.getMotionY() / 8000.0 * 100) / 8000.0;
-                    double mz = (packet.getMotionZ() / 8000.0 * 0) / 8000.0;
+                    double mx = (packet.getMotionX() / 8000.0 * 0.0) * 80.0;
+                    double my = (packet.getMotionY() / 8000.0 * 100.0) * 80.0;
+                    double mz = (packet.getMotionZ() / 8000.0 * 0.0) * 80.0;
+                    Wrapper.instance.log("applied " + mx + " " + my + " " + mz);
                     packet.setMotionX((int) mx);
                     packet.setMotionY((int) my);
                     packet.setMotionZ((int) mz);

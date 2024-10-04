@@ -57,6 +57,7 @@ public final class GuiAltLogin extends GuiScreen {
                 this.username.setText("");
                 this.password.setText("");
                 this.thread.start();
+                break;
             case 4:
                 try {
                     File fileF = CookieAltsUtil.getCookieFile();

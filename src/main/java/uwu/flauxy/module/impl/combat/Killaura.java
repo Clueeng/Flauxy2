@@ -401,6 +401,7 @@ public class Killaura extends Module {
 
     public boolean isValid(Entity e, float reach){
         boolean finalValid = false;
+        if(e == null || mc.thePlayer.ticksExisted < 10) return false;
         if(mc.thePlayer.getDistanceToEntity(e) <= reach){
             if(e instanceof EntityPlayer && players.getValue()){
                 if((e.getName().equals("UPGRADES") || e.getName().equals("SHOP"))){

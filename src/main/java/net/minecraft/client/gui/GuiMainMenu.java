@@ -610,10 +610,11 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.drawGradientRect(0, 0, width, height, new Color(1, 1, 1, 69).getRGB(), new Color(1, 1, 1, 69).getRGB());
         TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
         TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
-        Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString("Flauxy Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
-        font.drawString("Flauxy Client", (width / 2) - (font.getWidth("Flauxy Client")/2)+3, 30, -1);
-        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth("Flauxy Client") / 2f) + 4,42,Color.black.getRGB());
-        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth("Flauxy Client") / 2f) + 3,41,-1);
+        String clientName = Flauxy.INSTANCE.getName();
+        Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString(clientName + " Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
+        font.drawString(clientName + " Client", (width / 2) - (font.getWidth(clientName + " Client")/2)+3, 30, -1);
+        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth(clientName + " Client") / 2f) + 4,42,Color.black.getRGB());
+        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth(clientName + " Client") / 2f) + 3,41,-1);
 
         float endX = font2.getWidth(getLongestChangelog(Flauxy.INSTANCE.getLogs()).getChangelog()) + 28;
         Gui.drawRect(4, 96, endX, 102 + (12 * Flauxy.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());

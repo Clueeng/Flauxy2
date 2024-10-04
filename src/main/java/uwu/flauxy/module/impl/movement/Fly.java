@@ -8,7 +8,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemFireball;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.handshake.client.C00Handshake;
@@ -19,6 +21,7 @@ import net.minecraft.network.play.server.S39PacketPlayerAbilities;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
 import uwu.flauxy.event.EventType;
@@ -55,7 +58,7 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC", "Glide");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel");
     public ModeSetting glideMode = new ModeSetting("Mode","Chunk","Chunk", "Web");
     public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
@@ -89,6 +92,10 @@ public class Fly extends Module {
             this.setDisplayName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Hypixel":{
+                hypixel(e);
+                break;
+            }
             case "Glide":{
                 switch (glideMode.getMode()){
                     case "Chunk":{
@@ -314,12 +321,58 @@ public class Fly extends Module {
         }
     }
 
+    int hypixelTicks = 0;
+    boolean launch;
+    private void hypixel(Event e) {
+        if(e instanceof EventMotion){
+            EventMotion em = (EventMotion) e;
+            if(hypixelTicks < 2){
+                for(int i = 0; i < 9; i++) {
+                    if (mc.thePlayer.inventory.getStackInSlot(i) == null)
+                        continue;
+                    if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemFireball) {
+                        mc.thePlayer.inventory.currentItem = i;
+                        break;
+                    }
+                }
+                if(mc.thePlayer.inventory.getCurrentItem() != null){
+                    if(!(mc.thePlayer.inventory.getCurrentItem().getItem() instanceof ItemFireball)){
+                        Wrapper.instance.log("Need a fireball");
+                        mc.gameSettings.keyBindUseItem.pressed = false;
+                        this.toggle();
+                        return;
+                    }
+                }else{
+                    Wrapper.instance.log("Need a fireball");
+                    mc.gameSettings.keyBindUseItem.pressed = false;
+                    this.toggle();
+                    return;
+                }
+            }else{
+                em.setPitch(90f);
+                mc.thePlayer.rotationPitchHead = 90f;
+                if(hypixelTicks >= 4 && hypixelTicks <= 6){
+                    mc.gameSettings.keyBindUseItem.pressed = true;
+                }
+                if(hypixelTicks > 6){
+                    mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
+                }
+            }
+        }
+        if(e instanceof EventUpdate){
+            if(((EventUpdate) e).isPre()){
+                hypixelTicks += 1;
+            }
+        }
+    }
+
 
     @Override
     public void onEnable() {
         exemptWebs = false;
         tempY = 0;
         flyTicks = 0;
+        hypixelTicks = 0;
         flyTicks2 = 0;
         blinkpackets.clear();
         switch(mode.getMode()){
@@ -338,8 +391,10 @@ public class Fly extends Module {
 
     @Override
     public void onDisable() {
+        mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
         disableValues();
         resetBlocks();
+        hypixelTicks = 0;
         switch(mode.getMode()){
 
             case "Test": {

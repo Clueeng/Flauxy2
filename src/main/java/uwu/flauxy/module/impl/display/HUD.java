@@ -2,17 +2,13 @@ package uwu.flauxy.module.impl.display;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.network.login.client.C00PacketLoginStart;
 import net.minecraft.network.play.client.C00PacketKeepAlive;
-import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S00PacketKeepAlive;
 import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
-import net.minecraft.network.play.server.S32PacketConfirmTransaction;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.event.Event;
@@ -26,14 +22,19 @@ import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
 import uwu.flauxy.module.impl.movement.Longjump;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
+import uwu.flauxy.module.setting.impl.GraphSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
+import uwu.flauxy.module.setting.impl.NumberSetting;
 import uwu.flauxy.utils.*;
+import uwu.flauxy.utils.font.TTFFontRenderer;
+import uwu.flauxy.utils.render.ColorUtils;
 import uwu.flauxy.utils.render.RenderUtil;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static uwu.flauxy.utils.font.FontManager.getFont;
@@ -41,29 +42,57 @@ import static uwu.flauxy.utils.font.FontManager.getFont;
 @ModuleInfo(name = "HUD", displayName = "HUD", key = -1, cat = Category.Display)
 public class HUD extends Module {
 
-    public ModeSetting watermark = new ModeSetting("Watermark", "Flauxy", "Flauxy", "Onetap", "Skeet", "Astolfo");
-    public BooleanSetting waterMarkToggled = new BooleanSetting("Watermark", true);
+    public ModeSetting mode = new ModeSetting("Mode", "Old", "Old", "New");
+    public ModeSetting watermark = new ModeSetting("Watermark", "Flauxy", "Flauxy", "Onetap", "Skeet", "Astolfo", "Noctura").setCanShow(m -> mode.is("Old"));
+    public BooleanSetting waterMarkToggled = new BooleanSetting("Watermark", true).setCanShow(m -> mode.is("Old"));
 
-    public BooleanSetting fps = new BooleanSetting("FPS", true);
-    public ModeSetting positionFps = new ModeSetting("FPS Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> fps.getValue());
+    public BooleanSetting fps = new BooleanSetting("FPS", true).setCanShow(m -> mode.is("Old"));
+    public ModeSetting positionFps = new ModeSetting("FPS Position", "Top-Left", "Top-Left", "Bottom-Left", "Bottom-Right").setCanShow(m -> fps.getValue() && mode.is("Old"));
 
     public BooleanSetting customfont = new BooleanSetting("Custom Font", true);
 
-    public int infocount;
-    //public BooleanSetting glow = new BooleanSetting("Glow", true);
-    float deltaYaw = 0.0f, deltaPitch = 0.0f;
-    float velocityX, velocityZ, velocityY, opacityEnd, opacity = 0.0f;
-    public float maxSpeed, resetSpeed;
-    long lastKnockback = 0;
-    boolean updatePing;
 
-    @Getter @Setter
-    public int absoluteX, absoluteY;
+    public NumberSetting hue = new NumberSetting("HUE",0,0,360,1).setCanShow(m -> mode.is("New"));
+    public GraphSetting saturationValue = new GraphSetting("Saturation", 0, 0, 0, 100, 0, 100, 1, 1, hue).setCanShow(m -> mode.is("New")); // sat bri
+
+
+    float opacityEnd, opacity = 0.0f;
+    public float maxSpeed;
     public long ping;
     private final Map<Integer, Long> keepAliveTimestamps = new HashMap<>();
     public float width;
     public HUD() {
-        addSettings(watermark, customfont, fps, positionFps);
+        addSettings(mode, watermark, customfont, fps, positionFps, hue, saturationValue);
+        hue.setColorDisplay(true);
+        saturationValue.setColorDisplay(true);
+    }
+
+    public static String getTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime currentTime = LocalTime.now();
+        return currentTime.format(formatter);
+    }
+
+    public void hudDraw(Event e){
+        if(e instanceof EventRender2D){
+            if(customfont.isEnabled()){
+                int hudCol = getColorFromSettings(hue, saturationValue).getRGB();
+                TTFFontRenderer medium = getFont("Good", 23);
+                String title = Flauxy.INSTANCE.getName();
+                String firstLetter = title.substring(0, 1);
+                String rest = title.substring(1);
+                medium.drawStringWithShadow(firstLetter + EnumChatFormatting.RESET + rest + " (" + getTime() + ")", 4, 4, hudCol);
+
+
+                ScaledResolution sr = new ScaledResolution(mc);
+
+                int bottomScreen = sr.getScaledHeight();
+                int rightScreen = sr.getScaledWidth();
+
+                TTFFontRenderer small = getFont("Good", 16);
+                small.drawStringWithShadow("BPS: " + getBPS(), 4, bottomScreen - small.getHeight("BPS") - 4, hudCol);
+            }
+        }
     }
 
     @Override
@@ -114,6 +143,10 @@ public class HUD extends Module {
             }
         }
         if(event instanceof EventRender2D){
+            if(mode.is("New")){
+                hudDraw(event);
+                return;
+            }
             ScaledResolution sr = new ScaledResolution(mc);
             Longjump longjump = Flauxy.INSTANCE.getModuleManager().getModule(Longjump.class);
             if(longjump.shouldWait){
@@ -159,7 +192,6 @@ public class HUD extends Module {
             if(waterMarkToggled.getValue()){
                 switch (watermark.getMode()) {
 
-
                     case "Astolfo":{
                         Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString("Joe's Client", 5, 5, new Color(0, 0, 0, 150).getRGB());
                         Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawString("Joe's Client", 4, 4, new Color(148, 105, 187).getRGB());
@@ -168,15 +200,15 @@ public class HUD extends Module {
 
                     case "Flauxy":
                         if(customfont.isEnabled()) {
-                            Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "lauxy", 4, 4, Color.GREEN.getRGB());
+                            Flauxy.INSTANCE.getFontManager().getFont("auxy 21").drawStringWithShadow("" + Flauxy.INSTANCE.getName().charAt(0) + EnumChatFormatting.WHITE + "octura", 4, 4, Color.GREEN.getRGB());
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow("F" + EnumChatFormatting.GRAY + "lauxy [" + mc.getDebugFPS() + "]", 4, 4, Color.GREEN.getRGB());
+                            mc.fontRendererObj.drawStringWithShadow("F" + EnumChatFormatting.GRAY + "octura [" + mc.getDebugFPS() + "]", 4, 4, Color.GREEN.getRGB());
                         }
                         break;
                     case "Onetap":
                         if(customfont.isEnabled()) {
                             String server = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
-                            String text = "Flauxy | " + mc.thePlayer.getName() + " | " + server;
+                            String text = "Noctura | " + mc.thePlayer.getName() + " | " + server;
                             float width = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(text) + 6;
                             RenderUtil.drawRect(2, 2, width, 3, Color.ORANGE.getRGB());
                             RenderUtil.drawRect(2, 3, width, 15, new Color(67, 67, 67, 190).getRGB());
@@ -185,7 +217,7 @@ public class HUD extends Module {
                             break;
                         } else {
                             String server = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
-                            String text = "Flauxy | " + mc.thePlayer.getName() + " | " + server;
+                            String text = "Noctura | " + mc.thePlayer.getName() + " | " + server;
                             float width = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(text) + 6;
                             RenderUtil.drawRect(2, 2, width, 3, Color.ORANGE.getRGB());
                             RenderUtil.drawRect(2, 3, width, 15, new Color(67, 67, 67, 190).getRGB());
@@ -196,7 +228,7 @@ public class HUD extends Module {
                     case "Skeet":
                         if(customfont.isEnabled()) {
                             String skeetserver = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
-                            String skeettext = "Flauxy | " + mc.getDebugFPS() + " fps | " + skeetserver;
+                            String skeettext = "Noctura | " + mc.getDebugFPS() + " fps | " + skeetserver;
                             float skeetwidth = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(skeettext) + 6;
                             int height = 20;
                             int posX = 2;
@@ -213,7 +245,7 @@ public class HUD extends Module {
                             break;
                         } else {
                             String skeetserver = mc.isSingleplayer() ? "local server" : mc.getCurrentServerData().serverIP.toLowerCase();
-                            String skeettext = "Flauxy | " + mc.getDebugFPS() + " fps | " + skeetserver;
+                            String skeettext = "Noctura | " + mc.getDebugFPS() + " fps | " + skeetserver;
                             float skeetwidth = Flauxy.INSTANCE.getFontManager().getFont("auxy 21").getWidth(skeettext) + 6;
                             int height = 20;
                             int posX = 2;
@@ -283,6 +315,12 @@ public class HUD extends Module {
             }
         }
 
+    }
+
+    public String getBPS(){
+        final double xz = (Math.hypot(mc.thePlayer.posX - mc.thePlayer.prevPosX, mc.thePlayer.posZ - mc.thePlayer.prevPosZ) * mc.timer.timerSpeed) * 20;
+        final DecimalFormat bpsFormat = new DecimalFormat("#.##");
+        return bpsFormat.format(xz);
     }
 
 

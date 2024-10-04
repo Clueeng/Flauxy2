@@ -40,7 +40,8 @@ public class AsyncVersionSlider extends GuiButton {
         super(buttonId, x, y, Math.max(widthIn, 110), heightIn, "");
         this.values = ViaLoadingBase.PROTOCOLS;
         Collections.reverse(values);
-        this.sliderValue = dragValue;
+        //this.sliderValue = dragValue;
+        this.sliderValue = 0f;
         this.displayString = values.get((int) Math.ceil(this.sliderValue * (values.size() - 1))).getName();
     }
 

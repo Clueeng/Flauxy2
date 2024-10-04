@@ -211,14 +211,24 @@ public class Speed extends Module {
                     case "No Strafe":{
                         if(event instanceof EventMotion){
                             EventMotion em = (EventMotion) event;
+                        }
+                        if(event instanceof EventUpdate){
+                            if(mc.thePlayer.onGround){
+                                onGroundTicks += 1;
+                                offGroundTicks = 0;
+                                MoveUtils.strafe(0.4385);
+                            }
                             if(!mc.thePlayer.onGround){
-                                                MoveUtils.strafe(MoveUtils.getMotion() / 1.109f);
+                                offGroundTicks += 1;
+                                onGroundTicks = 0;
+                                if(offGroundTicks > 2){
+                                    MoveUtils.strafe(MoveUtils.getMotion() * 0.89);
+                                }
                             }
                         }
                         if(event instanceof EventMove){
                             EventMove ev = (EventMove) event;
                             if(mc.thePlayer.onGround){
-                                MoveUtils.strafe(0.4785);
                                 ev.setY(mc.thePlayer.motionY = 0.42f);
                             }
                         }

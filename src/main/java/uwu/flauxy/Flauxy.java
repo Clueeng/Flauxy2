@@ -43,7 +43,7 @@ import java.util.Objects;
 public enum Flauxy implements MinecraftInstance {
     INSTANCE;
 
-    public String name = "Flauxy", version = "1.2 (PvP Edition)";
+    public String name = "Noctura", version = "1.3 (Hypixel Edition)";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
     public ModuleManager moduleManager;
     public FontManager fontManager;
@@ -69,7 +69,7 @@ public enum Flauxy implements MinecraftInstance {
         try
         {
             ViaMCP.create();
-            ViaMCP.INSTANCE.initAsyncSlider(); // For top left aligned slider
+            //ViaMCP.INSTANCE.initAsyncSlider(); // For top left aligned slider
             ViaMCP.INSTANCE.initAsyncSlider(4, 4, 120, 20); // For custom position and size slider
         }
         catch (Exception e)
@@ -90,7 +90,7 @@ public enum Flauxy implements MinecraftInstance {
         altManager = new AltManager();
         altManager.loadAlts();
         capeManager = new CapeManager();
-        Display.setTitle("Minecraft 1.8.9");
+        Display.setTitle("Noctura [1.8.8] V" + version);
         moduleManager.getModule(HUD.class).toggle();
         moduleManager.getModule(ArrayList.class).toggle();
         moduleManager.getModule(Noslow.class).toggle();

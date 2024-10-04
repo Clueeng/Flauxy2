@@ -27,6 +27,9 @@ public class FontManager {
     public static TTFFontRenderer getFont() {
         return Flauxy.INSTANCE.fontManager.getFont("arial 21");
     }
+    public static TTFFontRenderer getFont(String fontName, int size){
+        return Flauxy.INSTANCE.fontManager.getFont(fontName + " " + size);
+    }
 
     public FontManager() {
         instance = this;
@@ -35,19 +38,31 @@ public class FontManager {
         ConcurrentLinkedQueue<fr.flailyclient.utils.fonts.TextureData> textureQueue = new ConcurrentLinkedQueue<>();
         defaultFont = new TTFFontRenderer(executorService, textureQueue, new Font("Verdana", Font.PLAIN, 18));
         try {
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30, 36, 41, 42, 43, 44}) {
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/auxy.otf");
+            for(int i = 8; i < 24; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Main.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("auxy " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                fonts.put("Main " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
-
-            for (int i : new int[]{6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 40, 30, 36}) { // japan font thing fpr Clickgui because normal font dont work
+            for(int i = 8; i < 24; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Japan.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Japan " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
+            for(int i = 8; i < 24; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/iskpota.ttf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("Iskpota " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+            }
+            for(int i = 8; i < 24; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Good.ttf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("Good " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+            }
+
 
             fonts.put("Verdana Bold 16", new TTFFontRenderer(executorService, textureQueue, new Font("Verdana Bold", Font.PLAIN, 16)));
             fonts.put("Verdana Bold 20", new TTFFontRenderer(executorService, textureQueue, new Font("Verdana Bold", Font.PLAIN, 20)));

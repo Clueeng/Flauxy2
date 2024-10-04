@@ -78,7 +78,7 @@ public class ArrayList extends Module {
         if(event instanceof EventRender2D){
             ScaledResolution sr = new ScaledResolution(mc);
             java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
-            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("arial 19");
+            TTFFontRenderer font = Flauxy.INSTANCE.getFontManager().getFont("Good 18");
             double animFactor = 100;
             for (Module m : Flauxy.INSTANCE.getModuleManager().modules) {
                 if (m.isToggled()) {
@@ -111,7 +111,7 @@ public class ArrayList extends Module {
                 }
             }
             if(customfont.getValue()){
-                mods.sort(Comparator.comparingDouble(m ->  (double) Flauxy.INSTANCE.getFontManager().getFont("arial 19").getWidth(((Module) m).getDisplayName())).reversed());
+                mods.sort(Comparator.comparingDouble(m ->  (double) Flauxy.INSTANCE.getFontManager().getFont("Good 18").getWidth(((Module) m).getDisplayName())).reversed());
             }else{
                 mods.sort(Comparator.comparingInt(m ->  (int)mc.fontRendererObj.getStringWidth(((Module) m).getDisplayName())).reversed());
             }
@@ -134,7 +134,7 @@ public class ArrayList extends Module {
                 if(background.getValue()){
                     Gui.drawRect(0, 0, 0, 0, new Color(0, 0, 0, 1).getRGB());
                     if(customfont.getValue()){
-                        Gui.drawRect((float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft, (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide), (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
+                        Gui.drawRect((float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft, (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 1.5f, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
                     }else{
                         FontRenderer fonta = mc.fontRendererObj;
                         Gui.drawRect((float) ((wi - fonta.getStringWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft, ((float) c + (float)padding.getValue() + (fonta.FONT_HEIGHT)) - m.ySlide, (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod, (c + (fonta.FONT_HEIGHT * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
@@ -217,16 +217,16 @@ public class ArrayList extends Module {
                                 int nextModInd = mods.indexOf(m) + 1;
                                 Module nextMod = mods.get(nextModInd);
                                 float lengthNM = font.getWidth(nextMod.getDisplayName());
-                                float adding = font.getWidth(m.getDisplayName()) - lengthNM;
+                                float adding = font.getWidth(m.getDisplayName()) - lengthNM - 4;
                                 Gui.drawRect(leftx + 1- expandedLeft, bottomStart -1, leftx + adding + 2, bottomStart, stringColor);
                             }
 
                             // Top Bar
                             if(mods.indexOf(m) == 0){
-                                Gui.drawRect(wa - m.xSlide + 4 + lengthOfMod + 1- expandedLeft, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 6- expandedLeft, (float) c + (float)padding.getValue() - 1, stringColor);
+                                Gui.drawRect(wa - m.xSlide + 4 + lengthOfMod + 1- expandedLeft, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 8- expandedLeft, (float) c + (float)padding.getValue() - 1, stringColor);
                             }
                             // Right bar
-                            Gui.drawRect(leftx + font.getWidth(m.getDisplayName()) + 4, (float) c + (float)padding.getValue() - 1, leftx + font.getWidth(m.getDisplayName()) + 5, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2f, stringColor);
+                            Gui.drawRect(leftx + font.getWidth(m.getDisplayName()) + 4, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 5, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2f, stringColor);
 
                         }else{
 
@@ -260,7 +260,7 @@ public class ArrayList extends Module {
                     // outline end
 
                     // text
-                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 8.5f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 0.5f, stringColor);
+                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 3f, stringColor);
                     else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, stringColor);
                     // values changing
 
