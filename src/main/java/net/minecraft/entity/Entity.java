@@ -1513,6 +1513,19 @@ public abstract class Entity implements ICommandSender
             return this.getVectorForRotation(f, f1);
         }
     }
+    public Vec3 getLook(float partialTicks, float yaw, float pitch, float prevYaw, float prevPitch)
+    {
+        if (partialTicks == 1.0F)
+        {
+            return this.getVectorForRotation(pitch, yaw);
+        }
+        else
+        {
+            float f = prevPitch + (pitch - prevPitch) * partialTicks;
+            float f1 = prevYaw + (yaw - prevYaw) * partialTicks;
+            return this.getVectorForRotation(f, f1);
+        }
+    }
 
     /**
      * Creates a Vec3 using the pitch and yaw of the entities rotation.

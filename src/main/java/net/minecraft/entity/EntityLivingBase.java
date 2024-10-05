@@ -53,7 +53,9 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import uwu.flauxy.Flauxy;
+import uwu.flauxy.event.impl.EventMotion;
 import uwu.flauxy.event.impl.EventStrafe;
+import uwu.flauxy.module.impl.combat.Killaura;
 import uwu.flauxy.module.impl.falses.AutoHeadhitter;
 import uwu.flauxy.module.impl.falses.ModernMotionThreshold;
 import uwu.flauxy.module.impl.other.MouseDelayFix;
@@ -2221,6 +2223,24 @@ public abstract class EntityLivingBase extends Entity
         {
             float f = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * partialTicks;
             float f1 = this.prevRotationYawHead + (this.rotationYawHead - this.prevRotationYawHead) * partialTicks;
+            return this.getVectorForRotation(f, f1);
+        }
+    }
+
+    public Vec3 getLook(float partialTicks, float yaw, float pitch, float prevYaw, float prevPitch)
+    {
+        if(this instanceof EntityPlayerSP && Flauxy.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()
+        && !Flauxy.INSTANCE.getModuleManager().getModule(Killaura.class).isToggled()){
+            return super.getLook(1.0f, yaw, pitch, prevYaw, prevPitch);
+        }
+        if (partialTicks == 1.0F)
+        {
+            return this.getVectorForRotation(pitch, yaw);
+        }
+        else
+        {
+            float f = prevPitch + (pitch - prevPitch) * partialTicks;
+            float f1 = prevYaw + (yaw - prevYaw) * partialTicks;
             return this.getVectorForRotation(f, f1);
         }
     }

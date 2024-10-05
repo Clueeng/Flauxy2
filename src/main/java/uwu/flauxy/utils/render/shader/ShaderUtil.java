@@ -1,5 +1,6 @@
 package uwu.flauxy.utils.render.shader;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 import uwu.flauxy.utils.FileUtils;
@@ -27,7 +28,17 @@ public class ShaderUtil implements Utils {
                     fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectGradient.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 default:
-                    fragmentShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream(), GL_FRAGMENT_SHADER);
+                    try {
+                        InputStream shaderStream = mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream();
+                        fragmentShaderID = createShader(shaderStream, GL_FRAGMENT_SHADER);
+                        System.err.println("Loaded shader from " + fragmentShaderLoc);
+                        Minecraft.logger.warn("Loaded shader from " + fragmentShaderLoc);
+                    } catch (IOException e) {
+                        fragmentShaderID = 0;
+                        Minecraft.logger.warn("Failed to load shader from " + fragmentShaderLoc + ": " + e.getMessage());
+                        System.err.println("Failed to load shader from " + fragmentShaderLoc + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
                     break;
             }
             glAttachShader(program, fragmentShaderID);

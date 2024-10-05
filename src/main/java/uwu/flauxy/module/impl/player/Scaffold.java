@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
@@ -91,13 +92,23 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
             Flauxy.INSTANCE.moduleManager.getModule("Sprint").toggle();
         }
+        if(mode.getMode().equals("Godbridge")){
+            BlockPos pos = new BlockPos(mc.thePlayer.posX, sameY.isEnabled() ? oldY - 0.5 : mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+            setBlockFacing(pos);
+
+            if(currentFacing != null) {
+                lastPos = currentPos;
+                lastFacing = currentFacing;
+            }
+        }
         sneakTicks = 0;
         placedBlocks = 0;
         ticks = 0;
         for(int i = 0; i < 9; i++) {
             if (mc.thePlayer.inventory.getStackInSlot(i) == null)
                 continue;
-            if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && !blockBlacklist.contains(((ItemBlock) mc.thePlayer.inventory.getStackInSlot(i).getItem()).getBlock())) {
+            if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && !blockBlacklist.contains(((ItemBlock) mc.thePlayer.inventory.getStackInSlot(i).getItem()).getBlock())
+                    && i != mc.thePlayer.inventory.currentItem) {
                 if(autoblock.is("Slot")) {
                     oldItem = mc.thePlayer.inventory.currentItem;
                     mc.thePlayer.inventory.currentItem = i;
@@ -133,12 +144,11 @@ public class Scaffold extends Module {
         if(sneakTicks > 0) {
             mc.gameSettings.keyBindSneak.pressed = false;
         }
-        Flauxy.INSTANCE.moduleManager.getModule("Sprint").setToggled(true);
 
         mc.timer.timerSpeed = 1F;
         if(autoblock.is("Slot")) {
             mc.thePlayer.inventory.currentItem = oldItem;
-            PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+            //PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
         if(autoblock.is("Silent")) {
             PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
@@ -239,11 +249,23 @@ public class Scaffold extends Module {
             for(int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) == null)
                     continue;
-                if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && !blockBlacklist.contains(((ItemBlock) mc.thePlayer.inventory.getStackInSlot(i).getItem()).getBlock())) {
+                if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && !blockBlacklist.contains(((ItemBlock) mc.thePlayer.inventory.getStackInSlot(i).getItem()).getBlock())
+                && i != mc.thePlayer.inventory.currentItem) {
                     mc.thePlayer.inventory.currentItem = i;
                     itemSpoofed = i;
                 }
             }
+        }
+        if(mc.thePlayer.inventory.getCurrentItem() != null){
+            ItemStack it = mc.thePlayer.inventory.getCurrentItem();
+            if(!(it.getItem() instanceof ItemBlock)){
+                this.onDisable();
+                this.toggle();
+            }else{
+            }
+        }else{
+            this.onDisable();
+            this.toggle();
         }
     }
 
@@ -659,9 +681,12 @@ public class Scaffold extends Module {
     }
 
     int stillTick, godBridgeBlocks;
+    long lastBlockPlaceTime = 0;
     float godBridgePitch = 83.52f, godBridgeYaw = 180f;
     private void Godbridge(Event event){
         if(event instanceof EventUpdate){
+            if(Flauxy.INSTANCE.getModuleManager().getModule(Speed.class).isToggled()) return;
+
             if(roundRots.isEnabled()){
                 switch (mc.thePlayer.getHorizontalFacing().getName().toLowerCase()){
                     case "north":{
@@ -711,13 +736,13 @@ public class Scaffold extends Module {
             if(e.isPre())return;
             BlockPos pos = new BlockPos(mc.thePlayer.posX, sameY.isEnabled() ? oldY - 0.5 : mc.thePlayer.posY - 1, mc.thePlayer.posZ);
             mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
-            if(godBridgeBlocks >= 7){
+            /*if(godBridgeBlocks >= 7){
                 mc.thePlayer.motionZ *= 0.3f;
                 mc.thePlayer.motionX *= 0.3f;
                 //KeyBinding.onTick(mc.gameSettings.keyBindJump.getKeyCode());
                 mc.gameSettings.keyBindJump.pressed = true;
                 godBridgeBlocks = 0;
-            }
+            }*/
             if(mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir) {
                 setBlockFacing(pos);
 
@@ -770,10 +795,15 @@ public class Scaffold extends Module {
 
             boolean rayCheck = !raytrace.isEnabled() || raytraceBlock(finalYaw, finalPitch);
 
-            if(currentPos != null && currentFacing != null && rayCheck) {
+            boolean delay = Math.abs(System.currentTimeMillis() - lastBlockPlaceTime) > 100;
+            boolean shouldPlace = mc.theWorld.getBlockState(pos).getBlock() instanceof BlockAir;
+            System.out.println(Math.abs(System.currentTimeMillis() - lastBlockPlaceTime));
+            delay = e.isPost() && delay;
+            if(currentPos != null && currentFacing != null && rayCheck && delay && shouldPlace) {
                 if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos,currentFacing))) {
                     godBridgeBlocks ++;
                     mc.thePlayer.swingItem();
+                    lastBlockPlaceTime = System.currentTimeMillis();
                 }
             }
         }
@@ -985,6 +1015,7 @@ public class Scaffold extends Module {
         Vec3 src = mc.thePlayer.getPositionEyes(1.0F);
         Vec3 rotationVec = Entity.getVectorForRotation(pitch, yaw);
         Vec3 dest = src.addVector(rotationVec.xCoord * 3.5F, rotationVec.yCoord * 3F, rotationVec.zCoord * 3.5F);
+        if(currentPos == null) return false;
         if(mc.theWorld.getBlockState(currentPos) == null) return false;
         IBlockState blockState = mc.theWorld.getBlockState(currentPos);
         if(blockState.getBlock().getCollisionBoundingBox(mc.theWorld,currentPos, blockState) == null) return false;

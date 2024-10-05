@@ -37,6 +37,7 @@ public class AntiVoid extends Module {
     
     public void onEvent(Event e) {
         if (e instanceof EventMotion) {
+            if(mc.thePlayer.ticksExisted < 10)return;
             if(mc.thePlayer.onGround){
                 lastSafePos = mc.thePlayer.getPosition();
             }

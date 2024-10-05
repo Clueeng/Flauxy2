@@ -322,10 +322,39 @@ public class Fly extends Module {
     }
 
     int hypixelTicks = 0;
+    int decreaseTicks = 0;
     boolean launch;
     private void hypixel(Event e) {
         if(e instanceof EventMotion){
             EventMotion em = (EventMotion) e;
+            if(hypixelTicks > 3){
+                if(mc.thePlayer.hurtTime > 8) launch = true;
+                if(launch){
+                    mc.timer.timerSpeed = 0.65f;
+                    if(mc.thePlayer.motionY > 0.06 && flyTicks < 10){
+                        mc.thePlayer.motionY = 1.198f;
+                        MoveUtils.strafe(0.92f - (flyTicks / 20f));
+                        flyTicks++;
+                    }else{
+                        decreaseTicks++;
+                    }
+                    if(decreaseTicks < 20){
+                        if(decreaseTicks < 10){
+                            mc.thePlayer.motionY = -0.03f;
+                        }else{
+                            if(decreaseTicks == 11){
+                                if(em.isPre()){
+                                    mc.thePlayer.jump();
+                                }
+                            }
+                        }
+
+                    }else{
+                        this.onDisable();
+                        this.toggle();
+                    }
+                }
+            }
             if(hypixelTicks < 2){
                 for(int i = 0; i < 9; i++) {
                     if (mc.thePlayer.inventory.getStackInSlot(i) == null)
@@ -373,6 +402,7 @@ public class Fly extends Module {
         tempY = 0;
         flyTicks = 0;
         hypixelTicks = 0;
+        decreaseTicks = 0;
         flyTicks2 = 0;
         blinkpackets.clear();
         switch(mode.getMode()){
@@ -394,6 +424,7 @@ public class Fly extends Module {
         mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
         disableValues();
         resetBlocks();
+        decreaseTicks = 0;
         hypixelTicks = 0;
         switch(mode.getMode()){
 

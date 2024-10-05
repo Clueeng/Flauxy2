@@ -214,16 +214,17 @@ public class Speed extends Module {
                         }
                         if(event instanceof EventUpdate){
                             if(mc.thePlayer.onGround){
+                                mc.gameSettings.keyBindJump.pressed = false;
                                 onGroundTicks += 1;
                                 offGroundTicks = 0;
-                                MoveUtils.strafe(0.4385);
+                                MoveUtils.strafe(0.49); // .47
                             }
                             if(!mc.thePlayer.onGround){
                                 offGroundTicks += 1;
                                 onGroundTicks = 0;
-                                if(offGroundTicks > 2){
-                                    MoveUtils.strafe(MoveUtils.getMotion() * 0.89);
-                                }
+                            }
+                            if(offGroundTicks > 2){
+                                MoveUtils.strafe(MoveUtils.getMotion() * 0.91);
                             }
                         }
                         if(event instanceof EventMove){

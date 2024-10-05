@@ -160,6 +160,8 @@ public enum Flauxy implements MinecraftInstance {
         }
     }
 
+    public static String oldIP;
+
     public void onShutDownApplet(){
         discordRP.close();
         waypointManager.saveWaypoints();

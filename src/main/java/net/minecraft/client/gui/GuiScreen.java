@@ -9,13 +9,21 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -47,9 +55,12 @@ import org.lwjgl.opengl.GL11;
 import tv.twitch.chat.ChatUserInfo;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
 import uwu.flauxy.utils.render.RenderUtil;
 import uwu.flauxy.utils.render.shader.StencilUtil;
 import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+
+import static uwu.flauxy.Flauxy.oldIP;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 {
@@ -103,12 +114,71 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         {
             ((GuiLabel)this.labelList.get(j)).drawLabel(this.mc, mouseX, mouseY);
         }
-        //mc.fontRendererObj.drawString("hi",4,4,-1);
+
+        if (ipFuture != null && ipFuture.isDone() && mc.thePlayer == null) {
+            try {
+                fetchedIP = ipFuture.get();
+                if (!fetchedIP.equals(oldIP)) {
+                    if (fetchedIP.toLowerCase().contains("disconnected")) {
+                        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "You are disconnected from the Internet"));
+                    } else {
+                        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "Your IP was changed"));
+                    }
+                    oldIP = fetchedIP;
+                }
+                ipFuture = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         if(Flauxy.INSTANCE.getNotificationManager().queuedNotifications != null && !Flauxy.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
             Notification notification = Flauxy.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
             if(mc.currentScreen != null){
                 notification.render(partialTicks);
             }
+        }
+    }
+
+
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Future<String> ipFuture;
+    private String fetchedIP = oldIP; // To store the result of the async IP fetch
+    public void fetchIPAsync() {
+        ipFuture = executor.submit(this::getIP);
+    }
+
+
+    public String getIP() {
+        BufferedReader br = null;
+        String publicIP = "Disconnected";
+        try {
+            if (isConnectedToInternet()) {
+                URL url = new URL("http://checkip.amazonaws.com");
+                URLConnection connection = url.openConnection();
+                connection.setConnectTimeout(1000);  // Shorter timeout to avoid freezing
+                connection.setReadTimeout(1000);     // Shorter timeout to avoid freezing
+
+                br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                publicIP = br.readLine();
+            } else {
+                System.out.println("No internet connection.");
+                return "Disconnected";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Disconnected"; // Handle failure gracefully
+        }
+        return publicIP;
+    }
+    private boolean isConnectedToInternet() {
+        try {
+            URL url = new URL("http://www.google.com");
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 

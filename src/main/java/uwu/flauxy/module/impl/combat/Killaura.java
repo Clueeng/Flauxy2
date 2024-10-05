@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.CallbackI;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.commands.impl.CommandSetupCPS;
 import uwu.flauxy.event.Event;
@@ -32,6 +33,7 @@ import uwu.flauxy.event.impl.EventUpdate;
 import uwu.flauxy.module.Category;
 import uwu.flauxy.module.Module;
 import uwu.flauxy.module.ModuleInfo;
+import uwu.flauxy.module.impl.player.Scaffold;
 import uwu.flauxy.module.setting.impl.BooleanSetting;
 import uwu.flauxy.module.setting.impl.ModeSetting;
 import uwu.flauxy.module.setting.impl.NumberSetting;
@@ -115,7 +117,7 @@ public class Killaura extends Module {
     public void onEvent(Event ev){
         if(ev instanceof EventStrafe){
             EventStrafe e = (EventStrafe) ev;
-            if(currentTarget != null){
+            if(currentTarget != null && mc.thePlayer.ticksExisted > 10){
                 if(isValid(currentTarget, (float) reach.getValue()) && movefix.isEnabled()) {
                     e.setYaw(getRotations(currentTarget)[0]);
                 }
@@ -332,8 +334,10 @@ public class Killaura extends Module {
                                 float[] gcd = applyGCD(targetYaw, targetPitch, event.getPrevYaw(), event.getPrevPitch());
                                 //event.setYaw(gcd[0]);
                                 //event.setPitch(gcd[1]);
-                                yaw(gcd[0], event);
-                                pitch(gcd[1], event);
+                                //if(!isLookingAtEntity(mc.thePlayer, target, reach.getValue(), event)){
+                                    yaw(gcd[0], event);
+                                    pitch(gcd[1], event);
+                                //}
 
                                 //yaw(targetYaw, event);
                                 //pitch(targetPitch, event);
@@ -375,9 +379,9 @@ public class Killaura extends Module {
                             }else{
                                 targets.remove(target);
                             }
-                            if(type.is("Post")) attack(target);
-                            if(type.is("Pre") && event.isPre()) attack(target);
-                            if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
+                            if(type.is("Post")) attack(target, event);
+                            if(type.is("Pre") && event.isPre()) attack(target, event);
+                            if(type.is("Mix") && event.isPre() || event.isPost()) attack(target, event);
                         }else{
                             switch(autoblockMode.getMode()){
                                 case "Redesky":{
@@ -437,7 +441,7 @@ public class Killaura extends Module {
     }
 
     public float[] applyGCD(float yaw, float pitch, float prevYaw, float prevPitch){
-        float d = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
+        float d = (this.mc.gameSettings.mouseSensitivity) * 0.6F + 0.2F;
         float e = d * d * d;
         //float f2 = (float)this.mc.mouseHelper.deltaX * f1;
         //float f3 = (float)this.mc.mouseHelper.deltaY * f1;
@@ -453,9 +457,10 @@ public class Killaura extends Module {
         if(!isHoldingSword())return;
         if(currentTarget == null)return;
         if(mc.thePlayer.ticksExisted % 3 != 0){
-            mc.gameSettings.keyBindUseItem.pressed = true;
-        }else{
-            mc.gameSettings.keyBindUseItem.pressed = false;
+            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
+                new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
+        }else{PacketUtil.sendPacket(new C07PacketPlayerDigging(
+                C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(-1, -1, -1), EnumFacing.DOWN));
         }
     }
 
@@ -476,12 +481,16 @@ public class Killaura extends Module {
     }
 
     public boolean shouldRun(){
-        return mc.thePlayer.ticksExisted > 10 && mc.thePlayer != null && mc.theWorld != null;
+        return mc.thePlayer.ticksExisted > 10 && mc.thePlayer != null && mc.theWorld != null
+                && !Flauxy.INSTANCE.getModuleManager().getModule(Scaffold.class).isToggled();
     }
 
     public boolean isValid(Entity e, float reach){
         boolean finalValid = false;
-        if(e == null || mc.thePlayer.ticksExisted < 10) return false;
+        if(mc.theWorld == null) return false;
+        if(mc.thePlayer == null) return false;
+        if(mc.thePlayer.ticksExisted < 10) return false;
+        if(e == null) return false;
         if(mc.thePlayer.getDistanceToEntity(e) <= reach){
             if(e instanceof EntityPlayer && players.getValue()){
                 if((e.getName().equals("UPGRADES") || e.getName().equals("SHOP"))){
@@ -521,8 +530,20 @@ public class Killaura extends Module {
         return new float[] {yaw, pitch};
     }
 
-    public void attack(Entity target){
-        boolean ray = !raycast.isEnabled() || mc.objectMouseOver.entityHit != null;
+    public static boolean isLookingAtEntity(EntityPlayer player, Entity target, double maxDistance, EventMotion em) {
+        Vec3 eyePosition = player.getPositionEyes(1.0F);
+        AxisAlignedBB targetBB = target.getEntityBoundingBox();
+        Vec3 lookVector = player.getLook(1.0F, em.getYaw(), em.getPitch(), em.getPrevYaw(), em.getPrevPitch());
+        Vec3 endPosition = eyePosition.addVector(lookVector.xCoord * maxDistance, lookVector.yCoord * maxDistance, lookVector.zCoord * maxDistance);
+        MovingObjectPosition result = targetBB.calculateIntercept(eyePosition, endPosition);
+        if(result == null){
+            System.out.println("null");
+        }
+        return result != null;
+    }
+
+    public void attack(Entity target, EventMotion em){
+        boolean ray = !raycast.isEnabled() || isLookingAtEntity(mc.thePlayer, target, reach.getValue(), em);
         mc.thePlayer.swingItem();
         mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
         if(ray){
@@ -581,5 +602,7 @@ public class Killaura extends Module {
         Gui.drawRect(x, y, (x + w), (y + h), color.getRGB());
     }
 
-
+    public static Vec3 vec(Vec3 look, AxisAlignedBB axisAlignedBB) {
+        return new Vec3(MathHelper.clamp_double(look.xCoord, axisAlignedBB.minX, axisAlignedBB.maxX), MathHelper.clamp_double(look.yCoord, axisAlignedBB.minY, axisAlignedBB.maxY), MathHelper.clamp_double(look.zCoord, axisAlignedBB.minZ, axisAlignedBB.maxZ));
+    }
 }

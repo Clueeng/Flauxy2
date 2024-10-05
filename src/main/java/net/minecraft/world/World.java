@@ -243,6 +243,7 @@ public abstract class World implements IBlockAccess
      */
     private boolean isValid(BlockPos pos)
     {
+        if(pos == null) return false;
         return pos.getX() >= -30000000 && pos.getZ() >= -30000000 && pos.getX() < 30000000 && pos.getZ() < 30000000 && pos.getY() >= 0 && pos.getY() < 256;
     }
 
@@ -992,32 +993,25 @@ public abstract class World implements IBlockAccess
                     {
                         d3 = (d0 - vec31.xCoord) / d6;
                     }
-
-                    if (flag)
-                    {
+                    if (flag) {
                         d4 = (d1 - vec31.yCoord) / d7;
                     }
-
                     if (flag1)
                     {
                         d5 = (d2 - vec31.zCoord) / d8;
                     }
-
                     if (d3 == -0.0D)
                     {
                         d3 = -1.0E-4D;
                     }
-
                     if (d4 == -0.0D)
                     {
                         d4 = -1.0E-4D;
                     }
-
                     if (d5 == -0.0D)
                     {
                         d5 = -1.0E-4D;
                     }
-
                     EnumFacing enumfacing;
 
                     if (d3 < d4 && d3 < d5)

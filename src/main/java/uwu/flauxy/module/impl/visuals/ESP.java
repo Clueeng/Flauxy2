@@ -144,7 +144,7 @@ public class ESP extends Module {
                             glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, opacity / 255f);
                             glLineWidth((float) (thickness.getValue() * 4f));
                             glBegin(GL_LINE_LOOP);
-                            //Wrapper.instance.log("" + c.getRed() + " " + c.getBlue() + "  " + c.getGreen());
+
                             glVertex2f(minX, minY);
                             glVertex2f(maxX, minY);
                             glVertex2f(maxX, maxY);

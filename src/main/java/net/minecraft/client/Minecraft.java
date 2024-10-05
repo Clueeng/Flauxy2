@@ -194,7 +194,7 @@ import uwu.flauxy.utils.config.KeyLoader;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
-    private static final Logger logger = LogManager.getLogger();
+    public static final Logger logger = LogManager.getLogger();
     private static final ResourceLocation locationMojangPng = new ResourceLocation("textures/gui/title/mojang.png");
     public static final boolean isRunningOnMac = Util.getOSType() == Util.EnumOS.OSX;
 
