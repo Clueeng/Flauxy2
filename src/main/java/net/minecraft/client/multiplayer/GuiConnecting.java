@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.sun.xml.internal.ws.util.VersionUtil;
+import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiDisconnected;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.network.NetHandlerLoginClient;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.EnumConnectionState;
@@ -18,6 +19,10 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uwu.flauxy.Flauxy;
+import uwu.flauxy.notification.Notification;
+import uwu.flauxy.notification.NotificationType;
+import uwu.flauxy.utils.ViaUtil;
 
 public class GuiConnecting extends GuiScreen
 {
@@ -26,15 +31,24 @@ public class GuiConnecting extends GuiScreen
     private NetworkManager networkManager;
     private boolean cancel;
     private final GuiScreen previousGuiScreen;
+    boolean returnToOld = false;
 
     public GuiConnecting(GuiScreen p_i1181_1_, Minecraft mcIn, ServerData p_i1181_3_)
     {
+
         this.mc = mcIn;
         this.previousGuiScreen = p_i1181_1_;
         ServerAddress serveraddress = ServerAddress.func_78860_a(p_i1181_3_.serverIP);
         mcIn.loadWorld((WorldClient)null);
         mcIn.setServerData(p_i1181_3_);
-        this.connect(serveraddress.getIP(), serveraddress.getPort());
+
+        System.out.println(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString + " is higher than 1.8 ? " + ViaUtil.versionLowerThan(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
+        if(serveraddress.getIP().contains("blocksmc") && ViaUtil.versionLowerThan("1.17")){
+            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Version Mismatch", "Please use 1.17+ for blocksmc", 4000));
+            returnToOld = true;
+        }else{
+            this.connect(serveraddress.getIP(), serveraddress.getPort());
+        }
     }
 
     public GuiConnecting(GuiScreen p_i1182_1_, Minecraft mcIn, String hostName, int port)
@@ -48,6 +62,7 @@ public class GuiConnecting extends GuiScreen
     private void connect(final String ip, final int port)
     {
         logger.info("Connecting to " + ip + ", " + port);
+        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Multiplayer", "Connecting to " + ip + " in " + ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet())
         {
             public void run()
@@ -159,7 +174,11 @@ public class GuiConnecting extends GuiScreen
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
-
+        if(returnToOld){
+            this.mc.displayGuiScreen(new GuiMultiplayer(new GuiMainMenu()));
+            returnToOld = false;
+            return;
+        }
         if (this.networkManager == null)
         {
             this.drawCenteredString(this.fontRendererObj, I18n.format("connect.connecting", new Object[0]), this.width / 2, this.height / 2 - 50, 16777215);

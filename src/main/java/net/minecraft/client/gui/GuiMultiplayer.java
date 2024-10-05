@@ -420,7 +420,6 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
 
     private void connectToServer(ServerData server)
     {
-        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Multiplayer", "Connecting to " + server.serverIP + " in " + ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
         this.mc.displayGuiScreen(new GuiConnecting(this, this.mc, server));
     }
 
