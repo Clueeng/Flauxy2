@@ -2,10 +2,11 @@ package uwu.flauxy.commands.impl;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.BlockPos;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import uwu.flauxy.commands.Command;
 import uwu.flauxy.utils.PacketUtil;
 import uwu.flauxy.utils.Wrapper;
@@ -35,7 +36,7 @@ public class CommandPacket extends Command {
         }
 
         String packetName = args[1];
-
+        Packet<?> packet = null;
         switch (packetName){
             case "C03":{
                 packetName = "C03PacketPlayer";
@@ -65,10 +66,11 @@ public class CommandPacket extends Command {
                 packetName = "C0CPacketInput";
                 break;
             }
+            case "C07":{
+                packetName = "C07PacketPlayerDigging";
+                break;
+            }
         }
-
-        Packet<?> packet = null;
-
         try {
             // Handle specific packets directly
             switch (packetName) {
@@ -79,9 +81,8 @@ public class CommandPacket extends Command {
                     }
                     BlockPos position = new BlockPos(Integer.parseInt(args[2]), Integer.parseInt(args[3]), Integer.parseInt(args[4]));
                     int placedBlockDirection = Integer.parseInt(args[5]);
-                    ItemStack stack = mc.thePlayer.inventory.getItemStack();
-                            packet = new C08PacketPlayerBlockPlacement(position, placedBlockDirection, stack, 0.0F, 0.0F, 0.0F);
-                            Wrapper.instance.log("position: " + position);
+                    ItemStack stack = new ItemStack(Block.getBlockById(Integer.parseInt(args[6])));
+                    packet = new C08PacketPlayerBlockPlacement(position, placedBlockDirection, stack, 0.0F, 0.0F, 0.0F);
                     break;
 
                 case "C0CPacketInput":
@@ -116,6 +117,10 @@ public class CommandPacket extends Command {
                     boolean accepted = Boolean.parseBoolean(args[4]);
                     packet = new C0FPacketConfirmTransaction(windowId, uid, accepted);
                     break;
+
+                case "C03":
+                    Wrapper.instance.log("Conflict: Please specify the full packet name (C03PacketPlayer, C03PacketPlayer.C04PacketPlayerPosition, C03PacketPlayer.C05PacketPlayerLook, or C03PacketPlayer.C06PacketPlayerPosLook).");
+                    return;
 
                 case "C04PacketPlayerPosition":
                     if (args.length < 5) {
@@ -152,6 +157,27 @@ public class CommandPacket extends Command {
                     playerPitch = Float.parseFloat(args[6]);
                     onGround = Boolean.parseBoolean(args[7]);
                     packet = new C03PacketPlayer.C06PacketPlayerPosLook(posX, posY, posZ, playerYaw, playerPitch, onGround);
+                    break;
+
+                case "C07PacketPlayerDigging":
+                    if (args.length < 4) {
+                        Wrapper.instance.log("Usage for C07PacketPlayerDigging: .packet C07PacketPlayerDigging <action> <x> <y> <z> <facing>");
+                        return;
+                    }
+                    // Parse action
+                    C07PacketPlayerDigging.Action action;
+                    try {
+                        action = C07PacketPlayerDigging.Action.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        Wrapper.instance.log("Invalid action specified. Available actions: START_DESTROY_BLOCK, ABORT_DESTROY_BLOCK, STOP_DESTROY_BLOCK, DROP_ALL_ITEMS, DROP_ITEM, RELEASE_USE_ITEM");
+                        return;
+                    }
+                    // Parse position
+                    BlockPos diggingPosition = new BlockPos(Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+                    // Parse facing
+                    EnumFacing facing = EnumFacing.getFront(Integer.parseInt(args[6]));
+                    Wrapper.instance.log("Facing : " + facing);
+                    packet = new C07PacketPlayerDigging(action, diggingPosition, facing);
                     break;
 
                 default:
