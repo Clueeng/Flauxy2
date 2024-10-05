@@ -50,7 +50,7 @@ public final class GuiAltLogin extends GuiScreen {
                 this.thread.start();
                 break;
             case 3:
-                text = StringUtils.generateRandomStringName(3);
+                text = StringUtils.generateRandomStringName();
                 this.username.setText(text);
                 this.password.setText("");
                 this.thread = new AltLoginThread(this.username.getText(), this.password.getText());

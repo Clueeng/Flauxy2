@@ -74,14 +74,15 @@ public class Scaffold extends Module {
     public BooleanSetting jump = new BooleanSetting("Jump", false);
     public BooleanSetting raytrace = new BooleanSetting("Raytrace", false).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting roundRots = new BooleanSetting("Round Yaw", false).setCanShow(s -> mode.is("Godbridge"));
-    public BooleanSetting sameY = new BooleanSetting("Same Y", true).setCanShow(s -> mode.is("Godbridge"));
+    public BooleanSetting sameY = new BooleanSetting("Telly", true).setCanShow(s -> mode.is("Godbridge"));
+    public BooleanSetting towerGodbridge = new BooleanSetting("Tower", true).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
     public NumberSetting vanillaTowerSpeed = new NumberSetting("Tower Speed", 0.42, 0.1, 1, 0.02).setCanShow(m -> tower.is("Vanilla"));
     public BooleanSetting redeskyTimer = new BooleanSetting("Redesky timer", true).setCanShow(m -> mode.is("Redesky"));
 
 
     public Scaffold() {
-        addSettings(mode, raytrace, roundRots, sameY, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
+        addSettings(mode, raytrace, roundRots, sameY, towerGodbridge, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
 
     public void onEnable() {
@@ -126,6 +127,9 @@ public class Scaffold extends Module {
         placedBlocks = 0;
         mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode());
         mc.gameSettings.keyBindForward.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
+        mc.gameSettings.keyBindLeft.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode());
+        mc.gameSettings.keyBindRight.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode());
+        mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
         if(sneakTicks > 0) {
             mc.gameSettings.keyBindSneak.pressed = false;
         }
@@ -134,6 +138,7 @@ public class Scaffold extends Module {
         mc.timer.timerSpeed = 1F;
         if(autoblock.is("Slot")) {
             mc.thePlayer.inventory.currentItem = oldItem;
+            PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
         }
         if(autoblock.is("Silent")) {
             PacketUtil.packetNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
@@ -729,11 +734,37 @@ public class Scaffold extends Module {
             clientRotations(finalYaw, finalPitch);
 
             if(sameY.isEnabled()){
-                if(mc.thePlayer.onGround){
-                    godBridgeYaw = mc.thePlayer.rotationYaw;
-                    mc.thePlayer.setSprinting(true);
+                if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
+                    oldY = mc.thePlayer.posY;
+                    if(towerGodbridge.isEnabled()){
+                        if(mc.thePlayer.onGround) {
+                            towerTicks = 0;
+                        }
+                        if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)) {
+                            int possy = (int) mc.thePlayer.posY;
+                            mc.thePlayer.motionX *= 0.4f;
+                            mc.thePlayer.motionZ *= 0.4f;
 
-                    mc.thePlayer.jump();
+                            if (mc.thePlayer.posY - possy < 0.05) {
+                                mc.thePlayer.setPosition(mc.thePlayer.posX, possy, mc.thePlayer.posZ);
+                                mc.thePlayer.motionY = 0.42;
+                                towerTicks = 1;
+                            } else if (towerTicks == 1) {
+                                mc.thePlayer.motionY = 0.34;
+                                towerTicks++;
+                            } else if (towerTicks == 2) {
+                                mc.thePlayer.motionY = 0.25;
+                                towerTicks++;
+                            }
+                        }
+                    }
+                }
+                godBridgeYaw = mc.thePlayer.rotationYaw;
+                if(mc.thePlayer.onGround){
+                    mc.thePlayer.setSprinting(true);
+                    if(MoveUtils.getMotion() > 0.2){
+                        mc.thePlayer.jump();
+                    }
                 }
             }
 

@@ -1264,7 +1264,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
             float f1 = f * f * f * 8.0F;
             float f2 = (float)this.mc.mouseHelper.deltaX * f1;
-            float f3 = (float)this.mc.mouseHelper.deltaY * f1;
+                                                                                                                                    float f3 = (float)this.mc.mouseHelper.deltaY * f1;
             byte b0 = 1;
 
             if (this.mc.gameSettings.invertMouse)

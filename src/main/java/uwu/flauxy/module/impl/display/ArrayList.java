@@ -212,7 +212,7 @@ public class ArrayList extends Module {
                             //Wrapper.instance.log(mods.indexOf(m) + " " + m.getName());
                             if(mods.indexOf(m) == mods.size()-1){
                                 // Last bar
-                                Gui.drawRect(leftx + 1- expandedLeft, bottomStart - 1, leftx + font.getWidth(m.getDisplayName()) + 5, bottomStart, stringColor);
+                                Gui.drawRect(leftx + 1- expandedLeft, bottomStart - 1, leftx + font.getWidth(m.getDisplayName()) + 3f, bottomStart, stringColor);
                             }else{
                                 int nextModInd = mods.indexOf(m) + 1;
                                 Module nextMod = mods.get(nextModInd);
@@ -223,10 +223,10 @@ public class ArrayList extends Module {
 
                             // Top Bar
                             if(mods.indexOf(m) == 0){
-                                Gui.drawRect(wa - m.xSlide + 4 + lengthOfMod + 1- expandedLeft, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 8- expandedLeft, (float) c + (float)padding.getValue() - 1, stringColor);
+                                Gui.drawRect(wa - m.xSlide + 4 + lengthOfMod + 1- expandedLeft, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 7 - expandedLeft, (float) c + (float)padding.getValue() - 1, stringColor);
                             }
                             // Right bar
-                            Gui.drawRect(leftx + font.getWidth(m.getDisplayName()) + 4, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 5, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2f, stringColor);
+                            Gui.drawRect(leftx + font.getWidth(m.getDisplayName()) + 3, (float) c + (float)padding.getValue() - 2, leftx + font.getWidth(m.getDisplayName()) + 4, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 2f, stringColor);
 
                         }else{
 
@@ -260,7 +260,7 @@ public class ArrayList extends Module {
                     // outline end
 
                     // text
-                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 3f, stringColor);
+                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 2.0f, stringColor);
                     else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, stringColor);
                     // values changing
 

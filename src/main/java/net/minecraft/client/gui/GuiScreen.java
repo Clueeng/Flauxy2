@@ -3,7 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.awt.Toolkit;
+
+import java.awt.*;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -36,14 +37,19 @@ import net.minecraft.stats.StatList;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 import tv.twitch.chat.ChatUserInfo;
 import uwu.flauxy.Flauxy;
 import uwu.flauxy.notification.Notification;
+import uwu.flauxy.utils.render.RenderUtil;
+import uwu.flauxy.utils.render.shader.StencilUtil;
+import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 {
@@ -643,6 +649,28 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
     public void drawDefaultBackground()
     {
         this.drawWorldBackground(0);
+    }
+
+    public void drawNocturaScreen(){
+        String curImg = "background/bg_" + 1 + ".png";
+        ResourceLocation RL_Background = new ResourceLocation(curImg);
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(0
+                ,0
+                ,width,
+                height);
+
+        RenderUtil.drawImage(0, 0, width, height, RL_Background);
+        Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
+
+
+        GaussianBlur.renderBlur(12f);
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
     }
 
     public void drawWorldBackground(int tint)

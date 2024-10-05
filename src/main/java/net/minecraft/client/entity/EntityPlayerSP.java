@@ -280,6 +280,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
         // motion
         boolean g = Flauxy.INSTANCE.isGhost();
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+        em.setPrevPitch(lastReportedPitch);
+        em.setPrevYaw(lastReportedYaw);
         if(!g){
             em.setType(EventType.PRE);
             Flauxy.onEvent(em);
@@ -384,6 +386,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
             em.setType(EventType.POST);
             Flauxy.onEvent(em);
         }
+        em.setPrevPitch(lastReportedPitch);
+        em.setPrevYaw(lastReportedYaw);
 
     }
 

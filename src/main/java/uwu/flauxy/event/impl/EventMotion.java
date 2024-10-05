@@ -12,7 +12,7 @@ public class EventMotion extends Event {
     public double x, y, z;
     @Getter
     @Setter
-    public float yaw, pitch;
+    public float yaw, pitch, prevYaw, prevPitch;
     @Getter
     @Setter
     public boolean onGround;

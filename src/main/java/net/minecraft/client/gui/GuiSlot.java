@@ -6,7 +6,14 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+import uwu.flauxy.utils.render.RenderUtil;
+import uwu.flauxy.utils.render.shader.StencilUtil;
+import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+
+import java.awt.*;
 
 public abstract class GuiSlot
 {
@@ -218,6 +225,28 @@ public abstract class GuiSlot
             }
         }
     }
+    public void drawNocturaScreen(){
+        String curImg = "background/bg_" + 1 + ".png";
+        ResourceLocation RL_Background = new ResourceLocation(curImg);
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(0
+                ,0
+                ,width,
+                height);
+
+        RenderUtil.drawImage(0, 0, width, height, RL_Background);
+        Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
+
+
+        GaussianBlur.renderBlur(12f);
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
+    }
+
 
     public void drawScreen(int mouseXIn, int mouseYIn, float p_148128_3_)
     {
@@ -225,7 +254,8 @@ public abstract class GuiSlot
         {
             this.mouseX = mouseXIn;
             this.mouseY = mouseYIn;
-            this.drawBackground();
+            //this.drawBackground();
+            //drawNocturaScreen();
             int i = this.getScrollBarX();
             int j = i + 6;
             this.bindAmountScrolled();
@@ -242,6 +272,7 @@ public abstract class GuiSlot
             worldrenderer.pos((double)this.right, (double)this.top, 0.0D).tex((double)((float)this.right / f), (double)((float)(this.top + (int)this.amountScrolled) / f)).color(32, 32, 32, 255).endVertex();
             worldrenderer.pos((double)this.left, (double)this.top, 0.0D).tex((double)((float)this.left / f), (double)((float)(this.top + (int)this.amountScrolled) / f)).color(32, 32, 32, 255).endVertex();
             tessellator.draw();
+            drawNocturaScreen();
             int k = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
             int l = this.top + 4 - (int)this.amountScrolled;
 

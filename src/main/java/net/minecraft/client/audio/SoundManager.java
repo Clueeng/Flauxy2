@@ -240,42 +240,35 @@ public class SoundManager
 
         Iterator<Entry<String, ISound>> iterator = this.playingSounds.entrySet().iterator();
 
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             Entry<String, ISound> entry = (Entry)iterator.next();
-            String s1 = (String)entry.getKey();
-            ISound isound = (ISound)entry.getValue();
+            String s1 = entry.getKey();
+            ISound isound = entry.getValue();
 
-            if (!this.sndSystem.playing(s1))
-            {
-                int i = ((Integer)this.playingSoundsStopTime.get(s1)).intValue();
+            if (!this.sndSystem.playing(s1)) {
+                Integer stopTime = this.playingSoundsStopTime.get(s1);
+                if (stopTime != null && stopTime <= this.playTime) {
+                    int repeatDelay = isound.getRepeatDelay();
 
-                if (i <= this.playTime)
-                {
-                    int j = isound.getRepeatDelay();
-
-                    if (isound.canRepeat() && j > 0)
-                    {
-                        this.delayedSounds.put(isound, Integer.valueOf(this.playTime + j));
+                    if (isound.canRepeat() && repeatDelay > 0) {
+                        this.delayedSounds.put(isound, this.playTime + repeatDelay);
                     }
 
-                    iterator.remove();
-                    logger.debug(LOG_MARKER, "Removed channel {} because it\'s not playing anymore", new Object[] {s1});
+                    iterator.remove(); // Safely remove the entry using the iterator
+                    logger.debug(LOG_MARKER, "Removed channel {} because it's not playing anymore", s1);
                     this.sndSystem.removeSource(s1);
+
+                    // Remove from other collections safely
                     this.playingSoundsStopTime.remove(s1);
                     this.playingSoundPoolEntries.remove(isound);
 
-                    try
-                    {
+                    try {
                         this.categorySounds.remove(this.sndHandler.getSound(isound.getSoundLocation()).getSoundCategory(), s1);
-                    }
-                    catch (RuntimeException var8)
-                    {
-                        ;
+                    } catch (RuntimeException var8) {
+                        // Ignore runtime exceptions during removal
                     }
 
-                    if (isound instanceof ITickableSound)
-                    {
+                    if (isound instanceof ITickableSound) {
                         this.tickableSounds.remove(isound);
                     }
                 }

@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,9 +40,14 @@ import uwu.flauxy.Flauxy;
 import uwu.flauxy.alts.GuiAltManager;
 import uwu.flauxy.utils.DiscordPresenceUtil;
 import uwu.flauxy.utils.Wrapper;
+import uwu.flauxy.utils.font.FontManager;
 import uwu.flauxy.utils.font.TTFFontRenderer;
 import uwu.flauxy.utils.render.ColorUtils;
 import uwu.flauxy.utils.render.RenderUtil;
+import uwu.flauxy.utils.render.shader.StencilUtil;
+import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+
+import static uwu.flauxy.utils.font.FontManager.getFont;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 {
@@ -207,7 +213,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
         checkOld = imageID;
         //System.out.println("Image ID: " + imageID);
-        curImg = "background/bg_" + imageID + ".png";
+        curImg = "background/bg_" + 1 + ".png";
         RL_Background = new ResourceLocation(curImg);
     }
 
@@ -276,7 +282,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, p_73969_1_, I18n.format("menu.singleplayer", new Object[0])));
         this.buttonList.add(new GuiButton(2, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 1, I18n.format("menu.multiplayer", new Object[0])));
         this.buttonList.add(new GuiButton(3, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Alt Manager"));
-        this.buttonList.add(new GuiButton(40, 4, 4, 100, 20, "Change Background"));
+        this.buttonList.add(new GuiButton(40, 4, 4, 100, 20, "Github"));
+        this.buttonList.add(new GuiButton(41, 108, 4, 100, 20, "Youtube"));
     }
 
     /**
@@ -307,8 +314,23 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         if (button.id == 40)
         {
-            generateImage();
-            tickToGenerate = 0;
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://github.com/Clueeng/Flauxy2"));
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        if (button.id == 41)
+        {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://www.youtube.com/@ValuedValue"));
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
 
         if (button.id == 5)
@@ -575,10 +597,23 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         // display image background bg random
         //mc.getTextureManager().bindTexture(RL_Background);
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(0
+                ,0
+                ,width,
+                height);
 
         RenderUtil.drawImage(0, 0, width, height, RL_Background);
         Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
-        if(System.currentTimeMillis() % 10 == 0){
+
+
+        GaussianBlur.renderBlur(12f);
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
+        /*if(System.currentTimeMillis() % 10 == 0){
             tickToGenerate++;
             if(tickToGenerate % (1000) * timeLeftInSeconds == 0){
                 opacity = 0;
@@ -604,17 +639,23 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
                     }
                 }
             }
-        }
+        }*/
 
         this.drawGradientRect(0, 0, width, height, 0, new Color(0, 0, 0, (int)opacity).getRGB());
         this.drawGradientRect(0, 0, width, height, new Color(1, 1, 1, 69).getRGB(), new Color(1, 1, 1, 69).getRGB());
-        TTFFontRenderer font = Flauxy.INSTANCE.fontManager.getFont("auxy 40");
-        TTFFontRenderer font2 = Flauxy.INSTANCE.fontManager.getFont("auxy 24");
-        String clientName = Flauxy.INSTANCE.getName();
-        Flauxy.INSTANCE.fontManager.getFont("auxy 40").drawString(clientName + " Client", (width / 2) - (Flauxy.INSTANCE.fontManager.getFont("auxy 40").getWidth("Flauxy Client")/2)+3+2, 32, new Color(0, 0, 0).getRGB());
-        font.drawString(clientName + " Client", (width / 2) - (font.getWidth(clientName + " Client")/2)+3, 30, -1);
-        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth(clientName + " Client") / 2f) + 4,42,Color.black.getRGB());
-        font2.drawStringWithShadow("v" + Flauxy.INSTANCE.version,width / 2f + (font.getWidth(clientName + " Client") / 2f) + 3,41,-1);
+        TTFFontRenderer font2 = FontManager.getFont("Good", 18);
+
+        String title = Flauxy.INSTANCE.getName() + " Client";
+        TTFFontRenderer small = getFont("Main", 48);
+        float xPosition = width / 2f - (small.getWidth(title) / 2f);
+        float xAdd = 0.0f;
+
+        for(int ind = 0; ind < title.length(); ind++){
+            int col = ColorUtils.blendThing(2f, ind * 150L, new Color(50, 0, 100), new Color(150, 0, 200));
+            small.drawStringWithShadow(title.charAt(ind) + "", xPosition + xAdd - 8, 12, col);
+            xAdd += small.getWidth(title.charAt(ind) + "") - 1.2f;
+        }
+
 
         float endX = font2.getWidth(getLongestChangelog(Flauxy.INSTANCE.getLogs()).getChangelog()) + 28;
         Gui.drawRect(4, 96, endX, 102 + (12 * Flauxy.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());
@@ -632,7 +673,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         //this.drawCenteredString(this.fontRendererObj, this.splashText, 0, -8, -256);
         GlStateManager.popMatrix();
         String s = "Minecraft 1.8.8";
-        this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
+        //this.drawString(this.fontRendererObj, s, 2, this.height - 10, -1);
+        getFont("Good", 18).drawString("Made with <3 by Flaily", width - getFont("Good", 18).getWidth("Made with <3 by Flaily") - 2,
+                height - 2 - getFont("Good", 18).getHeight("A"), -1);
 
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
         {

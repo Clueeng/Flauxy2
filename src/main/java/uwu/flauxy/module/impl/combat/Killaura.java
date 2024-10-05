@@ -16,11 +16,8 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntitySmallFireball;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.play.client.C02PacketUseEntity;
-import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.network.play.client.C0BPacketEntityAction;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.play.client.*;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -69,7 +66,7 @@ public class Killaura extends Module {
     public NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
 
-    ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None");
+    ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None", "Legit");
     //ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
     ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post", "Mix");
 
@@ -80,6 +77,7 @@ public class Killaura extends Module {
     ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky", "Hypixel").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
+    BooleanSetting raycast = new BooleanSetting("Raycast", true).setCanShow(m -> !rotations.is("None"));
 
     BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
@@ -93,7 +91,7 @@ public class Killaura extends Module {
 
 
     public Killaura(){
-        addSettings(autoblockMode, type, rotations, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
+        addSettings(autoblockMode, type, rotations, raycast, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
     public static boolean fakeBlock = false;
@@ -246,7 +244,7 @@ public class Killaura extends Module {
         }
 
         if(ev instanceof  EventMotion){
-            EventMotion event =(EventMotion)ev;
+            EventMotion event = (EventMotion)ev;
             if(shouldRun()){
                 targets = this.mc.theWorld.loadedEntityList.stream().filter(EntityLivingBase.class::isInstance).collect(Collectors.toList());
 
@@ -266,9 +264,22 @@ public class Killaura extends Module {
                                     break;
                                 }
                                 case "Hold":{
-                                    if(isHoldingSword()) mc.gameSettings.keyBindUseItem.pressed = true;
+                                    if(isHoldingSword()){
+                                        mc.gameSettings.keyBindUseItem.pressed = true;
+                                        if (event.isPost()) {
+                                            if (mc.thePlayer.swingProgressInt == -1) {
+                                                PacketUtil.sendPacket(new C07PacketPlayerDigging(
+                                                        C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(-1, -1, -1), EnumFacing.DOWN));
+                                            } else if (mc.thePlayer.swingProgressInt == 0) {
+                                                PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
+                                                        new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
+                                            }
+                                        }
+                                    }
                                     break;
                                 }
+
+                                //mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getItemStack(), 1);
                             }
                         }
 
@@ -297,6 +308,35 @@ public class Killaura extends Module {
                                     //yaw((float) (getRotations(target)[0] + random + 1 + Math.random()), event);
                                     //pitch((float) (getRotations(target)[1] + random + 1 + Math.random()), event);
                                 }
+                                break;
+                            }
+                            case "Legit":{
+                                /*
+                                if (this.mc.inGameHasFocus && flag)
+                                {
+                                    this.mc.mouseHelper.mouseXYChange();
+                                    float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
+                                    float f1 = f * f * f * 8.0F;
+                                    float f2 = (float)this.mc.mouseHelper.deltaX * f1;
+                                    float f3 = (float)this.mc.mouseHelper.deltaY * f1;
+                                    this.smoothCamYaw = 0.0F;
+                                    this.smoothCamPitch = 0.0F;`
+                                    this.mc.thePlayer.setAngles(f2, f3);
+                                }
+                                 */
+                                //legitAim(target, event);
+                                float[] targetRot = getRotations(target);
+                                float targetYaw = targetRot[0];
+                                float targetPitch = targetRot[1];
+
+                                float[] gcd = applyGCD(targetYaw, targetPitch, event.getPrevYaw(), event.getPrevPitch());
+                                //event.setYaw(gcd[0]);
+                                //event.setPitch(gcd[1]);
+                                yaw(gcd[0], event);
+                                pitch(gcd[1], event);
+
+                                //yaw(targetYaw, event);
+                                //pitch(targetPitch, event);
                                 break;
                             }
                             case "Instant":{
@@ -328,7 +368,6 @@ public class Killaura extends Module {
                             }
                         }
                         if(timer.hasTimeElapsed(clicks, true)){
-                            Criticals.isCrits = true;
 
                             if (target instanceof EntityPlayer) { // idk i need to check if player bc it will crash and im to lazy to fix or find the error idc rn
                                 if (!mc.thePlayer.isInvisibleToPlayer((EntityPlayer) target) && !wall.isEnabled())
@@ -336,7 +375,6 @@ public class Killaura extends Module {
                             }else{
                                 targets.remove(target);
                             }
-
                             if(type.is("Post")) attack(target);
                             if(type.is("Pre") && event.isPre()) attack(target);
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target);
@@ -367,6 +405,48 @@ public class Killaura extends Module {
             }
         }
 
+    }
+
+    public void legitAim(Entity target, EventMotion e) {
+        if (target == null) return;
+        float[] targetRotations = getRotations(target);
+        float targetYaw = targetRotations[0] % 360;
+        float targetPitch = targetRotations[1] % 360;
+        float currentYaw = mc.thePlayer.rotationYaw % 360;
+        float currentPitch = mc.thePlayer.rotationPitch % 360;
+        float yawDifference = targetYaw - currentYaw;
+        if (yawDifference < -180) {
+            yawDifference += 360;
+        } else if (yawDifference > 180) {
+            yawDifference -= 360;
+        }
+        float pitchDifference = targetPitch - currentPitch;
+        if (pitchDifference < -180) {
+            pitchDifference += 360;
+        } else if (pitchDifference > 180) {
+            pitchDifference -= 360;
+        }
+        float yawSpeed = 0.95f;
+        float pitchSpeed = 0.95f;
+        float deltaYaw = yawDifference / yawSpeed;
+        float deltaPitch = pitchDifference / pitchSpeed;
+        mc.mouseHelper.deltaX = (int) deltaYaw;
+        mc.mouseHelper.deltaY = (int) deltaPitch;
+        e.setYaw(mc.mouseHelper.deltaX);
+        e.setPitch(mc.mouseHelper.deltaY * -1);
+    }
+
+    public float[] applyGCD(float yaw, float pitch, float prevYaw, float prevPitch){
+        float d = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
+        float e = d * d * d;
+        //float f2 = (float)this.mc.mouseHelper.deltaX * f1;
+        //float f3 = (float)this.mc.mouseHelper.deltaY * f1;
+        float f = e * 8.0F;
+
+        double yawSens = (yaw - prevYaw) * f;
+        double pitchSens = (pitch - prevPitch) * f;
+
+        return new float[]{(float) (prevYaw + yawSens), (float) (prevPitch + pitchSens)};
     }
 
     private void hypixelBlock(Event ev) {
@@ -442,9 +522,13 @@ public class Killaura extends Module {
     }
 
     public void attack(Entity target){
+        boolean ray = !raycast.isEnabled() || mc.objectMouseOver.entityHit != null;
         mc.thePlayer.swingItem();
         mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());
-        mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
+        if(ray){
+            Criticals.isCrits = true;
+            mc.thePlayer.sendQueue.addToSendQueue(new C02PacketUseEntity(target, C02PacketUseEntity.Action.ATTACK));
+        }
     }
     public boolean isHoldingSword(){
         return mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;

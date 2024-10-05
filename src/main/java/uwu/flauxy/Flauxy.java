@@ -122,18 +122,14 @@ public enum Flauxy implements MinecraftInstance {
 
     public java.util.ArrayList<Changelog> getLogs(){
         java.util.ArrayList<Changelog> list = new java.util.ArrayList<>();
-        list.add(new Changelog("1.2", Changelog.Type.TITLE));
-        list.add(new Changelog("Added way too many things to list em all", Changelog.Type.ADDED));
-        list.add(new Changelog("1.18", Changelog.Type.TITLE));
-        list.add(new Changelog("Added Parkour", Changelog.Type.ADDED));
-        list.add(new Changelog("Fixed autoclicker being bad", Changelog.Type.EDITED));
-        list.add(new Changelog("1.17", Changelog.Type.TITLE));
-        list.add(new Changelog("Changed Discord RPC", Changelog.Type.EDITED));
-        list.add(new Changelog("Freelook Nametags Fixed", Changelog.Type.EDITED));
-        list.add(new Changelog("Freecam", Changelog.Type.ADDED));
-        list.add(new Changelog("Spammer", Changelog.Type.ADDED));
-        list.add(new Changelog("Creative+", Changelog.Type.ADDED));
-        list.add(new Changelog("Self Nametags", Changelog.Type.ADDED));
+        list.add(new Changelog("1.3", Changelog.Type.TITLE));
+        list.add(new Changelog("Fixed killaura", Changelog.Type.ADDED));
+        list.add(new Changelog("Renamed to Noctura", Changelog.Type.ADDED));
+        list.add(new Changelog("Hypixel Ground Strafe", Changelog.Type.ADDED));
+        list.add(new Changelog("Hypixel Velocity", Changelog.Type.ADDED));
+        list.add(new Changelog("Telly Scaffold", Changelog.Type.ADDED));
+        list.add(new Changelog("Reworked Name Randomness", Changelog.Type.EDITED));
+        list.add(new Changelog("Changed Main menu", Changelog.Type.ADDED));
         return list;
     }
 

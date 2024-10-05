@@ -38,25 +38,25 @@ public class FontManager {
         ConcurrentLinkedQueue<fr.flailyclient.utils.fonts.TextureData> textureQueue = new ConcurrentLinkedQueue<>();
         defaultFont = new TTFFontRenderer(executorService, textureQueue, new Font("Verdana", Font.PLAIN, 18));
         try {
-            for(int i = 8; i < 24; i++){
+            for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Main.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Main " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
-            for(int i = 8; i < 24; i++){
+            for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Japan.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Japan " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
-            for(int i = 8; i < 24; i++){
+            for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/iskpota.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Iskpota " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
             }
-            for(int i = 8; i < 24; i++){
+            for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Good.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
