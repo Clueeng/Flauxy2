@@ -33,8 +33,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventCollide;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventCollide;
 
 public class Block
 {
@@ -491,7 +491,7 @@ public class Block
     {
         AxisAlignedBB axisalignedbb = getCollisionBoundingBox(worldIn, pos, state);
         EventCollide eventCollide = new EventCollide(collidingEntity, pos.getX(), pos.getY(), pos.getZ(), axisalignedbb, this);
-        Flauxy.onEvent(eventCollide);
+        Noctura.onEvent(eventCollide);
         axisalignedbb = eventCollide.getBoundingBox();
         if (eventCollide.isCancelled())
             return;

@@ -16,17 +16,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.system.CallbackI;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.module.impl.display.HUD;
-import uwu.flauxy.module.impl.display.InfoHUD;
-import uwu.flauxy.module.impl.display.KeyStrokes;
-import uwu.flauxy.module.impl.display.keystrokes.Keystroke;
-import uwu.flauxy.utils.Wrapper;
-import uwu.flauxy.utils.render.RenderUtil;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.Module;
+import uwu.noctura.module.impl.display.KeyStrokes;
+import uwu.noctura.utils.render.RenderUtil;
 
-import static uwu.flauxy.utils.font.FontManager.getFont;
+import static uwu.noctura.utils.font.FontManager.getFont;
 
 public class GuiChat extends GuiScreen
 {
@@ -322,7 +317,7 @@ public class GuiChat extends GuiScreen
         if(!Mouse.isButtonDown(0)){
             heldTick = 0;
         }
-        for (Module hudMod : Flauxy.INSTANCE.getModuleManager().getHudModules()) {
+        for (Module hudMod : Noctura.INSTANCE.getModuleManager().getHudModules()) {
             if (hudMod.isToggled()) {
                 ScaledResolution sr = new ScaledResolution(mc);
                 boolean isKeyStrokes = hudMod instanceof KeyStrokes;
@@ -351,7 +346,7 @@ public class GuiChat extends GuiScreen
                     if ((keystrokeWithinX && keystrokeWithinY && movingModule == null) || movingModule == keystroke) {
                         RenderUtil.drawUnfilledRectangle(keystroke.getMoveX() - (32 * keystroke.size.getValue()), keystroke.getMoveY() - 20, keystroke.getMoveX() + (32 * keystroke.size.getValue()), keystroke.getMoveY() + (42 * keystroke.size.getValue()), 4, -1);
                         RenderUtil.drawCircle(keystroke.getMoveX() - (32 * keystroke.size.getValue()) + 1, keystroke.getMoveY() - 20 + 1, 4, new Color(255, 0, 0).getRGB());
-                        Flauxy.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", keystroke.getMoveX() - (32 * keystroke.size.getValue()) - 2.5f, keystroke.getMoveY() - 23, -1);
+                        Noctura.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", keystroke.getMoveX() - (32 * keystroke.size.getValue()) - 2.5f, keystroke.getMoveY() - 23, -1);
                     }
 
                     if (keystrokeWithinX && keystrokeWithinY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == keystroke)) {
@@ -369,7 +364,7 @@ public class GuiChat extends GuiScreen
                     if ((withinX && withinY && movingModule == null) || movingModule == hudMod) {
                         RenderUtil.drawUnfilledRectangle(xpos, ypos, xpos + width, ypos + height, 4, -1, 2);
                         RenderUtil.drawCircle(xpos, ypos, 4, new Color(255, 0, 0).getRGB());
-                        Flauxy.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", xpos - 3.5f, ypos - 4, -1);
+                        Noctura.INSTANCE.fontManager.getFont("auxy 16").drawStringWithShadow("X", xpos - 3.5f, ypos - 4, -1);
                     }
 
                     if (withinX && withinY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod) || (movingModule == hudMod)) {

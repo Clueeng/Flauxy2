@@ -39,33 +39,27 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow;
 import net.minecraft.network.play.client.C13PacketPlayerAbilities;
 import net.minecraft.network.play.client.C16PacketClientStatus;
 import net.minecraft.potion.Potion;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.*;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.World;
-import org.lwjgl.input.Mouse;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.commands.CommandManager;
-import uwu.flauxy.commands.impl.CommandGhost;
-import uwu.flauxy.commands.impl.CommandSetupCPS;
-import uwu.flauxy.event.EventType;
-import uwu.flauxy.event.impl.EventMotion;
-import uwu.flauxy.event.impl.EventPostMotionUpdate;
-import uwu.flauxy.event.impl.EventUI;
-import uwu.flauxy.event.impl.EventUpdate;
-import uwu.flauxy.event.impl.packet.EventMove;
-import uwu.flauxy.module.Category;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.module.ModuleManager;
-import uwu.flauxy.module.impl.player.Noslow;
-import uwu.flauxy.ui.dropdown.ClickGUI;
-import uwu.flauxy.utils.DiscordPresenceUtil;
-import uwu.flauxy.utils.Wrapper;
-
-import java.io.File;
+import uwu.noctura.Noctura;
+import uwu.noctura.commands.CommandManager;
+import uwu.noctura.commands.impl.CommandGhost;
+import uwu.noctura.event.EventType;
+import uwu.noctura.event.impl.EventMotion;
+import uwu.noctura.event.impl.EventPostMotionUpdate;
+import uwu.noctura.event.impl.EventUI;
+import uwu.noctura.event.impl.EventUpdate;
+import uwu.noctura.event.impl.packet.EventMove;
+import uwu.noctura.module.Category;
+import uwu.noctura.module.Module;
+import uwu.noctura.module.impl.player.Noslow;
+import uwu.noctura.ui.dropdown.ClickGUI;
+import uwu.noctura.utils.DiscordPresenceUtil;
+import uwu.noctura.utils.Wrapper;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {
@@ -190,18 +184,18 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         EventUpdate e = new EventUpdate();
         e.setType(EventType.PRE);
-        Flauxy.onEvent(e);
+        Noctura.onEvent(e);
         this.prevServerYaw = this.serverYaw;
         this.prevServerPitch = this.serverPitch;
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
             if(mc.currentScreen instanceof ClickGUI){
-                Flauxy.onEvent(new EventUI());
+                Noctura.onEvent(new EventUI());
             }
             // Ghost mode
             boolean ghostJustToggled = false;
-            if (Flauxy.INSTANCE.isGhost()) {
-                long tgMs = Flauxy.INSTANCE.getCommandManager().getCommand(CommandGhost.class).getToggledMs();
+            if (Noctura.INSTANCE.isGhost()) {
+                long tgMs = Noctura.INSTANCE.getCommandManager().getCommand(CommandGhost.class).getToggledMs();
                 if (System.currentTimeMillis() - tgMs < 20) {
                     Wrapper.instance.log(EnumChatFormatting.GREEN +  "Disabled" + EnumChatFormatting.GRAY + " all " +
                             EnumChatFormatting.WHITE + "non-ghost" + EnumChatFormatting.GRAY + " modules");
@@ -209,7 +203,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 }
                 for (Category c : Category.values()) {
                     if (!(c.equals(Category.Ghost) || c.equals(Category.Visuals)  || c.equals(Category.False) || c.equals(Category.Display))) {
-                        for (Module m : Flauxy.INSTANCE.getModuleManager().getModules(c)) {
+                        for (Module m : Noctura.INSTANCE.getModuleManager().getModules(c)) {
                             if (m.isToggled()) {
                                 if (!ghostJustToggled) {
                                     Wrapper.instance.log("Ghost mode is " + EnumChatFormatting.GREEN + "toggled" + EnumChatFormatting.WHITE + ", disable it to enable " + EnumChatFormatting.YELLOW + m.getName());
@@ -268,7 +262,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 this.onUpdateWalkingPlayer();
             }
             e.setType(EventType.POST);
-            Flauxy.onEvent(e);
+            Noctura.onEvent(e);
         }
     }
 
@@ -278,13 +272,13 @@ public class EntityPlayerSP extends AbstractClientPlayer
     public void onUpdateWalkingPlayer()
     {
         // motion
-        boolean g = Flauxy.INSTANCE.isGhost();
+        boolean g = Noctura.INSTANCE.isGhost();
         EventMotion em = new EventMotion(this.posX, getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
         em.setPrevPitch(lastReportedPitch);
         em.setPrevYaw(lastReportedYaw);
         if(!g){
             em.setType(EventType.PRE);
-            Flauxy.onEvent(em);
+            Noctura.onEvent(em);
         }
         double ghX = g ? this.posX : em.getX();
         double ghY = g ? this.posY : em.getY();
@@ -382,9 +376,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
         EventPostMotionUpdate emp = new EventPostMotionUpdate();
         if(!g){
-            Flauxy.onEvent(emp);
+            Noctura.onEvent(emp);
             em.setType(EventType.POST);
-            Flauxy.onEvent(em);
+            Noctura.onEvent(em);
         }
         em.setPrevPitch(lastReportedPitch);
         em.setPrevYaw(lastReportedYaw);
@@ -909,7 +903,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
 
-        if (this.isUsingItem() && !this.isRiding() && !Flauxy.INSTANCE.getModuleManager().getModule(Noslow.class).isToggled())
+        if (this.isUsingItem() && !this.isRiding() && !Noctura.INSTANCE.getModuleManager().getModule(Noslow.class).isToggled())
         {
             this.movementInput.moveStrafe *= 0.2F;
             this.movementInput.moveForward *= 0.2F;
@@ -1061,7 +1055,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
     @Override
     public void moveEntity(double x, double y, double z) {
         final EventMove moveEvent = new EventMove(x, y, z);
-        Flauxy.onEvent(moveEvent);
+        Noctura.onEvent(moveEvent);
 
         if (moveEvent.isCancelled()) return;
 

@@ -1,6 +1,8 @@
 package net.minecraft.client.gui;
 
 import com.google.common.collect.Lists;
+
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -11,9 +13,8 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.other.ChatPlus;
-import uwu.flauxy.utils.Wrapper;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.other.ChatPlus;
 
 public class GuiNewChat extends Gui
 {
@@ -121,8 +122,8 @@ public class GuiNewChat extends Gui
      */
     public void clearChatMessages()
     {
-        if(Flauxy.INSTANCE.isInitialized()){
-            ChatPlus mod = Flauxy.INSTANCE.getModuleManager().getModule(ChatPlus.class);
+        if(Noctura.INSTANCE.isInitialized()){
+            ChatPlus mod = Noctura.INSTANCE.getModuleManager().getModule(ChatPlus.class);
             if(mod.infiniteChat.getValue() && mod.isToggled()){
                 return;
             }
@@ -149,27 +150,31 @@ public class GuiNewChat extends Gui
 
     private void setChatLine(IChatComponent p_146237_1_, int p_146237_2_, int p_146237_3_, boolean p_146237_4_)
     {
-        ChatPlus mod = Flauxy.INSTANCE.getModuleManager().getModule(ChatPlus.class);
+        ChatPlus mod = Noctura.INSTANCE.getModuleManager().getModule(ChatPlus.class);
         String newMessageText = p_146237_1_.getUnformattedText();
         int messageCount = 1;
         boolean found = false;
         boolean shouldStack = mod.stackMessage.getValue() && mod.isToggled();
         Iterator<ChatLine> iterator = this.field_146253_i.iterator();
-        while (iterator.hasNext() && shouldStack) {
-            ChatLine line = iterator.next();
-            String existingMessageText = line.getChatComponent().getUnformattedText();
+        try{
+            while (iterator.hasNext() && shouldStack) {
+                ChatLine line = iterator.next();
+                String existingMessageText = line.getChatComponent().getUnformattedText();
 
-            if (existingMessageText.startsWith(newMessageText)) {
-                found = true;
-                if (existingMessageText.matches(".*\\[x\\d+]$")) {
-                    String countString = existingMessageText.substring(existingMessageText.lastIndexOf("[x") + 2, existingMessageText.length() - 1);
-                    messageCount = Integer.parseInt(countString) + 1;
-                } else {
-                    messageCount = 2;
+                if (existingMessageText.startsWith(newMessageText)) {
+                    found = true;
+                    if (existingMessageText.matches(".*\\[x\\d+]$")) {
+                        String countString = existingMessageText.substring(existingMessageText.lastIndexOf("[x") + 2, existingMessageText.length() - 1);
+                        messageCount = Integer.parseInt(countString) + 1;
+                    } else {
+                        messageCount = 2;
+                    }
+                    iterator.remove();
+                    break;
                 }
-                iterator.remove();
-                break;
             }
+        }catch (ConcurrentModificationException e){
+            e.printStackTrace();
         }
 
         IChatComponent updatedComponent = p_146237_1_.createCopy();

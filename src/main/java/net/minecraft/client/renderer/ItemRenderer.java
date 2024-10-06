@@ -20,18 +20,16 @@ import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.MapData;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.combat.Killaura;
-import uwu.flauxy.module.impl.visuals.Animations;
-import uwu.flauxy.module.impl.visuals.NoRender;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.combat.Killaura;
+import uwu.noctura.module.impl.visuals.Animations;
+import uwu.noctura.module.impl.visuals.NoRender;
 
 
 public class ItemRenderer
@@ -342,7 +340,7 @@ public class ItemRenderer
             else if (abstractclientplayer.getItemInUseCount() > 0 || Killaura.fakeBlock)
             {
                 EnumAction enumaction = this.itemToRender.getItemUseAction();
-                Animations animations = Flauxy.INSTANCE.getModuleManager().getModule(Animations.class);
+                Animations animations = Noctura.INSTANCE.getModuleManager().getModule(Animations.class);
 
                 switch (enumaction)
                 {
@@ -532,7 +530,7 @@ public class ItemRenderer
     private void renderWaterOverlayTexture(float p_78448_1_)
     {
 
-        NoRender norender = Flauxy.INSTANCE.getModuleManager().getModule(NoRender.class);
+        NoRender norender = Noctura.INSTANCE.getModuleManager().getModule(NoRender.class);
         boolean tweak = norender.tweakOverlays.isEnabled();
 
         float opacity = (norender.isToggled() && tweak) ? norender.disableOverlays.isEnabled() ? 0.0f : (float) norender.overlayOpacity.getValue() : 0.5f;
@@ -569,7 +567,7 @@ public class ItemRenderer
      */
     private void renderFireInFirstPerson(float p_78442_1_)
     {
-        NoRender module = Flauxy.INSTANCE.getModuleManager().getModule(NoRender.class);
+        NoRender module = Noctura.INSTANCE.getModuleManager().getModule(NoRender.class);
         if(module.tweakFire.isEnabled() && module.disableFire.isEnabled())return;
 
         float opacity = module.tweakFire.isEnabled() ? (float) module.fireOpacity.getValue() / 100f : 0.9f;

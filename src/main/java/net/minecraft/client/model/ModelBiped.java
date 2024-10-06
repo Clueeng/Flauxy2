@@ -3,7 +3,7 @@ package net.minecraft.client.model;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MathHelper;
-import uwu.flauxy.utils.timer.TimerUtil;
+import uwu.noctura.utils.timer.TimerUtil;
 
 public class ModelBiped extends ModelBase {
     public ModelRenderer bipedHead;

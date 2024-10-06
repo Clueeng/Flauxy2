@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import javazoom.jl.player.Player;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -35,19 +33,18 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.Project;
-import uwu.flauxy.Changelog;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.alts.GuiAltManager;
-import uwu.flauxy.utils.DiscordPresenceUtil;
-import uwu.flauxy.utils.Wrapper;
-import uwu.flauxy.utils.font.FontManager;
-import uwu.flauxy.utils.font.TTFFontRenderer;
-import uwu.flauxy.utils.render.ColorUtils;
-import uwu.flauxy.utils.render.RenderUtil;
-import uwu.flauxy.utils.render.shader.StencilUtil;
-import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+import uwu.noctura.Changelog;
+import uwu.noctura.Noctura;
+import uwu.noctura.alts.GuiAltManager;
+import uwu.noctura.utils.DiscordPresenceUtil;
+import uwu.noctura.utils.font.FontManager;
+import uwu.noctura.utils.font.TTFFontRenderer;
+import uwu.noctura.utils.render.ColorUtils;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
-import static uwu.flauxy.utils.font.FontManager.getFont;
+import static uwu.noctura.utils.font.FontManager.getFont;
 
 public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 {
@@ -645,7 +642,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.drawGradientRect(0, 0, width, height, new Color(1, 1, 1, 69).getRGB(), new Color(1, 1, 1, 69).getRGB());
         TTFFontRenderer font2 = FontManager.getFont("Good", 18);
 
-        String title = Flauxy.INSTANCE.getName() + " Client";
+        String title = Noctura.INSTANCE.getName() + " Client";
         TTFFontRenderer small = getFont("Main", 48);
         float xPosition = width / 2f - (small.getWidth(title) / 2f);
         float xAdd = 0.0f;
@@ -657,10 +654,10 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         }
 
 
-        float endX = font2.getWidth(getLongestChangelog(Flauxy.INSTANCE.getLogs()).getChangelog()) + 28;
-        Gui.drawRect(4, 96, endX, 102 + (12 * Flauxy.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());
-        for(int in = 0; in < Flauxy.INSTANCE.getLogs().size(); in++){
-            Changelog c = Flauxy.INSTANCE.getLogs().get(in);
+        float endX = font2.getWidth(getLongestChangelog(Noctura.INSTANCE.getLogs()).getChangelog()) + 28;
+        Gui.drawRect(4, 96, endX, 102 + (12 * Noctura.INSTANCE.getLogs().size()), new Color(0,0,0,90).getRGB());
+        for(int in = 0; in < Noctura.INSTANCE.getLogs().size(); in++){
+            Changelog c = Noctura.INSTANCE.getLogs().get(in);
             font2.drawStringWithShadow("[" + c.getPrefix() + "] " + c.getChangelog(),8,100 + (12 * in),c.getType().getColor().getRGB());
         }
 

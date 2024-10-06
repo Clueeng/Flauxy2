@@ -10,8 +10,8 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.visuals.TimeChanger;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.visuals.TimeChanger;
 
 public class CustomSky
 {
@@ -120,7 +120,7 @@ public class CustomSky
     {
         if (worldSkyLayers != null)
         {
-            TimeChanger tc = Flauxy.INSTANCE.getModuleManager().getModule(TimeChanger.class);
+            TimeChanger tc = Noctura.INSTANCE.getModuleManager().getModule(TimeChanger.class);
             if (Config.getGameSettings().renderDistanceChunks >= 8 || tc.removeLimit.isEnabled())
             {
                 int i = p_renderSky_0_.provider.getDimensionId();
@@ -153,7 +153,7 @@ public class CustomSky
 
     public static boolean hasSkyLayers(World p_hasSkyLayers_0_)
     {
-        TimeChanger tc = Flauxy.INSTANCE.getModuleManager().getModule(TimeChanger.class);
+        TimeChanger tc = Noctura.INSTANCE.getModuleManager().getModule(TimeChanger.class);
         if (worldSkyLayers == null)
         {
             return false;

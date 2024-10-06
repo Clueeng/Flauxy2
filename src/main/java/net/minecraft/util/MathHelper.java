@@ -1,8 +1,5 @@
 package net.minecraft.util;
 
-import optfine.MathUtils;
-import uwu.flauxy.module.impl.falses.FastMathHack;
-
 import java.util.Random;
 import java.util.UUID;
 

@@ -4,7 +4,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,19 +43,16 @@ import net.minecraft.world.border.WorldBorder;
 import optfine.Config;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.commands.impl.CommandSetupCPS;
-import uwu.flauxy.event.impl.EventRender2D;
-import uwu.flauxy.module.impl.combat.Killaura;
-import uwu.flauxy.notification.Notification;
-import uwu.flauxy.utils.NumberUtil;
-import uwu.flauxy.utils.Wrapper;
-import uwu.flauxy.utils.render.ColorUtils;
-import uwu.flauxy.utils.render.RenderUtil;
-import uwu.flauxy.utils.render.shader.StencilUtil;
-import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
-
-import javax.annotation.Nullable;
+import uwu.noctura.Noctura;
+import uwu.noctura.commands.impl.CommandSetupCPS;
+import uwu.noctura.event.impl.EventRender2D;
+import uwu.noctura.module.impl.combat.Killaura;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.utils.NumberUtil;
+import uwu.noctura.utils.Wrapper;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
 public class GuiIngame extends Gui
 {
@@ -402,7 +398,7 @@ public class GuiIngame extends Gui
 
             if (customObjective == null) {
                 customObjective = scoreboard.addScoreObjective("customScoreboard", IScoreObjectiveCriteria.DUMMY);
-                customObjective.setDisplayName("Flauxy Title");
+                customObjective.setDisplayName("Noctura Title");
                 scoreboard.getValueFromObjective("Line 1", customObjective).setScorePoints(1);
                 scoreboard.getValueFromObjective("Lorem ipsum", customObjective).setScorePoints(2);
                 scoreboard.getValueFromObjective("Lorem ipsum dolor sit amet", customObjective).setScorePoints(3);
@@ -436,10 +432,10 @@ public class GuiIngame extends Gui
             this.overlayPlayerList.renderPlayerlist(i, scoreboard, scoreobjective1);
         }
 
-        Flauxy.onEvent(new EventRender2D(partialTicks));
+        Noctura.onEvent(new EventRender2D(partialTicks));
 
-        if(Flauxy.INSTANCE.getNotificationManager().queuedNotifications != null && !Flauxy.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
-            Notification notification = Flauxy.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
+        if(Noctura.INSTANCE.getNotificationManager().queuedNotifications != null && !Noctura.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
+            Notification notification = Noctura.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
             if(mc.currentScreen == null){
                 notification.render(partialTicks);
             }
@@ -634,10 +630,10 @@ public class GuiIngame extends Gui
     public static boolean shouldReset;
     private void renderScoreboard(ScoreObjective scoreObjective, ScaledResolution scaledResolution)
     {
-        uwu.flauxy.module.impl.display.Scoreboard scoreMod = Flauxy.INSTANCE.getModuleManager().getModule(uwu.flauxy.module.impl.display.Scoreboard.class);
+        uwu.noctura.module.impl.display.Scoreboard scoreMod = Noctura.INSTANCE.getModuleManager().getModule(uwu.noctura.module.impl.display.Scoreboard.class);
         if(!scoreMod.isToggled())return;
-        lerpedX = (float) uwu.flauxy.utils.MathHelper.lerp(0.06f,lerpedX,scoreMod.getMoveW());
-        lerpedY = (float) uwu.flauxy.utils.MathHelper.lerp(0.06f,lerpedY,scoreMod.getMoveH());
+        lerpedX = (float) uwu.noctura.utils.MathHelper.lerp(0.06f,lerpedX,scoreMod.getMoveW());
+        lerpedY = (float) uwu.noctura.utils.MathHelper.lerp(0.06f,lerpedY,scoreMod.getMoveH());
 
         Scoreboard scoreboard = scoreObjective.getScoreboard();
         Collection scores = scoreboard.getSortedScores(scoreObjective);
@@ -709,7 +705,7 @@ public class GuiIngame extends Gui
             int centering = 0;
             if(formattedPlayerName.contains(".xyz") || formattedPlayerName.contains(".net") || formattedPlayerName.contains(".com") || formattedPlayerName.contains(".fr")
             || formattedPlayerName.contains(".br") || formattedPlayerName.contains(".es") || formattedPlayerName.contains(".org") || formattedPlayerName.contains(".tk")){
-                formattedPlayerName = "Flauxy.lol";
+                formattedPlayerName = "Noctura.lol";
                 centering = ((scoreboardX - renderEndX) / 2) - (getFontRenderer().getStringWidth(formattedPlayerName)/2) - (scoreboardX - renderEndX);
             }
 

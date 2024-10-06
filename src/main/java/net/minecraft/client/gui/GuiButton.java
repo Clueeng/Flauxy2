@@ -6,11 +6,8 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.utils.font.FontManager;
-import uwu.flauxy.utils.font.TTFFontRenderer;
-import uwu.flauxy.utils.render.RoundedUtils;
+import uwu.noctura.utils.font.FontManager;
+import uwu.noctura.utils.render.RoundedUtils;
 
 import java.awt.*;
 

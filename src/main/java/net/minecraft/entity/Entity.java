@@ -47,13 +47,11 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventStrafe;
-import uwu.flauxy.module.impl.exploit.NoPitchLimit;
-import uwu.flauxy.module.impl.ghost.Safewalk;
-import uwu.flauxy.utils.Wrapper;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventStrafe;
+import uwu.noctura.module.impl.exploit.NoPitchLimit;
+import uwu.noctura.module.impl.ghost.Safewalk;
 
 public abstract class Entity implements ICommandSender
 {
@@ -390,7 +388,7 @@ public abstract class Entity implements ICommandSender
         float f1 = this.rotationYaw;
         this.rotationYaw = (float)((double)this.rotationYaw + (double)yaw * 0.15D);
         this.rotationPitch = (float)((double)this.rotationPitch - (double)pitch * 0.15D);
-        NoPitchLimit nopitch = Flauxy.INSTANCE.getModuleManager().getModule(NoPitchLimit.class);
+        NoPitchLimit nopitch = Noctura.INSTANCE.getModuleManager().getModule(NoPitchLimit.class);
         this.rotationPitch = nopitch.isToggled() ? this.rotationPitch : MathHelper.clamp_float(this.rotationPitch, -90.0F, 90.0F); // remove this
         this.prevRotationPitch += this.rotationPitch - f;
         this.prevRotationYaw += this.rotationYaw - f1;
@@ -629,7 +627,7 @@ public abstract class Entity implements ICommandSender
             double d5 = z;
             boolean sneak = false;
             boolean flag = this.onGround && this.isSneaking() && this instanceof EntityPlayer;
-            Safewalk sf = Flauxy.INSTANCE.getModuleManager().getModule(Safewalk.class);
+            Safewalk sf = Noctura.INSTANCE.getModuleManager().getModule(Safewalk.class);
             if(sf.isToggled()){
                 flag = (this.onGround && this instanceof EntityPlayer && this.rotationPitch > 60 && !(sf.requireClick.isEnabled() && !Mouse.isButtonDown(1))) || (this.isSneaking() && this.onGround);
             }
@@ -1254,7 +1252,7 @@ public abstract class Entity implements ICommandSender
     public void moveFlying(float strafe, float forward, float friction)
     {
         EventStrafe e = new EventStrafe(this.rotationYaw);
-        Flauxy.onEvent(e);
+        Noctura.onEvent(e);
         float f = strafe * strafe + forward * forward;
 
         if (f >= 1.0E-4F)

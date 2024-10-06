@@ -54,8 +54,8 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventTime;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventTime;
 
 public abstract class World implements IBlockAccess
 {
@@ -3413,7 +3413,7 @@ public abstract class World implements IBlockAccess
     public void setWorldTime(long time)
     {
         EventTime e = new EventTime();
-        Flauxy.onEvent(e);
+        Noctura.onEvent(e);
         this.worldInfo.setWorldTime(e.getTime());
     }
 

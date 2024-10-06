@@ -106,8 +106,8 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.visuals.BlockOutline;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.visuals.BlockOutline;
 
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener
 {
@@ -2292,7 +2292,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
             GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
             // Colors the block outline
 
-            BlockOutline outline = Flauxy.INSTANCE.getModuleManager().getModule(BlockOutline.class);
+            BlockOutline outline = Noctura.INSTANCE.getModuleManager().getModule(BlockOutline.class);
             if(outline.isToggled()){
                 float red = outline.getOutlineColor().getRed() / 255f;
                 float green = outline.getOutlineColor().getGreen() / 255f;

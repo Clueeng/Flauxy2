@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.xml.internal.ws.util.VersionUtil;
 import de.florianmichael.viamcp.ViaMCP;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -19,10 +18,10 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.notification.Notification;
-import uwu.flauxy.notification.NotificationType;
-import uwu.flauxy.utils.ViaUtil;
+import uwu.noctura.Noctura;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
+import uwu.noctura.utils.ViaUtil;
 
 public class GuiConnecting extends GuiScreen
 {
@@ -44,7 +43,7 @@ public class GuiConnecting extends GuiScreen
 
         System.out.println(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString + " is higher than 1.8 ? " + ViaUtil.versionLowerThan(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
         if(serveraddress.getIP().contains("blocksmc") && ViaUtil.versionLowerThan("1.17")){
-            Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Version Mismatch", "Please use 1.17+ for blocksmc", 4000));
+            Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Version Mismatch", "Please use 1.17+ for blocksmc", 4000));
             returnToOld = true;
         }else{
             this.connect(serveraddress.getIP(), serveraddress.getPort());
@@ -62,7 +61,7 @@ public class GuiConnecting extends GuiScreen
     private void connect(final String ip, final int port)
     {
         logger.info("Connecting to " + ip + ", " + port);
-        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Multiplayer", "Connecting to " + ip + " in " + ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
+        Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Multiplayer", "Connecting to " + ip + " in " + ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
         (new Thread("Server Connector #" + CONNECTION_ID.incrementAndGet())
         {
             public void run()

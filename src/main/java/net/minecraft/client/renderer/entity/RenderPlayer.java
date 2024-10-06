@@ -17,9 +17,9 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ResourceLocation;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventPostRenderPlayer;
-import uwu.flauxy.event.impl.EventRenderPlayer;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventPostRenderPlayer;
+import uwu.noctura.event.impl.EventRenderPlayer;
 
 public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
 {
@@ -57,7 +57,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
     public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         EventRenderPlayer event = new EventRenderPlayer(entity, partialTicks);
-        Flauxy.onEvent(event);
+        Noctura.onEvent(event);
 
         if (!entity.isUser() || this.renderManager.livingPlayer == entity)
         {
@@ -72,7 +72,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
             super.doRender(entity, x, d0, z, entityYaw, partialTicks);
         }
         EventPostRenderPlayer event2 = new EventPostRenderPlayer(entity, partialTicks);
-        Flauxy.onEvent(event2);
+        Noctura.onEvent(event2);
     }
 
     private void setModelVisibilities(AbstractClientPlayer clientPlayer)

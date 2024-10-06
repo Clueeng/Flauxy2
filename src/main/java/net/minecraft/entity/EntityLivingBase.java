@@ -52,13 +52,12 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventMotion;
-import uwu.flauxy.event.impl.EventStrafe;
-import uwu.flauxy.module.impl.combat.Killaura;
-import uwu.flauxy.module.impl.falses.AutoHeadhitter;
-import uwu.flauxy.module.impl.falses.ModernMotionThreshold;
-import uwu.flauxy.module.impl.other.MouseDelayFix;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventStrafe;
+import uwu.noctura.module.impl.combat.Killaura;
+import uwu.noctura.module.impl.falses.AutoHeadhitter;
+import uwu.noctura.module.impl.falses.ModernMotionThreshold;
+import uwu.noctura.module.impl.other.MouseDelayFix;
 
 public abstract class EntityLivingBase extends Entity
 {
@@ -2006,7 +2005,7 @@ public abstract class EntityLivingBase extends Entity
 
 
         // 1.9+ simulating would be 0.003
-        ModernMotionThreshold mod = Flauxy.INSTANCE.getModuleManager().getModule(ModernMotionThreshold.class);
+        ModernMotionThreshold mod = Noctura.INSTANCE.getModuleManager().getModule(ModernMotionThreshold.class);
         double threshold_1_9 = 0.003D;
         double threshold_1_8 = 0.005D;
         if (Math.abs(this.motionX) < (mod.isToggled() ? threshold_1_9 : threshold_1_8))
@@ -2056,7 +2055,7 @@ public abstract class EntityLivingBase extends Entity
             else if (this.onGround && this.jumpTicks == 0)
             {
                 this.jump(); // default 10
-                AutoHeadhitter module = Flauxy.INSTANCE.getModuleManager().getModule(AutoHeadhitter.class);
+                AutoHeadhitter module = Noctura.INSTANCE.getModuleManager().getModule(AutoHeadhitter.class);
                 boolean shouldModify = module.changeJumpDelay.getValue() && module.isToggled();
                 this.jumpTicks = shouldModify ? (int) module.jumpDelay.getValue() : 10;
                 EntityPlayerSP.jumpTicks = shouldModify ? (int) module.jumpDelay.getValue() : 10;
@@ -2212,7 +2211,7 @@ public abstract class EntityLivingBase extends Entity
      */
     public Vec3 getLook(float partialTicks)
     {
-        if(this instanceof EntityPlayerSP && Flauxy.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()){
+        if(this instanceof EntityPlayerSP && Noctura.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()){
             return super.getLook(1.0f);
         }
         if (partialTicks == 1.0F)
@@ -2229,8 +2228,8 @@ public abstract class EntityLivingBase extends Entity
 
     public Vec3 getLook(float partialTicks, float yaw, float pitch, float prevYaw, float prevPitch)
     {
-        if(this instanceof EntityPlayerSP && Flauxy.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()
-        && !Flauxy.INSTANCE.getModuleManager().getModule(Killaura.class).isToggled()){
+        if(this instanceof EntityPlayerSP && Noctura.INSTANCE.getModuleManager().getModule(MouseDelayFix.class).isToggled()
+        && !Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).isToggled()){
             return super.getLook(1.0f, yaw, pitch, prevYaw, prevPitch);
         }
         if (partialTicks == 1.0F)

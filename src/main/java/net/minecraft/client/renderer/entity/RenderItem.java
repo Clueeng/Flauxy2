@@ -1,6 +1,5 @@
 package net.minecraft.client.renderer.entity;
 
-import java.awt.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import net.minecraft.block.Block;
@@ -58,8 +57,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3i;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.visuals.EnchantGlint;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.visuals.EnchantGlint;
 
 public class RenderItem implements IResourceManagerReloadListener
 {
@@ -165,7 +164,7 @@ public class RenderItem implements IResourceManagerReloadListener
 
     private void renderEffect(IBakedModel model)
     {
-        EnchantGlint glint = Flauxy.INSTANCE.moduleManager.getModule(EnchantGlint.class);
+        EnchantGlint glint = Noctura.INSTANCE.moduleManager.getModule(EnchantGlint.class);
         int glintColor = glint.isToggled() ? glint.getColor().getRGB() : -8372020;
         GlStateManager.depthMask(false);
         GlStateManager.depthFunc(514);

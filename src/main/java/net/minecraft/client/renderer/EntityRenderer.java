@@ -70,15 +70,12 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
 import org.lwjgl.util.glu.Project;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventRender3D;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.module.impl.falses.Zoom;
-import uwu.flauxy.module.impl.ghost.Reach;
-import uwu.flauxy.module.impl.other.Performance;
-import uwu.flauxy.module.impl.visuals.BlockOutline;
-import uwu.flauxy.module.impl.visuals.Freelook;
-import uwu.flauxy.utils.Wrapper;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventRender3D;
+import uwu.noctura.module.impl.falses.Zoom;
+import uwu.noctura.module.impl.ghost.Reach;
+import uwu.noctura.module.impl.visuals.BlockOutline;
+import uwu.noctura.module.impl.visuals.Freelook;
 
 public class EntityRenderer implements IResourceManagerReloadListener // bienvenue en enfer ce client est buggé de ouf
 {
@@ -436,7 +433,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
         {
             this.mc.mcProfiler.startSection("pick");
             this.mc.pointedEntity = null;
-            Reach reach = Flauxy.INSTANCE.getModuleManager().getModule(Reach.class);
+            Reach reach = Noctura.INSTANCE.getModuleManager().getModule(Reach.class);
             double reachValue = reach.range.getValue();
             boolean reachToggled = reach.isToggled();
             double d0 = reachToggled ? reach.blockRange.getValue() : (double)this.mc.playerController.getBlockReachDistance();
@@ -593,7 +590,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
             boolean flag = false;
 
-            Zoom mod = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
+            Zoom mod = Noctura.INSTANCE.getModuleManager().getModule(Zoom.class);
             if (this.mc.currentScreen == null)
             {
                 GameSettings gamesettings = this.mc.gameSettings;
@@ -612,19 +609,19 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                 float endFactor = 0.05f;
                 switch (mod.smoothFunction.getMode()){
                     case "Lerp":{
-                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.lerp(0.019f,smoothedZoom,1.0f);
+                        smoothedZoom = (float) uwu.noctura.utils.MathHelper.lerp(0.019f,smoothedZoom,1.0f);
                         break;
                     }
                     case "Quad":{
-                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutQuad(endFactor,smoothedZoom,1.0f);
+                        smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInOutQuad(endFactor,smoothedZoom,1.0f);
                         break;
                     }
                     case "Ease in":{
-                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutBounce(endFactor,smoothedZoom,1.0f);
+                        smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInOutBounce(endFactor,smoothedZoom,1.0f);
                         break;
                     }
                     default:{
-                        smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInCubic(endFactor,smoothedZoom,1.0f);
+                        smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInCubic(endFactor,smoothedZoom,1.0f);
                         break;
                     }
                 }
@@ -651,19 +648,19 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                             // "Lerp", "Lerp", "Quad", "Ease in"
                             switch (mod.smoothFunction.getMode()){
                                 case "Lerp":{
-                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.lerp(0.019f,smoothedZoom,factor);
+                                    smoothedZoom = (float) uwu.noctura.utils.MathHelper.lerp(0.019f,smoothedZoom,factor);
                                     break;
                                 }
                                 case "Quad":{
-                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutQuad(0.05f,smoothedZoom,factor);
+                                    smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInOutQuad(0.05f,smoothedZoom,factor);
                                     break;
                                 }
                                 case "Ease in":{
-                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInOutBounce(0.03f,smoothedZoom,factor);
+                                    smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInOutBounce(0.03f,smoothedZoom,factor);
                                     break;
                                 }
                                 default:{
-                                    smoothedZoom = (float) uwu.flauxy.utils.MathHelper.easeInCubic(0.03f,smoothedZoom,factor);
+                                    smoothedZoom = (float) uwu.noctura.utils.MathHelper.easeInCubic(0.03f,smoothedZoom,factor);
                                     break;
                                 }
                             }
@@ -787,7 +784,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
                     GlStateManager.rotate((float)(j * 90), 0.0F, 1.0F, 0.0F);
                 }
 
-                Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+                Freelook freelook = Noctura.INSTANCE.getModuleManager().getModule(Freelook.class);
                 GlStateManager.rotate(freelook.getYaw() + (freelook.getYaw() - freelook.getYaw()) * partialTicks + 180.0F, 0.0F, -1.0F, 0.0F);
                 GlStateManager.rotate(freelook.getPitch() + (freelook.getPitch() - freelook.getPitch()) * partialTicks, -1.0F, 0.0F, 0.0F);
             }
@@ -802,7 +799,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             }
             else
             {
-                Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+                Freelook freelook = Noctura.INSTANCE.getModuleManager().getModule(Freelook.class);
                 float f1 = freelook.getYaw();
                 float f2 = freelook.getPitch();
 
@@ -855,7 +852,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
         if (!this.mc.gameSettings.debugCamEnable)
         {
-            Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+            Freelook freelook = Noctura.INSTANCE.getModuleManager().getModule(Freelook.class);
             GlStateManager.rotate(freelook.getPitch() + (freelook.getPitch() - freelook.getPitch()) * partialTicks, 1.0F, 0.0F, 0.0F);
 
             if (entity instanceof EntityAnimal)
@@ -1257,7 +1254,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             Mouse.setGrabbed(true);
         }
 
-        Freelook freelook = Flauxy.INSTANCE.getModuleManager().getModule(Freelook.class);
+        Freelook freelook = Noctura.INSTANCE.getModuleManager().getModule(Freelook.class);
         if (this.mc.inGameHasFocus && flag && freelook.overrideMouse())
         {
             this.mc.mouseHelper.mouseXYChange();
@@ -1274,7 +1271,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
 
             if (this.mc.gameSettings.smoothCamera)
             {
-                Zoom z = Flauxy.INSTANCE.getModuleManager().getModule(Zoom.class);
+                Zoom z = Noctura.INSTANCE.getModuleManager().getModule(Zoom.class);
                 float cameraSpeed = 1.0f;
                 if(z.isToggled()){
                     cameraSpeed = (float) z.zoomSpeed.getValue();
@@ -1606,7 +1603,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
         GlStateManager.shadeModel(7424);
         GlStateManager.alphaFunc(516, 0.1F);
 
-        BlockOutline block = Flauxy.INSTANCE.getModuleManager().getModule(BlockOutline.class);
+        BlockOutline block = Noctura.INSTANCE.getModuleManager().getModule(BlockOutline.class);
         boolean overlay = block.isToggled() && block.fullblock.isEnabled();
 
         if (!this.debugView)
@@ -1733,7 +1730,7 @@ public class EntityRenderer implements IResourceManagerReloadListener // bienven
             this.renderCloudsCheck(renderglobal, partialTicks, pass);
         }
 
-        Flauxy.onEvent(new EventRender3D(partialTicks));
+        Noctura.onEvent(new EventRender3D(partialTicks));
 
         if (Reflector.ForgeHooksClient_dispatchRenderLast.exists())
         {

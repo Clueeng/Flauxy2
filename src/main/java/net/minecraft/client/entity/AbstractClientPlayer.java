@@ -26,8 +26,8 @@ import optfine.PlayerConfigurations;
 import optfine.Reflector;
 
 import org.apache.commons.io.FilenameUtils;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.impl.other.RestoreSkin;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.other.RestoreSkin;
 
 public abstract class AbstractClientPlayer extends EntityPlayer
 {
@@ -84,7 +84,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
      */
     public ResourceLocation getLocationSkin()
     {
-        RestoreSkin restore = Flauxy.INSTANCE.getModuleManager().getModule(RestoreSkin.class);
+        RestoreSkin restore = Noctura.INSTANCE.getModuleManager().getModule(RestoreSkin.class);
         NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
         return networkplayerinfo == null ? restore.isToggled() ? restore.getSkin() : DefaultPlayerSkin.getDefaultSkin(this.getUniqueID()) : networkplayerinfo.getLocationSkin();
     }

@@ -40,7 +40,6 @@ import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.crypto.SecretKey;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.CryptManager;
@@ -57,11 +56,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.EventType;
-import uwu.flauxy.event.impl.EventReceivePacket;
-import uwu.flauxy.event.impl.EventSendPacket;
-import uwu.flauxy.utils.Wrapper;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.EventType;
+import uwu.noctura.event.impl.EventReceivePacket;
+import uwu.noctura.event.impl.EventSendPacket;
+import uwu.noctura.utils.Wrapper;
 
 public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 {
@@ -164,7 +163,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
         EventReceivePacket event = new EventReceivePacket(p_channelRead0_2_);
         event.setType(EventType.PRE);
-        Flauxy.onEvent(event);
+        Noctura.onEvent(event);
 
         if(event.isCancelled())
             return;
@@ -196,7 +195,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     public void sendPacket(Packet packetIn)
     {
         EventSendPacket eventSendPacket = new EventSendPacket(packetIn);
-        Flauxy.onEvent(eventSendPacket);
+        Noctura.onEvent(eventSendPacket);
         if (this.isChannelOpen())
         {
             if(!eventSendPacket.isCancelled()){

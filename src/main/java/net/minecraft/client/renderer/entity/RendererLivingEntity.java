@@ -27,14 +27,10 @@ import net.minecraft.util.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL11;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.ModuleManager;
-import uwu.flauxy.module.impl.visuals.Chams;
-import uwu.flauxy.module.impl.visuals.Freelook;
-import uwu.flauxy.module.impl.visuals.HitColor;
-import uwu.flauxy.module.impl.visuals.SelfNametag;
-import uwu.flauxy.utils.WorldUtil;
-import uwu.flauxy.utils.render.RenderUtil;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.visuals.*;
+import uwu.noctura.utils.WorldUtil;
+import uwu.noctura.utils.render.RenderUtil;
 
 import static org.lwjgl.opengl.GL11.*;
 public abstract class RendererLivingEntity<T extends EntityLivingBase> extends Render<T>
@@ -284,7 +280,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             }
 
             // thats where the magic happens
-            Chams chams = Flauxy.INSTANCE.getModuleManager().getModule(Chams.class);
+            Chams chams = Noctura.INSTANCE.getModuleManager().getModule(Chams.class);
             if(chams.isToggled() && chams.mode.is("Colored") && WorldUtil.isValidChams(entitylivingbaseIn)){
                 Color shown = chams.getColorFromSettings(chams.hue1,chams.sat1);
                 Color hidden = chams.getColorFromSettings(chams.hue2,chams.sat2);
@@ -376,7 +372,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
             if (flag1)
             {
                 // color
-                HitColor mod = Flauxy.INSTANCE.getModuleManager().getModule(HitColor.class);
+                HitColor mod = Noctura.INSTANCE.getModuleManager().getModule(HitColor.class);
                 if(mod.isToggled()){
                     Color c = mod.getColor();
                     float red = c.getRed() / 255f;
@@ -555,7 +551,11 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
 
     public void renderName(T entity, double x, double y, double z)
     {
-        if (this.canRenderName(entity))
+        ESP esp = Noctura.INSTANCE.getModuleManager().getModule(ESP.class);
+        boolean customNametags = esp.isToggled() && esp.nametags.isEnabled();
+        boolean entityPlayer = entity instanceof EntityPlayer;
+        boolean flag = entityPlayer && customNametags;
+        if (this.canRenderName(entity) && !flag)
         {
             double d0 = entity.getDistanceSqToEntity(this.renderManager.livingPlayer);
             float f = entity.isSneaking() ? 32.0F : 64.0F;
@@ -609,7 +609,7 @@ public abstract class RendererLivingEntity<T extends EntityLivingBase> extends R
     protected boolean canRenderName(T entity)
     {
         EntityPlayerSP entityplayersp = Minecraft.getMinecraft().thePlayer;
-        SelfNametag selfNametag = Flauxy.INSTANCE.getModuleManager().getModule(SelfNametag.class);
+        SelfNametag selfNametag = Noctura.INSTANCE.getModuleManager().getModule(SelfNametag.class);
 
         if (entity instanceof EntityPlayer && (entity != entityplayersp || selfNametag.isToggled()))
         {

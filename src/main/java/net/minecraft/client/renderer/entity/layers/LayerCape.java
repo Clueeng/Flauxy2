@@ -3,16 +3,13 @@ package net.minecraft.client.renderer.entity.layers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.cape.Cape;
-import uwu.flauxy.cape.CapeManager;
-import uwu.flauxy.utils.Wrapper;
+import uwu.noctura.Noctura;
+import uwu.noctura.cape.Cape;
 
 import java.util.ArrayList;
 
@@ -32,8 +29,8 @@ public class LayerCape implements LayerRenderer
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             // apply cape
-            int index = Flauxy.INSTANCE.getCapeManager().CURRENT_CAPE;
-            ArrayList<Cape> capes = Flauxy.INSTANCE.getCapeManager().getCapes();
+            int index = Noctura.INSTANCE.getCapeManager().CURRENT_CAPE;
+            ArrayList<Cape> capes = Noctura.INSTANCE.getCapeManager().getCapes();
             ResourceLocation cape = capes.get(index).getLocation();
             playerRenderer.bindTexture(cape);
 

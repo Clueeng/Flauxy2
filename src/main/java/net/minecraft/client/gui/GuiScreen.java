@@ -52,15 +52,14 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import tv.twitch.chat.ChatUserInfo;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.notification.Notification;
-import uwu.flauxy.notification.NotificationType;
-import uwu.flauxy.utils.render.RenderUtil;
-import uwu.flauxy.utils.render.shader.StencilUtil;
-import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+import uwu.noctura.Noctura;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
-import static uwu.flauxy.Flauxy.oldIP;
+import static uwu.noctura.Noctura.oldIP;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 {
@@ -120,9 +119,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
                 fetchedIP = ipFuture.get();
                 if (!fetchedIP.equals(oldIP)) {
                     if (fetchedIP.toLowerCase().contains("disconnected")) {
-                        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "You are disconnected from the Internet"));
+                        Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "You are disconnected from the Internet"));
                     } else {
-                        Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "Your IP was changed"));
+                        Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "IP Info", "Your IP was changed"));
                     }
                     oldIP = fetchedIP;
                 }
@@ -132,8 +131,8 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
             }
         }
 
-        if(Flauxy.INSTANCE.getNotificationManager().queuedNotifications != null && !Flauxy.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
-            Notification notification = Flauxy.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
+        if(Noctura.INSTANCE.getNotificationManager().queuedNotifications != null && !Noctura.INSTANCE.getNotificationManager().queuedNotifications.isEmpty()){
+            Notification notification = Noctura.INSTANCE.getNotificationManager().getQueuedNotifications().get(0);
             if(mc.currentScreen != null){
                 notification.render(partialTicks);
             }

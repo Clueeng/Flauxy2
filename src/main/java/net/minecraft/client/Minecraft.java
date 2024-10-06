@@ -1,6 +1,5 @@
 package net.minecraft.client;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -10,7 +9,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import java.awt.image.BufferedImage;
@@ -110,7 +108,6 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLeashKnot;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityBoat;
@@ -142,7 +139,6 @@ import net.minecraft.stats.IStatStringFormat;
 import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.MathHelper;
@@ -181,16 +177,15 @@ import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.OpenGLException;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.event.impl.EventFrame;
-import uwu.flauxy.event.impl.EventTick;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.module.ModuleManager;
-import uwu.flauxy.module.impl.ghost.FastPlace;
-import uwu.flauxy.module.impl.ghost.NoClickDelay;
-import uwu.flauxy.utils.DiscordPresenceUtil;
-import uwu.flauxy.utils.Wrapper;
-import uwu.flauxy.utils.config.KeyLoader;
+import uwu.noctura.Noctura;
+import uwu.noctura.event.impl.EventFrame;
+import uwu.noctura.event.impl.EventTick;
+import uwu.noctura.module.Module;
+import uwu.noctura.module.ModuleManager;
+import uwu.noctura.module.impl.ghost.FastPlace;
+import uwu.noctura.module.impl.ghost.NoClickDelay;
+import uwu.noctura.utils.DiscordPresenceUtil;
+import uwu.noctura.utils.config.KeyLoader;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
 {
@@ -594,7 +589,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
 
         this.renderGlobal.makeEntityOutlineShader();
-        Flauxy.INSTANCE.init();
+        Noctura.INSTANCE.init();
     }
 
     private void registerMetadataSerializers()
@@ -1020,7 +1015,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void shutdownMinecraftApplet()
     {
-        Flauxy.INSTANCE.onShutDownApplet();
+        Noctura.INSTANCE.onShutDownApplet();
         try
         {
             logger.info("Stopping!");
@@ -1086,7 +1081,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         long l = System.nanoTime();
         if(thePlayer != null){
             EventFrame eventFrame = new EventFrame();
-            Flauxy.onEvent(eventFrame);
+            Noctura.onEvent(eventFrame);
         }
         this.mcProfiler.startSection("tick");
 
@@ -1414,9 +1409,9 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void shutdown()
     {
-        Flauxy.INSTANCE.getConfigManager().save("Default");
-        KeyLoader.save(Flauxy.INSTANCE.getModuleManager().modules);
-        Flauxy.INSTANCE.getWaypointManager().saveWaypoints();
+        Noctura.INSTANCE.getConfigManager().save("Default");
+        KeyLoader.save(Noctura.INSTANCE.getModuleManager().modules);
+        Noctura.INSTANCE.getWaypointManager().saveWaypoints();
         this.running = false;
     }
 
@@ -1507,7 +1502,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
 
                 if (this.playerController.isNotCreative())
                 {
-                    NoClickDelay mod = Flauxy.INSTANCE.getModuleManager().getModule(NoClickDelay.class);
+                    NoClickDelay mod = Noctura.INSTANCE.getModuleManager().getModule(NoClickDelay.class);
                     this.leftClickCounter = mod.isToggled() ? (int) mod.delay.getValue() : 10; // default 10
                 }
             }
@@ -1549,7 +1544,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         if (!this.playerController.isHittingBlock())
         {
-            FastPlace fastPlace = Flauxy.INSTANCE.getModuleManager().getModule(FastPlace.class);
+            FastPlace fastPlace = Noctura.INSTANCE.getModuleManager().getModule(FastPlace.class);
             int newDelay = (int) fastPlace.delay.getValue();
             boolean toggled = fastPlace.isToggled();
             int defaultValue = 4;
@@ -1722,7 +1717,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public void runTick() throws IOException
     {
         EventTick et = new EventTick();
-        Flauxy.onEvent(et);
+        Noctura.onEvent(et);
 
         if (this.rightClickDelayTimer > 0)
         {

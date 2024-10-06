@@ -9,9 +9,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import uwu.flauxy.utils.render.RenderUtil;
-import uwu.flauxy.utils.render.shader.StencilUtil;
-import uwu.flauxy.utils.render.shader.blur.GaussianBlur;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
 import java.awt.*;
 

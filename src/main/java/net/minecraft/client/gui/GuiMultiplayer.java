@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 import de.florianmichael.viamcp.ViaMCP;
-import de.florianmichael.viamcp.gui.GuiProtocolSelector;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
@@ -16,13 +15,12 @@ import net.minecraft.client.resources.I18n;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
-import uwu.flauxy.Flauxy;
-import uwu.flauxy.module.Category;
-import uwu.flauxy.module.Module;
-import uwu.flauxy.notification.Notification;
-import uwu.flauxy.notification.NotificationType;
-import uwu.flauxy.utils.DiscordPresenceUtil;
-import uwu.flauxy.utils.ViaUtil;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.Category;
+import uwu.noctura.module.Module;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
+import uwu.noctura.utils.DiscordPresenceUtil;
 
 public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
 {
@@ -173,9 +171,9 @@ public class GuiMultiplayer extends GuiScreen implements GuiYesNoCallback
                 }
             }
             else if(button.id == 69420){
-                Flauxy.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Panic", "Disabled all active modules", 2000));
+                Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Panic", "Disabled all active modules", 2000));
                 for(Category c : Category.values()){
-                    for(Module m : Flauxy.INSTANCE.getModuleManager().getModules(c)){
+                    for(Module m : Noctura.INSTANCE.getModuleManager().getModules(c)){
                         if(m.isToggled()){
                             m.setToggled(false);
                         }
