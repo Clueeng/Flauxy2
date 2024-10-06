@@ -29,6 +29,7 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C01PacketChatMessage;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
@@ -58,8 +59,11 @@ import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.impl.player.Noslow;
 import uwu.noctura.ui.dropdown.ClickGUI;
+import uwu.noctura.ui.packet.PacketTweaker;
 import uwu.noctura.utils.DiscordPresenceUtil;
+import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.Wrapper;
+import uwu.noctura.utils.timer.Timer;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {
@@ -163,6 +167,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
     }
 
+    Timer packetTimer = new Timer();
+
     /**
      * Called when a player mounts an entity. e.g. mounts a pig, mounts a boat.
      */
@@ -248,8 +254,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
                     DiscordPresenceUtil.setPresence("Falsing in " + ip, "", true);
                 }
             }
-
-
 
 
             if (this.isRiding())

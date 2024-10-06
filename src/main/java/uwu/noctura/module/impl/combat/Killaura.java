@@ -1,5 +1,14 @@
 package uwu.noctura.module.impl.combat;
 
+import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
+import com.viaversion.viarewind.protocol.v1_9to1_8.Protocol1_9To1_8;
+import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
+import com.viaversion.viaversion.api.type.Type;
+import com.viaversion.viaversion.api.type.Types;
+import com.viaversion.viaversion.api.type.types.math.BlockPositionType1_8;
+import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;
+import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_9;
+import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -33,6 +42,8 @@ import uwu.noctura.module.impl.player.Scaffold;
 import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
 import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.WorldUtil;
 import uwu.noctura.utils.Wrapper;
@@ -73,7 +84,7 @@ public class Killaura extends Module {
     NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
     BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky", "Hypixel").setCanShow(m -> autoblock.getValue());
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky", "Hypixel", "1.9").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
     BooleanSetting raycast = new BooleanSetting("Raycast", true).setCanShow(m -> !rotations.is("None"));
@@ -262,6 +273,12 @@ public class Killaura extends Module {
                         fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
+                                case "1.9":{
+                                    Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Killaura", "1.9 Blocking is not working"));
+                                    autoblockMode.setSelected("Fake");
+                                    //modernBlock();
+                                    break;
+                                }
                                 case "Hypixel":{
                                     hypixelBlock(ev);
                                     break;
@@ -459,6 +476,19 @@ public class Killaura extends Module {
         font.drawString(target, x + 4, y + 2, -1);
         font.drawString(advantage ? "Armor Advantage" : "Armor Disadvantage", x + 4, y + 12, advantage ? new Color(20, 200, 100).getRGB() : new Color(220, 20, 80).getRGB());
 
+        RenderUtil.drawUnfilledRectangle(x, y-1, endX, endY, 1, new Color(0, 0, 0).getRGB(), 2);
+    }
+
+    public void modernBlock(){
+        final PacketWrapper block = PacketWrapper.create(ServerboundPackets1_9.USE_ITEM, Noctura.INSTANCE.userConnection);
+        block.write(Types.VAR_INT, 1);
+
+        try {
+            block.sendToServer(Protocol1_9To1_8.class); // Protocol class names are: server -> client version
+        } catch (Exception e) {
+            // Packet sending failed
+            throw new RuntimeException(e);
+        }
     }
 
     public void legitAim(Entity target, EventMotion e) {

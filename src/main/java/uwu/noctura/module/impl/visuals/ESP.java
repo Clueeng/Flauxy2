@@ -126,7 +126,7 @@ public class ESP extends Module {
                     }
 
                     if(!isValid(entity)) continue;
-                    if(nametags.getValue()){
+                    if(nametags.getValue()){ // blur gets black when hit vec is a block ??
                         float bottom = maxY + ((minY + maxY) / maxY);
                         float top = minY - ((maxY / minY) * 10);
 
@@ -148,7 +148,7 @@ public class ESP extends Module {
                         RenderUtil.pre3D();
                         glEnable(GL_POLYGON_SMOOTH);
                         glColor4f(0, 0, 0, 1);
-                        glLineWidth(1.5f);
+                        glLineWidth(0.5f);
                         glBegin(GL_LINE_LOOP);
                         glVertex2f(rectLeft, rectTop);
                         glVertex2f(rectRight, rectTop);
@@ -157,7 +157,7 @@ public class ESP extends Module {
                         glEnd();
 
                         glColor4f(0f, 0f, 0f, 0.95f);
-                        glLineWidth(2.0f);
+                        glLineWidth(1.0f);
                         glBegin(GL_QUADS);
                         glVertex2f(rectLeft, rectTop);
                         glVertex2f(rectRight, rectTop);
@@ -194,6 +194,8 @@ public class ESP extends Module {
 
                         fontRenderer.drawStringWithShadow(nameTag, centerX - (textWidth / 2f), top, -1);
                         Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+
+                        //RenderUtil.drawUnfilledRectangle(rectLeft, rectTop-1, rectRight, rectBottom, 1, new Color(0, 0, 0).getRGB(), 2);
                     }
 
                     // blur testing
@@ -218,9 +220,9 @@ public class ESP extends Module {
                         case "Box": {
                             // Draw the black outline first
                             RenderUtil.pre3D();
-                            glEnable(GL_POLYGON_SMOOTH);  // Enable smooth corners
+                            //glEnable(GL_POLYGON_SMOOTH);  // Enable smooth corners
                             glColor4f(0, 0, 0, 1);  // Black color for the outline
-                            glLineWidth((float) (thickness.getValue() * 5f));  // Thicker outline
+                            glLineWidth((float) (thickness.getValue() * 4f));  // Thicker outline
                             glBegin(GL_LINE_LOOP);
 
                             glVertex2f(minX, minY);
@@ -231,7 +233,7 @@ public class ESP extends Module {
 
                             // Draw the colored box inside the outline
                             glColor4f((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, opacity / 255f);
-                            glLineWidth((float) (thickness.getValue() * 1f));  // Slightly thinner than the outline
+                            glLineWidth((float) (thickness.getValue() * 0.25f));  // Slightly thinner than the outline
                             glBegin(GL_LINE_LOOP);
 
                             glVertex2f(minX, minY);
@@ -240,7 +242,7 @@ public class ESP extends Module {
                             glVertex2f(minX, maxY);
                             glEnd();
 
-                            glLineWidth((float) thickness.getValue());
+                            glLineWidth((float) thickness.getValue() * 0.25f);
                             GlStateManager.color((float) c.getRed() / 255, (float) c.getGreen() / 255, (float) c.getBlue() / 255, (float) c.getAlpha() / 255);
                             glBegin(GL_LINE_LOOP);
 

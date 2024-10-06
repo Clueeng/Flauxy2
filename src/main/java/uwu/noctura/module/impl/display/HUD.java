@@ -122,7 +122,6 @@ public class HUD extends Module {
                 Long sentTime = keepAliveTimestamps.remove(id);
                 if (sentTime != null) {
                     ping = System.currentTimeMillis() - sentTime;
-                    System.out.println("Ping: " + ping + "ms");
                 }
             }
         }

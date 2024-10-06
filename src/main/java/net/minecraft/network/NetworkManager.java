@@ -419,6 +419,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 p_initChannel_1_.pipeline().addLast((String)"timeout", (ChannelHandler)(new ReadTimeoutHandler(30))).addLast((String)"splitter", (ChannelHandler)(new MessageDeserializer2())).addLast((String)"decoder", (ChannelHandler)(new MessageDeserializer(EnumPacketDirection.CLIENTBOUND))).addLast((String)"prepender", (ChannelHandler)(new MessageSerializer2())).addLast((String)"encoder", (ChannelHandler)(new MessageSerializer(EnumPacketDirection.SERVERBOUND))).addLast((String)"packet_handler", (ChannelHandler)networkmanager);
                 if (p_initChannel_1_ instanceof SocketChannel && ViaLoadingBase.getInstance().getTargetVersion().getVersion() != ViaMCP.NATIVE_VERSION) {
                     final UserConnection user = new UserConnectionImpl(p_initChannel_1_, true);
+                    Noctura.INSTANCE.userConnection = user;
                     new ProtocolPipelineImpl(user);
 
                     p_initChannel_1_.pipeline().addLast(new MCPVLBPipeline(user));

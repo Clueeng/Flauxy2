@@ -126,6 +126,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.C00PacketLoginStart;
 import net.minecraft.network.play.client.C16PacketClientStatus;
@@ -184,7 +185,10 @@ import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleManager;
 import uwu.noctura.module.impl.ghost.FastPlace;
 import uwu.noctura.module.impl.ghost.NoClickDelay;
+import uwu.noctura.ui.packet.PacketTweaker;
 import uwu.noctura.utils.DiscordPresenceUtil;
+import uwu.noctura.utils.PacketUtil;
+import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.config.KeyLoader;
 
 public class Minecraft implements IThreadListener, IPlayerUsage
@@ -1042,7 +1046,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
         System.gc();
     }
-
+    uwu.noctura.utils.timer.Timer packetTimer = new uwu.noctura.utils.timer.Timer();
     /**
      * Called repeatedly from run()
      */
@@ -1082,6 +1086,25 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         if(thePlayer != null){
             EventFrame eventFrame = new EventFrame();
             Noctura.onEvent(eventFrame);
+
+            // Sending here
+            if(PacketTweaker.instance != null){
+                boolean flag = PacketTweaker.isRunning;
+                if(flag){
+                    if(!PacketTweaker.cachedMs.matches("-?\\d+(.\\d+)?")) return;
+                    long packetMs = Long.parseLong(PacketTweaker.cachedMs);
+                    Packet cachedPacket = PacketTweaker.cachedPacket;
+                    if(packetTimer.hasTimeElapsed(packetMs, true)){
+                        if(cachedPacket == null){
+                            Wrapper.instance.log("Packet null");
+                        }else {
+                            Wrapper.instance.log("Sent");
+                            Wrapper.instance.log(cachedPacket.toString());
+                            PacketUtil.sendSilentPacket(cachedPacket);
+                        }
+                    }
+                }
+            }
         }
         this.mcProfiler.startSection("tick");
 

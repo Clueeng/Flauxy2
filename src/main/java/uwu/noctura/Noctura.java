@@ -3,6 +3,7 @@ package uwu.noctura;
 import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
+import com.viaversion.viaversion.api.connection.UserConnection;
 import de.florianmichael.viamcp.ViaMCP;
 import lombok.Getter;
 import org.lwjgl.opengl.Display;
@@ -36,6 +37,7 @@ import java.nio.file.Paths;
 public enum Noctura implements MinecraftInstance {
     INSTANCE;
 
+    public UserConnection userConnection;
     public String name = "Noctura", version = "1.4 (New Name Edition)";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
     public ModuleManager moduleManager;
