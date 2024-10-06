@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
@@ -21,6 +22,7 @@ import uwu.noctura.utils.Wrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class PacketTweaker extends GuiScreen {
 
@@ -144,10 +146,24 @@ public class PacketTweaker extends GuiScreen {
         if(field.contains("C0B")){
             search = "Do you mean C0BPacketEntityAction?";
         }
+        if(field.contains("C18")){
+            search = "Do you mean C18PacketSpectate?";
+        }
 
         mc.fontRendererObj.drawString(search, (int) (width / 2f - (mc.fontRendererObj.getStringWidth(search) / 2f)), 24, -1);
 
-
+        if(field.equals("C0B") || field.equals("C0BPacketEntityAction")){
+            hints[0] = "C0BAction (?)";
+        }
+        if(field.equals("C18") || field.equals("C18PacketSpectate")){
+            hints[0] = "Player Name (S)";
+        }
+        if(field.equals("C09") || field.equals("C09PacketHeldItemChange")){
+            hints[0] = "Slot ID (I)";
+        }
+        if(field.equals("C00") || field.equals("C00PacketKeepAlive")){
+            hints[0] = "Key (I)";
+        }
         if(field.equals("C03") || field.equals("C03PacketPlayer")){
             hints[0] = "Ground (B)";
         }
@@ -175,7 +191,7 @@ public class PacketTweaker extends GuiScreen {
             hints[1] = "PosY (D)";
             hints[2] = "PosZ (D)";
             hints[3] = "Face (?)";
-            hints[4] = "Action (?)";
+            hints[4] = "C07Action (?)";
         }
         if(field.equals("C0C") || field.equals("C0CPacketInput")){
             hints[0] = "Strafe Speed (F)";
@@ -215,8 +231,16 @@ public class PacketTweaker extends GuiScreen {
             int y= 70 + (i * 30) + 6;
             if(s != null){
                 if(s.contains("?")){
-                    if(mouseX >= x && mouseX <= x + (mc.fontRendererObj.getStringWidth(s)) && mouseY >= y && mouseY <= y + 24){
-                        mc.fontRendererObj.drawString("The ? type is a minecraft object, you usually want to pass in a string here", x + 310, y + 0, -1);
+                    if(mouseX >= x && mouseX <= x + (mc.fontRendererObj.getStringWidth(s)) && mouseY >= y && mouseY <= y + 24) {
+                        if(s.toLowerCase().contains("C07Action".toLowerCase())){
+                            mc.fontRendererObj.drawString("(START_DESTROY_BLOCK, DROP_ITEM etc...)", x + 310, y, -1);
+                        }
+                        if(s.toLowerCase().contains("C0BAction".toLowerCase())){
+                            mc.fontRendererObj.drawString("(START_SNEAKING, OPEN_INVENTORY etc...)", x + 310, y, -1);
+                        }
+                        if(s.toLowerCase().contains("Face".toLowerCase())){
+                            mc.fontRendererObj.drawString("(DOWN, UP, EAST, WEST, NORTH, SOUTH, SELF)", x + 310, y, -1);
+                        }
                     }
                 }
             }
@@ -421,8 +445,59 @@ public class PacketTweaker extends GuiScreen {
                     packetName = "C13PacketPlayerAbilities";
                     break;
                 }
+                case "C0B":{
+                    packetName = "C0BPacketEntityAction";
+                    break;
+                }
+                case "C18":{
+                    packetName = "C18PacketSpectate";
+                    break;
+                }
+                case "C09":{
+                    packetName = "C09PacketHeldItemChange";
+                    break;
+                }
             }
             switch (packetName) {
+                case "C09PacketHeldItemChange":{
+                    int slotId = Integer.parseInt(args.get(2));
+                    cachedPacket = new C09PacketHeldItemChange(slotId);
+                    PacketUtil.sendPacket(cachedPacket);
+                    break;
+                }
+                case "C00PacketKeepAlive":{
+                    int key = Integer.valueOf(args.get(2));
+                    cachedPacket = new C00PacketKeepAlive(key);
+                    PacketUtil.sendPacket(cachedPacket);
+                    break;
+                }
+                case "C18PacketSpectate":{
+                    String playerName = args.get(2);
+                    EntityPlayer spoofed = mc.theWorld.getPlayerEntityByName(playerName);
+                    if(spoofed != null){
+                        UUID uid = spoofed.getUniqueID();
+                        cachedPacket = new C18PacketSpectate(uid);
+                    }else{
+                        Wrapper.instance.log("User not found, using your uuid");
+                        cachedPacket = new C18PacketSpectate(mc.thePlayer.getUniqueID());
+                    }
+                    PacketUtil.sendPacket(cachedPacket);
+                    break;
+                }
+                case "C0BPacketEntityAction":{
+                    /*
+                    BlockPos pos = new BlockPos(Double.parseDouble(args.get(2)), Double.parseDouble(args.get(3)), Double.parseDouble(args.get(4)));
+                    EnumFacing facing = EnumFacing.valueOf(args.get(5));
+                    C07PacketPlayerDigging.Action action = C07PacketPlayerDigging.Action.valueOf(args.get(6));
+                    cachedPacket = new C07PacketPlayerDigging(action, pos, facing);
+                    PacketUtil.sendSilentPacket(cachedPacket);
+                     */
+                    C0BPacketEntityAction.Action action = C0BPacketEntityAction.Action.valueOf(args.get(2));
+                    cachedPacket = new C0BPacketEntityAction(mc.thePlayer, action);
+
+                    PacketUtil.sendSilentPacket(cachedPacket);
+                    break;
+                }
                 case "C13PacketPlayerAbilities":{
                     PlayerCapabilities cap = new PlayerCapabilities();
                     //cap.isFlying;
