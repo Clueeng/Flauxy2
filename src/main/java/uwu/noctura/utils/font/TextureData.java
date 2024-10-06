@@ -1,4 +1,4 @@
-package fr.flailyclient.utils.fonts;
+package uwu.noctura.utils.font;
 
 import java.nio.ByteBuffer;
 public class TextureData {
