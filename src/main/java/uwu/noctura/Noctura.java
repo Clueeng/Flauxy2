@@ -54,11 +54,12 @@ public enum Noctura implements MinecraftInstance {
     @Getter
     public boolean initialized = false;
     @Getter
-    private DiscordRP discordRP = new DiscordRP();
+    private DiscordRP discordRP;
 
     public Color copiedColor = new Color(0, 0, 0);
 
     public void init(){
+        discordRP = new DiscordRP();
         discordRPC = DiscordRPC.INSTANCE;
         initDiscordApp();
         try
@@ -95,6 +96,7 @@ public enum Noctura implements MinecraftInstance {
         if (file.exists()) {
             configManager.load("Default");
         }
+        System.out.println("[Noctura] Starting discord rp");
         discordRP.init();
         nonShittyConfigManager.init();
         loadHudPosition();
@@ -129,14 +131,14 @@ public enum Noctura implements MinecraftInstance {
     }
 
     public void initDiscordApp(){
-        String applicationID = "972902027300581406";
+        String applicationID = "1292931247190052914";
         DiscordEventHandlers handlers = new DiscordEventHandlers();
         discordRPC.Discord_Initialize(applicationID, handlers, false, ""); // empty string is steam id
         DiscordRichPresence presence = new DiscordRichPresence();
-        presence.largeImageKey = "image1";
+        presence.largeImageKey = "large";
         presence.largeImageText = "Noctura";
         presence.details = "Loading Client";
-        presence.state = "Build ver 0";
+        presence.state = "V" + version;
         discordRPC.Discord_UpdatePresence(presence);
     }
 

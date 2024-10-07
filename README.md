@@ -1,7 +1,12 @@
-# Erm actually x thing is skidded
-##  The only thing i recently skidded is tenatitty's blur, anything other than that is over 2 years old and i honestly dont remember jack shit
+# /!\ Download the installer from the releases tab
+### If you need to install the client manually for any reason, you can do so by downloading the .zip file from https://github.com/Clueeng/flauxy-files/
 
 
+--------------------
+### Erm actually x thing is skidded
+####  The only thing i recently skidded is tenatitty's blur, anything other than that is over 2 years old and i honestly dont remember jack shit
+
+---------------------------
 # Flauxy Client
 ### All in one client
 

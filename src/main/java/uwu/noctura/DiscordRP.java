@@ -18,11 +18,11 @@ public class DiscordRP {
             @Override
             public void apply(DiscordUser discordUser) {
                 currentUser = discordUser;
-                System.out.println("[Flauxy] Discord connected " + discordUser.username + "#" +  discordUser.discriminator);
-                update("Booting Client", " ");
+                System.out.println("[Noctura] Discord connected " + discordUser.username + "#" +  discordUser.discriminator);
+                update("Starting up Noctura", " ");
             }
         }).build();
-        DiscordRPC.discordInitialize("972902027300581406", handlers, true);
+        DiscordRPC.discordInitialize("1292931247190052914", handlers, true);
 
         new Thread("Discord RPC Callback"){
             @Override

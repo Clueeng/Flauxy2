@@ -5,6 +5,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.util.BlockPos;
+import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventMotion;
 import uwu.noctura.module.Category;
@@ -13,6 +14,8 @@ import uwu.noctura.module.ModuleInfo;
 import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
 import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.Wrapper;
 
@@ -40,6 +43,10 @@ public class AntiVoid extends Module {
             if(mc.thePlayer.onGround){
                 lastSafePos = mc.thePlayer.getPosition();
             }
+            if(lastSafePos == null){
+                Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO,"AntiVoid", "Enable the module on ground"));
+                this.toggle();
+            }
             for(int i = (int) mc.thePlayer.posY; i > 0; i--){
                 IBlockState a = mc.theWorld.getBlockState(new BlockPos(Math.floor(mc.thePlayer.posX),i,Math.floor(mc.thePlayer.posX)));
                 if(!a.getBlock().getMaterial().equals(Material.air)){
@@ -54,7 +61,7 @@ public class AntiVoid extends Module {
                 ranTicks = 0;
                 fps = mc.gameSettings.limitFramerate;
             }
-            if(Jumped && overVoid){
+            if(Jumped && overVoid && lastSafePos != null){
                 ticks++;
                 switch(mode.getMode()){
                     case "Basic":{
