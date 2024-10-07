@@ -103,7 +103,7 @@ public class ShaderUtil implements Utils {
     }
 
     public static void drawQuads(float x, float y, float width, float height) {
-        if (mc.gameSettings.ofFastRender) return;
+        //if (mc.gameSettings.ofFastRender) return;
         glBegin(GL_QUADS);
         glTexCoord2f(0, 0);
         glVertex2f(x, y);
@@ -117,7 +117,7 @@ public class ShaderUtil implements Utils {
     }
 
     public static void drawQuads() {
-        if (mc.gameSettings.ofFastRender) return;
+        //if (mc.gameSettings.ofFastRender) return;
         ScaledResolution sr = new ScaledResolution(mc);
         float width = (float) sr.getScaledWidth_double();
         float height = (float) sr.getScaledHeight_double();

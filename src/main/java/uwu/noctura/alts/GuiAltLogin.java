@@ -79,7 +79,7 @@ public final class GuiAltLogin extends GuiScreen {
     }
 
     public void drawScreen(int x2, int y2, float z2) {
-        drawDefaultBackground();
+        drawNocturaScreen();
         this.username.drawTextBox();
         this.password.drawTextBox();
         drawCenteredString(this.mc.fontRendererObj, "Alt Login", this.width / 2, 20, -1);

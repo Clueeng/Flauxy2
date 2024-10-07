@@ -35,6 +35,9 @@ public class KeySpammer extends Module {
                     //    KeyBinding.onTick(spamKeycode);
                     //}
                     key(flipKeystate.isEnabled());
+                    if(spamKeycode == mc.gameSettings.keyBindInventory.getKeyCode()){
+                        mc.displayGuiScreen(null);
+                    }
                     lastDrop = System.currentTimeMillis();
                 }
             }else{

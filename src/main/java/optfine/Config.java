@@ -1065,7 +1065,7 @@ public class Config
 
     public static boolean isFastRender()
     {
-        return gameSettings.ofFastRender;
+        return false;
     }
 
     public static boolean isTranslucentBlocksFancy()

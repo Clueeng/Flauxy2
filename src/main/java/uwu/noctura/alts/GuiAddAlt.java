@@ -79,7 +79,8 @@ extends GuiScreen {
 
     @Override
     public void drawScreen(int i2, int j2, float f2) {
-        this.drawDefaultBackground();
+        //this.drawDefaultBackground();
+        drawNocturaScreen();
         this.username.drawTextBox();
         this.password.drawTextBox();
         this.drawCenteredString(this.fontRendererObj, "Add Alt", width / 2, 20, -1);

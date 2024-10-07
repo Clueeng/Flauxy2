@@ -22,6 +22,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemSword;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
@@ -31,10 +32,7 @@ import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
 import uwu.noctura.commands.impl.CommandSetupCPS;
 import uwu.noctura.event.Event;
-import uwu.noctura.event.impl.EventMotion;
-import uwu.noctura.event.impl.EventRender2D;
-import uwu.noctura.event.impl.EventStrafe;
-import uwu.noctura.event.impl.EventUpdate;
+import uwu.noctura.event.impl.*;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
@@ -56,7 +54,9 @@ import uwu.noctura.utils.timer.Timer;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import static uwu.noctura.utils.font.FontManager.getFont;
@@ -125,6 +125,8 @@ public class Killaura extends Module {
     public void onEvent(Event ev){
         if(ev instanceof EventStrafe){
             EventStrafe e = (EventStrafe) ev;
+            if(mc.thePlayer.ticksExisted < 10) this.toggle();
+
             if(currentTarget != null && mc.thePlayer.ticksExisted > 10){
                 if(isValid(currentTarget, (float) reach.getValue()) && movefix.isEnabled()) {
                     e.setYaw(getRotations(currentTarget)[0]);
@@ -132,6 +134,8 @@ public class Killaura extends Module {
             }
         }
         if(ev instanceof EventUpdate){
+            if(mc.thePlayer.ticksExisted < 10) this.toggle();
+
             this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode());
             // World
 
@@ -280,7 +284,10 @@ public class Killaura extends Module {
                                     break;
                                 }
                                 case "Hypixel":{
-                                    hypixelBlock(ev);
+                                    //hypixelBlock(ev);
+                                    if(isHoldingSword()){
+                                        mc.gameSettings.keyBindUseItem.pressed = true;
+                                    }
                                     break;
                                 }
                                 case "Hold":{
@@ -533,15 +540,8 @@ public class Killaura extends Module {
         return new float[]{(float) (prevYaw + yawSens), (float) (prevPitch + pitchSens)};
     }
 
-    private void hypixelBlock(Event ev) {
-        if(!isHoldingSword())return;
-        if(currentTarget == null)return;
-        if(mc.thePlayer.ticksExisted % 3 != 0){
-            PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
-                new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
-        }else{PacketUtil.sendPacket(new C07PacketPlayerDigging(
-                C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(-1, -1, -1), EnumFacing.DOWN));
-        }
+    private void hypixelBlock(Event ev){
+
     }
 
     @Override

@@ -1771,7 +1771,7 @@ public class GameSettings
 
         if (p_setOptionValueOF_1_ == GameSettings.Options.FAST_RENDER)
         {
-            this.ofFastRender = !this.ofFastRender;
+            this.ofFastRender = false;
             Config.updateFramebufferSize();
         }
 
@@ -2637,7 +2637,7 @@ public class GameSettings
 
                     if (astring[0].equals("ofFastRender") && astring.length >= 2)
                     {
-                        this.ofFastRender = Boolean.valueOf(astring[1]).booleanValue();
+                        this.ofFastRender = false;
                     }
 
                     if (astring[0].equals("ofTranslucentBlocks") && astring.length >= 2)
@@ -2802,7 +2802,7 @@ public class GameSettings
         this.ofSmoothWorld = Config.isSingleProcessor();
         this.ofLazyChunkLoading = Config.isSingleProcessor();
         this.ofFastMath = false;
-        this.ofFastRender = true;
+        this.ofFastRender = false;
         this.ofTranslucentBlocks = 0;
         this.ofAoLevel = 1.0F;
         this.ofAaLevel = 0;

@@ -1,5 +1,6 @@
 package uwu.noctura.alts;
 
+import java.awt.*;
 import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
@@ -9,6 +10,9 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.gui.*;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.noctura.Noctura;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
 public class GuiAltManager
 extends GuiScreen {
@@ -91,14 +95,42 @@ extends GuiScreen {
                 }
             }
         }
-        this.drawDefaultBackground();
+        //this.drawDefaultBackground();
+        drawNocturaScreen();
         this.drawString(this.fontRendererObj, this.mc.session.getUsername(), 10, 10, -7829368);
         FontRenderer fontRendererObj = this.fontRendererObj;
         StringBuilder sb2 = new StringBuilder("Account Manager - ");
        
         this.drawCenteredString(fontRendererObj, sb2.append(AltManager.registry.size()).append(" alts").toString(), width / 2, 10, -1);
         this.drawCenteredString(this.fontRendererObj, this.loginThread == null ? this.status : this.loginThread.getStatus(), width / 2, 20, -1);
-        Gui.drawRect(50.0f, 33.0f, width - 50, height - 50, -16777216);
+
+        //
+        //Gui.drawRect(50.0f, 33.0f, width - 50, height - 50, -16777216);
+        RenderUtil.drawUnfilledRectangle(50.0f, 33.0f, width - 50, height - 50, 1, new Color(120, 120, 120).getRGB());
+
+
+
+
+        /*
+        blur start
+         */
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(50.0f, 34.0f, width - 50, height - 50);
+
+        GaussianBlur.renderBlur(32f);
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
+
+        /*
+        blur end
+         */
+
+
+        //
         GL11.glPushMatrix();
         this.prepareScissorBox(0.0f, 33.0f, width, height - 50);
         GL11.glEnable(3089);

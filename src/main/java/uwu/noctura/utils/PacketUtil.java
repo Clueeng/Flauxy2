@@ -2,6 +2,7 @@ package uwu.noctura.utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -101,4 +102,10 @@ public class PacketUtil {
         }
     }
 
+    public static void sendAll(ConcurrentLinkedQueue<Packet> blinked) {
+        for(Packet p : blinked){
+            sendSilentPacket(p);
+        }
+        blinked.clear();
+    }
 }

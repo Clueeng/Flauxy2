@@ -653,6 +653,16 @@ public class Scaffold extends Module {
     float godBridgePitch = 83.52f, godBridgeYaw = 180f;
     private void Godbridge(Event event){
         if(event instanceof EventUpdate){
+            EventUpdate e = (EventUpdate) event;
+            if(e.isPre()){
+                boolean rayCheck = !raytrace.isEnabled() || raytraceBlock(finalYaw, finalPitch);
+                if(currentPos != null && currentFacing != null && rayCheck) {
+                    if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos,currentFacing))) {
+                        godBridgeBlocks ++;
+                        mc.thePlayer.swingItem();
+                    }
+                }
+            }
             if(roundRots.isEnabled()){
                 switch (mc.thePlayer.getHorizontalFacing().getName().toLowerCase()){
                     case "north":{
@@ -732,7 +742,10 @@ public class Scaffold extends Module {
                     oldY = mc.thePlayer.posY;
                     if(towerGodbridge.isEnabled()){
                         if(mc.thePlayer.onGround) {
+                            stillTick = 0;
                             towerTicks = 0;
+                        }else{
+                            stillTick += 1;
                         }
                         if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)) {
                             int possy = (int) mc.thePlayer.posY;
@@ -759,15 +772,6 @@ public class Scaffold extends Module {
                     if(MoveUtils.getMotion() > 0.2){
                         mc.thePlayer.jump();
                     }
-                }
-            }
-
-            boolean rayCheck = !raytrace.isEnabled() || raytraceBlock(finalYaw, finalPitch);
-
-            if(currentPos != null && currentFacing != null && rayCheck) {
-                if(mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, autoblock.is("None") ? mc.thePlayer.getCurrentEquippedItem() : mc.thePlayer.inventory.getStackInSlot(itemSpoofed), currentPos, currentFacing, getVec3(currentPos,currentFacing))) {
-                    godBridgeBlocks ++;
-                    mc.thePlayer.swingItem();
                 }
             }
         }

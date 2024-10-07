@@ -272,7 +272,9 @@ public abstract class GuiSlot
             worldrenderer.pos((double)this.right, (double)this.top, 0.0D).tex((double)((float)this.right / f), (double)((float)(this.top + (int)this.amountScrolled) / f)).color(32, 32, 32, 255).endVertex();
             worldrenderer.pos((double)this.left, (double)this.top, 0.0D).tex((double)((float)this.left / f), (double)((float)(this.top + (int)this.amountScrolled) / f)).color(32, 32, 32, 255).endVertex();
             tessellator.draw();
-            drawNocturaScreen();
+            if(!(mc.currentScreen instanceof GuiScreenResourcePacks)){
+                drawNocturaScreen();
+            }
             int k = this.left + this.width / 2 - this.getListWidth() / 2 + 2;
             int l = this.top + 4 - (int)this.amountScrolled;
 

@@ -42,12 +42,12 @@ public class GuiConnecting extends GuiScreen
         mcIn.setServerData(p_i1181_3_);
 
         System.out.println(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString + " is higher than 1.8 ? " + ViaUtil.versionLowerThan(ViaMCP.INSTANCE.getAsyncVersionSlider().displayString));
-        if(serveraddress.getIP().contains("blocksmc") && ViaUtil.versionLowerThan("1.17")){
-            Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Version Mismatch", "Please use 1.17+ for blocksmc", 4000));
-            returnToOld = true;
-        }else{
-            this.connect(serveraddress.getIP(), serveraddress.getPort());
-        }
+        //if(serveraddress.getIP().contains("blocksmc") && ViaUtil.versionLowerThan("1.17")){
+            //Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Version Mismatch", "Please use 1.17+ for blocksmc", 4000));
+            //returnToOld = true;
+        //}else{
+        this.connect(serveraddress.getIP(), serveraddress.getPort());
+        //}
     }
 
     public GuiConnecting(GuiScreen p_i1182_1_, Minecraft mcIn, String hostName, int port)
