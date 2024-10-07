@@ -60,6 +60,12 @@ public final class CookieAltsUtil {
       return fileChooser.getSelectedFile(); 
     return null;
   }
+  public static void getCookieFileAsync(Consumer<File> callback) {
+    new Thread(() -> {
+      File cookieFile = getCookieFile();
+      callback.accept(cookieFile);
+    }).start();
+  }
   
   public static void disableSSLValidation() throws Exception {
     TrustManager[] trustAllCerts = { new X509TrustManager() {

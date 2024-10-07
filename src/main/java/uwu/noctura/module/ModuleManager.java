@@ -39,6 +39,12 @@ public class ModuleManager {
     public Module[] getModules(Category category) {
         return modules.stream().filter(module -> module.getCategory() == category).toArray(Module[]::new);
     }
+    public Module[] getModules(){
+        return modules.toArray(new Module[0]);
+    }
+    public Module[] getEnabledModules(){
+        return modules.stream().filter(Module::isToggled).toArray(Module[]::new);
+    }
     public Module[] getHudModules(){
         return modules.stream().filter(module -> module.hudMoveable).toArray(Module[]::new);
     }

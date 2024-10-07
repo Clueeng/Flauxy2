@@ -235,6 +235,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
             boolean serverExists = this.mc.getCurrentServerData() != null;
             String ip = "Singleplayer";
             if(mc.thePlayer.ticksExisted < 20){
+                int modulesTotal = Noctura.INSTANCE.getModuleManager().getModules().length;
+                int enabledModules = Noctura.INSTANCE.getModuleManager().getEnabledModules().length;
+                String s2 = enabledModules + "/" + modulesTotal + "  modules enabled";
                 if(serverExists){
                     String players = mc.getCurrentServerData().populationInfo;
                     if(players == null || players.isEmpty()){
@@ -249,9 +252,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
                     }else{
                         ip = this.mc.getCurrentServerData().serverIP.toLowerCase();
                     }
-                    DiscordPresenceUtil.setPresence("Falsing on " + ip, "", true);
+                    DiscordPresenceUtil.setPresence("Playing on " + ip, s2, true);
                 }else{
-                    DiscordPresenceUtil.setPresence("Falsing in " + ip, "", true);
+                    DiscordPresenceUtil.setPresence("Playing in " + ip, s2, true);
                 }
             }
 

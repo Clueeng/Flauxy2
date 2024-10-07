@@ -58,32 +58,55 @@ public final class GuiAltLogin extends GuiScreen {
                 this.thread.start();
                 break;
             case 4:
-                try {
-                    File fileF = CookieAltsUtil.getCookieFile();
+                Noctura.INSTANCE.notificationManager.addToQueue(
+                        new Notification(NotificationType.INFO, "Alt Login", "A window should have appeared, press alt+tab to see it")
+                );
+                status = (EnumChatFormatting.WHITE + "Waiting for file selection");
+
+                CookieAltsUtil.getCookieFileAsync(fileF -> {
+                    if (fileF == null) {
+                        Noctura.INSTANCE.notificationManager.addToQueue(
+                                new Notification(NotificationType.INFO, "Alt Login", "Aborted Cookie selection")
+                        );
+                        status = (EnumChatFormatting.RED + "Aborted Cookie Selection");
+                        return;
+                    }
+
                     String file = fileF.getAbsolutePath();
-                    CookieAltsUtil.loginWithCookie(file, account -> {
-                        if (account != null) {
-                            this.mc.session.switchSession(account);
-                            System.out.println("logged into " + this.mc.session.getUsername() + " from " + file);
-                            Noctura.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Alt Login", "Logged into " + this.mc.session.getUsername()));
-                        } else {
-                            Noctura.INSTANCE.notificationManager.addToQueue(new Notification(NotificationType.INFO, "Alt Login", "Failed logging into " + fileF.getName()));
-                            System.out.println("login fail");
-                        }
-                    });
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                    try {
+                        status = (EnumChatFormatting.WHITE + "Trying to login into " + fileF.getName());
+                        CookieAltsUtil.loginWithCookie(file, account -> {
+                            if (account != null) {
+                                this.mc.session.switchSession(account);
+                                System.out.println("Logged into " + this.mc.session.getUsername() + " from " + file);
+                                Noctura.INSTANCE.notificationManager.addToQueue(
+                                        new Notification(NotificationType.INFO, "Alt Login", "Logged into " + this.mc.session.getUsername())
+                                );
+                                status = (EnumChatFormatting.GREEN + "Logged into " + mc.session.getUsername());
+                            } else {
+                                Noctura.INSTANCE.notificationManager.addToQueue(
+                                        new Notification(NotificationType.INFO, "Alt Login", "Failed logging into " + fileF.getName())
+                                );
+                                System.out.println("Login fail");
+                                status = (EnumChatFormatting.RED + "Login fail");
+                            }
+                        });
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
                 break;
         }
     }
+
+    public String status = "Idle...";
 
     public void drawScreen(int x2, int y2, float z2) {
         drawNocturaScreen();
         this.username.drawTextBox();
         this.password.drawTextBox();
         drawCenteredString(this.mc.fontRendererObj, "Alt Login", this.width / 2, 20, -1);
-        drawCenteredString(this.mc.fontRendererObj, (this.thread == null) ? (EnumChatFormatting.GRAY + "Idle...") : this.thread.getStatus(), this.width / 2, 29, -1);
+        drawCenteredString(this.mc.fontRendererObj, (this.thread == null) ? (EnumChatFormatting.GRAY + status) : this.thread.getStatus(), this.width / 2, 29, -1);
         if (this.username.getText().isEmpty())
             drawString(this.mc.fontRendererObj, "E-mail", this.width / 2 - 96, 66, -7829368);
         if (this.password.getText().isEmpty())
