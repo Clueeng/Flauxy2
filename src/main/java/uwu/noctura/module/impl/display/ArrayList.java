@@ -5,6 +5,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventRender2D;
@@ -18,6 +19,9 @@ import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.MathHelper;
 import uwu.noctura.utils.font.TTFFontRenderer;
 import uwu.noctura.utils.render.ColorUtils;
+import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -44,7 +48,7 @@ public class ArrayList extends Module {
 
     public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend") || color.is("Theme"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
-    //public BooleanSetting glow = new BooleanSetting("Glow", true);
+    public BooleanSetting glow = new BooleanSetting("Glow", true);
     public BooleanSetting outline = new BooleanSetting("Outline", false);
 
     public BooleanSetting barLeft = new BooleanSetting("Left Bar", false).setCanShow((m) -> !outline.getValue());
@@ -59,7 +63,7 @@ public class ArrayList extends Module {
         hue2.setColorDisplay(true);
         sat1.setColorDisplay(true);
         sat2.setColorDisplay(true);
-        addSettings(color, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
+        addSettings(color, glow, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -257,8 +261,35 @@ public class ArrayList extends Module {
                     // outline end
 
                     // text
-                    if(customfont.isEnabled()) font.drawStringWithShadow(m.getDisplayName(), (float) (wi - font.getWidth(m.getDisplayName()) - (float)padding.getValue()) + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 2.0f, stringColor);
-                    else mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, stringColor);
+                    if(customfont.isEnabled()){
+                        float x = (float)(wi - font.getWidth(m.getDisplayName()) - padding.getValue()) + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2);
+                        float y = (float)( c + padding.getValue() + (font.getHeight(m.getDisplayName()) - m.ySlide) + 2.0f);
+                        float rightX = (float) (wi - padding.getValue() + 7f - m.xSlide + lengthOfMod - (expandedLeft / 2));
+                        float bottomY = y + 11;
+
+                        font.drawStringWithShadow(m.getDisplayName(), x, y, stringColor);
+
+                        if(glow.isEnabled()){
+                            GL11.glPushMatrix();
+                            GL11.glEnable(3089);
+                            RenderUtil.prepareScissorBox(x - 2
+                                    ,y
+                                    ,rightX,
+                                    bottomY);
+
+
+                            GaussianBlur.renderBlur(12f);
+                            font.drawStringWithShadow(m.getDisplayName(), x, y, stringColor);
+
+                            GL11.glDisable(3089);
+                            GL11.glPopMatrix();
+                            StencilUtil.uninitStencilBuffer();
+                        }
+
+
+                    } else{
+                        mc.fontRendererObj.drawStringWithShadow(m.getDisplayName(), (float) (wi - mc.fontRendererObj.getStringWidth(m.getDisplayName()) - (float)padding.getValue()) + 7 - m.xSlide + lengthOfMod - (expandedLeft / 2), (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, stringColor);
+                    }
                     // values changing
 
                     c+= (int) (m.ySlide - 0.12f);

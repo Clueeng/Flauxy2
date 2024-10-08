@@ -360,8 +360,8 @@ public class Killaura extends Module {
                                 //event.setYaw(gcd[0]);
                                 //event.setPitch(gcd[1]);
                                 //if(!isLookingAtEntity(mc.thePlayer, target, reach.getValue(), event)){
-                                    yaw(gcd[0], event);
-                                    pitch(gcd[1], event);
+                                yaw(gcd[0], event);
+                                pitch(gcd[1], event);
                                 //}
 
                                 //yaw(targetYaw, event);

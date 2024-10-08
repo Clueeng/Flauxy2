@@ -747,7 +747,8 @@ public class Scaffold extends Module {
                         }else{
                             stillTick += 1;
                         }
-                        if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)) {
+                        if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)
+                        && (!MoveUtils.isWalking() && Math.abs(mc.thePlayer.motionZ) < 0.01 && Math.abs(mc.thePlayer.motionX) < 0.01)) {
                             int possy = (int) mc.thePlayer.posY;
                             mc.thePlayer.motionX *= 0.4f;
                             mc.thePlayer.motionZ *= 0.4f;

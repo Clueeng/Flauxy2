@@ -22,6 +22,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import uwu.noctura.module.impl.other.ReportAlert;
 import uwu.noctura.module.setting.impl.BooleanSetting;
+import uwu.noctura.module.setting.impl.GraphSetting;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.WorldUtil;
@@ -46,12 +47,20 @@ public class ESP extends Module {
     public BooleanSetting nametags = new BooleanSetting("Nametags", true);
     public ModeSetting color = new ModeSetting("Color", "Astolfo", "Astolfo", "Rainbow", "Custom", "Blend");
 
-    public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    //public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    //public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
+    //public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    //public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
+    //public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
+    public GraphSetting sat2 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
+
+
+
+
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
     BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
@@ -59,7 +68,11 @@ public class ESP extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
 
     public ESP(){
-        addSettings(mode, nametags, thickness, color, red, green, blue, red2, green2, blue2, showTargets, players, mobs, animals, shop);
+        addSettings(mode, nametags, thickness, color, hue1, sat1, hue2, sat2, showTargets, players, mobs, animals, shop);
+        hue1.setColorDisplay(true);
+        sat1.setColorDisplay(true);
+        hue2.setColorDisplay(true);
+        sat2.setColorDisplay(true);
     }
 
 
@@ -103,8 +116,8 @@ public class ESP extends Module {
                     Color c;
                     switch(color.getMode()){
                         case "Blend":{
-                            Color col1 = new Color((int)red.getValue(),(int)green.getValue(),(int) blue.getValue());
-                            Color col2 = new Color((int)red2.getValue(), (int)green2.getValue(), (int)blue2.getValue());
+                            Color col1 = getColorFromSettings(hue1, sat1);
+                            Color col2 = getColorFromSettings(hue2, sat2);
                             int off = (int) (2 * 75);
                             c = ColorUtils.blendThingC(2F, (long) (8 * off), col1, col2);
                             break;
@@ -114,7 +127,7 @@ public class ESP extends Module {
                             break;
                         }
                         case "Custom":{
-                            c = new Color((int) red.getValue(), (int) blue.getValue(), (int) green.getValue());
+                            c = getColorFromSettings(hue1, sat1);
                             break;
                         }
                         case "Astolfo":{

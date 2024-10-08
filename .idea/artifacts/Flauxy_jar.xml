@@ -65,7 +65,6 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/java-discord-rpc-2.0.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-api-1.7.9.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/log4j-api-2.0-beta9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/src/main/java/srcout/production/Flauxy/libs/discord-rpc.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/javassist.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/reflections-0.9.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/lwjgl/lwjgl.jar" path-in-jar="/" />
