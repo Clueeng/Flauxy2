@@ -103,15 +103,15 @@ public class AxisAlignedBB {
     /**
      * returns an AABB with corners x1, y1, z1 and x2, y2, z2
      */
-    public static AxisAlignedBB fromBounds(double p_178781_0_, double p_178781_2_, double p_178781_4_,
-                                           double p_178781_6_, double p_178781_8_, double p_178781_10_) {
-        double var12 = Math.min(p_178781_0_, p_178781_6_);
-        double var14 = Math.min(p_178781_2_, p_178781_8_);
-        double var16 = Math.min(p_178781_4_, p_178781_10_);
-        double var18 = Math.max(p_178781_0_, p_178781_6_);
-        double var20 = Math.max(p_178781_2_, p_178781_8_);
-        double var22 = Math.max(p_178781_4_, p_178781_10_);
-        return new AxisAlignedBB(var12, var14, var16, var18, var20, var22);
+    public static AxisAlignedBB fromBounds(double x1, double y1, double z1,
+                                           double x2, double y2, double z2) {
+        double minX = Math.min(x1, x2);
+        double minY = Math.min(y1, y2);
+        double minZ = Math.min(z1, z2);
+        double maxX = Math.max(x1, x2);
+        double maxY = Math.max(y1, y2);
+        double maxZ = Math.max(z1, z2);
+        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     /**

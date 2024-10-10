@@ -1,5 +1,8 @@
 package uwu.noctura.utils;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.entity.Entity;
@@ -93,4 +96,30 @@ public class BlockUtil {
       	double c = Math.abs(a* a + b* b);
       	return c;
     }
+
+    public static boolean isOnLiquid(double profondeur)
+    {
+        boolean onLiquid = false;
+
+        if(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - profondeur, mc.thePlayer.posZ)).getBlock().getMaterial().isLiquid()) {
+            onLiquid = true;
+        }
+        return onLiquid;
+    }
+
+    public static boolean isTotalOnLiquid(double profondeur)
+    {
+        for(double x = mc.thePlayer.boundingBox.minX; x < mc.thePlayer.boundingBox.maxX; x +=0.01f){
+
+            for(double z = mc.thePlayer.boundingBox.minZ; z < mc.thePlayer.boundingBox.maxZ; z +=0.01f){
+                Block block = mc.theWorld.getBlockState(new BlockPos(x, mc.thePlayer.posY - profondeur,z)).getBlock();
+                if(!(block instanceof BlockLiquid) && !(block instanceof BlockAir)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
 }

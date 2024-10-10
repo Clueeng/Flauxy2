@@ -442,7 +442,7 @@ public class Killaura extends Module {
     public void renderNocturaHud(Event ev, float x, float y) {
 
         TTFFontRenderer font = getFont("Good", 18);
-
+        if(!isValid(currentTarget, 6.0f))return;
         String target = currentTarget.getName();
         float health = ((EntityLivingBase)currentTarget).getHealth();
         float maxHealth = ((EntityLivingBase)currentTarget).getMaxHealth();

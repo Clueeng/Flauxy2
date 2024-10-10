@@ -6,7 +6,10 @@ import uwu.noctura.utils.config.KeyLoader;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ModuleManager {
 
@@ -39,6 +42,13 @@ public class ModuleManager {
     public Module[] getModules(Category category) {
         return modules.stream().filter(module -> module.getCategory() == category).toArray(Module[]::new);
     }
+    public ArrayList<Module> getModulesExcluding(Category... categories) {
+        List<Category> categoryList = Arrays.asList(categories);
+        return modules.stream()
+                .filter(module -> !categoryList.contains(module.getCategory()))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     public Module[] getModules(){
         return modules.toArray(new Module[0]);
     }

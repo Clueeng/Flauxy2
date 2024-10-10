@@ -48,7 +48,8 @@ public class ArrayList extends Module {
 
     public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend") || color.is("Theme"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);
-    public BooleanSetting glow = new BooleanSetting("Glow", true);
+    public BooleanSetting glow = new BooleanSetting("Blur", true);
+    public BooleanSetting bloom = new BooleanSetting("Glow", true);
     public BooleanSetting outline = new BooleanSetting("Outline", false);
 
     public BooleanSetting barLeft = new BooleanSetting("Left Bar", false).setCanShow((m) -> !outline.getValue());
@@ -56,6 +57,7 @@ public class ArrayList extends Module {
     public NumberSetting padding = new NumberSetting("Padding", 0, 0, 20, 1);
     public NumberSetting line_width = new NumberSetting("Line Width", 1, 0, 5, 1);
 
+    public BooleanSetting hideSomeCategories = new BooleanSetting("Hide Useless", true);
     public BooleanSetting background = new BooleanSetting("Background", true);
     public NumberSetting background_opacity = new NumberSetting("Background opacity", 90, 0, 255, 1).setCanShow(m -> background.getValue());
     public ArrayList() {
@@ -63,7 +65,7 @@ public class ArrayList extends Module {
         hue2.setColorDisplay(true);
         sat1.setColorDisplay(true);
         sat2.setColorDisplay(true);
-        addSettings(color, glow, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
+        addSettings(color, glow, bloom, hideSomeCategories, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -81,7 +83,8 @@ public class ArrayList extends Module {
             java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
             TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 18");
             double animFactor = 100;
-            for (Module m : Noctura.INSTANCE.getModuleManager().modules) {
+            for (Module m : (hideSomeCategories.isEnabled() ? Noctura.INSTANCE.getModuleManager().getModulesExcluding(Category.Display, Category.Visuals
+            ,Category.Other, Category.False) : Noctura.INSTANCE.getModuleManager().modules)) {
                 if (m.isToggled()) {
                     switch (animAlgo.getMode()){
                         case "Lerp":{
@@ -135,7 +138,23 @@ public class ArrayList extends Module {
                 if(background.getValue()){
                     Gui.drawRect(0, 0, 0, 0, new Color(0, 0, 0, 1).getRGB());
                     if(customfont.getValue()){
-                        Gui.drawRect((float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft, (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f, (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod, (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 1.5f, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
+                        float x = (float) ((wi - font.getWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft;
+                        float y = (((float) c + (float)padding.getValue() + (font.getHeight(m.getDisplayName()))) - m.ySlide) + 1.5f;
+                        float rightX = (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod;
+                        float bottomY = (c + (font.getHeight(m.getDisplayName()) * 2)+retarded+(float)padding.getValue()) - m.ySlide + 1.5f;
+                        Gui.drawRect(x, y, rightX, bottomY, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
+                        if(glow.isEnabled()) {
+                            GL11.glPushMatrix();
+                            GL11.glEnable(3089);
+                            RenderUtil.prepareScissorBox(x
+                                    , y
+                                    , rightX + 0,
+                                    bottomY + 1);
+                            GaussianBlur.renderBlur(4f);
+                            GL11.glDisable(3089);
+                            GL11.glPopMatrix();
+                            StencilUtil.uninitStencilBuffer();
+                        }
                     }else{
                         FontRenderer fonta = mc.fontRendererObj;
                         Gui.drawRect((float) ((wi - fonta.getStringWidth(m.getDisplayName())) - m.xSlide) - (float)padding.getValue() + 8 - 2 + lengthOfMod - expandedLeft, ((float) c + (float)padding.getValue() + (fonta.FONT_HEIGHT)) - m.ySlide, (float) (wi) - m.xSlide - (float)padding.getValue() + 8 + lengthOfMod, (c + (fonta.FONT_HEIGHT * 2)+retarded+(float)padding.getValue()) - m.ySlide, new Color(0, 0, 0, (int)background_opacity.getValue()).getRGB());
@@ -269,16 +288,16 @@ public class ArrayList extends Module {
 
                         font.drawStringWithShadow(m.getDisplayName(), x, y, stringColor);
 
-                        if(glow.isEnabled()){
+                        if(bloom.isEnabled()){
                             GL11.glPushMatrix();
                             GL11.glEnable(3089);
-                            RenderUtil.prepareScissorBox(x - 2
-                                    ,y
+                            RenderUtil.prepareScissorBox(x - 3
+                                    ,y-0.25f
                                     ,rightX,
                                     bottomY);
 
 
-                            GaussianBlur.renderBlur(12f);
+                            GaussianBlur.renderBlur(4f);
                             font.drawStringWithShadow(m.getDisplayName(), x, y, stringColor);
 
                             GL11.glDisable(3089);

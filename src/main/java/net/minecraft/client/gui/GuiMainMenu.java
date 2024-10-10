@@ -643,14 +643,14 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         TTFFontRenderer font2 = FontManager.getFont("Good", 18);
 
         String title = Noctura.INSTANCE.getName() + " Client";
-        TTFFontRenderer small = getFont("Main", 48);
+        TTFFontRenderer small = getFont("Good", 48);
         float xPosition = width / 2f - (small.getWidth(title) / 2f);
         float xAdd = 0.0f;
 
         for(int ind = 0; ind < title.length(); ind++){
             int col = ColorUtils.blendThing(2f, ind * 150L, new Color(50, 0, 100), new Color(150, 0, 200));
             small.drawStringWithShadow(title.charAt(ind) + "", xPosition + xAdd - 8, 12, col);
-            xAdd += small.getWidth(title.charAt(ind) + "") - 1.2f;
+            xAdd += small.getWidth(title.charAt(ind) + "") - 1.5f;
         }
 
 
