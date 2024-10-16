@@ -39,7 +39,7 @@ public enum Noctura implements MinecraftInstance {
     INSTANCE;
 
     public UserConnection userConnection;
-    public String name = "Noctura", version = "1.4 (New Name Edition)";
+    public String name = "Noctura", version = "1.5";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
     public ModuleManager moduleManager;
     public FontManager fontManager;
