@@ -52,7 +52,7 @@ public class Nofall extends Module {
             }
         }
         if (e instanceof EventMotion) {
-            this.setDisplayName("Nofall " + EnumChatFormatting.WHITE + mode.getMode());
+            this.setArrayListName("Nofall " + EnumChatFormatting.WHITE + mode.getMode());
             EventMotion event = (EventMotion) e;
             switch(mode.getMode()){
                 case "BlocksMC":{

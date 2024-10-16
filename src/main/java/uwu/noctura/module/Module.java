@@ -26,7 +26,7 @@ public class Module implements Methods {
     public float moveX, moveY, moveW, moveH;
 
     @Getter @Setter
-    protected String name, displayName;
+    protected String name, displayName, arrayListName;
 
     @Getter @Setter
     protected int key;

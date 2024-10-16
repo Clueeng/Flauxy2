@@ -52,6 +52,7 @@ public class Jesus extends Module {
             }
             case "NCP":{
                 if(event instanceof EventCollide){
+                    if(mc.thePlayer == null)return;
                     EventCollide ec = (EventCollide) event;
                     if (!mc.thePlayer.isSneaking()) {
                         if (ec.getBlock() instanceof net.minecraft.block.BlockLiquid && ec.getPosY() < mc.thePlayer.posY){

@@ -1,6 +1,8 @@
 package uwu.noctura.utils;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.item.EntityBoat;
@@ -13,11 +15,14 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 
-import java.util.List;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.function.BiPredicate;
+
 import com.google.common.base.Predicate;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.Vector3d;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.impl.visuals.Chams;
 
@@ -35,6 +40,39 @@ public class WorldUtil {
         }
         return entities;
     }
+
+
+    // from lb lol
+    public static List<BlockPos> searchBlocksInCuboid(float range, Vec3 eyes, BiPredicate<BlockPos, IBlockState> filter) {
+        List<BlockPos> blocks = new ArrayList<>();
+
+        int xRangeStart = (int) Math.floor(range + eyes.xCoord);
+        int xRangeEnd = (int) Math.floor(-range + eyes.xCoord);
+        int yRangeStart = (int) Math.floor(range + eyes.yCoord);
+        int yRangeEnd = (int) Math.floor(-range + eyes.yCoord);
+        int zRangeStart = (int) Math.floor(range + eyes.zCoord);
+        int zRangeEnd = (int) Math.floor(-range + eyes.zCoord);
+
+        for (int x = xRangeStart; x >= xRangeEnd; x--) {
+            for (int y = yRangeStart; y >= yRangeEnd; y--) {
+                for (int z = zRangeStart; z >= zRangeEnd; z--) {
+                    BlockPos blockPos = new BlockPos(x, y, z);
+                    IBlockState state = Minecraft.getMinecraft().theWorld.getBlockState(blockPos);
+                    if (state == null) continue;
+                    if (!filter.test(blockPos, state)) {
+                        continue;
+                    }
+
+                    blocks.add(blockPos);
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+
+
     public static boolean shouldNotRun(){
         Minecraft mc = Minecraft.getMinecraft();
         return mc.theWorld == null || mc.thePlayer == null || mc.thePlayer.ticksExisted <= 5;

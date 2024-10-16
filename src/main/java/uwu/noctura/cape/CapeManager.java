@@ -27,6 +27,7 @@ public class CapeManager {
         capes.add(new Cape(new ResourceLocation("capes/piston.png"), "Piston", "Mojang"));
         capes.add(new Cape(new ResourceLocation("capes/prismarine.png"), "Prismarine", "Mojang"));
         capes.add(new Cape(new ResourceLocation("capes/realms.png"), "Realms", "Mojang"));
+        capes.add(new Cape(new ResourceLocation("capes/astolfo.png"), "Astolfo", "Astolfo"));
     }
 
 

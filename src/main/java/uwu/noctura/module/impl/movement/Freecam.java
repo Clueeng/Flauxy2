@@ -88,6 +88,16 @@ public class Freecam extends Module {
     }
 
     public void bad(Event e){
+        if(mc.thePlayer == null ) {
+            onDisable();
+            this.toggle();
+            return;
+        }
+        if(mc.thePlayer.ticksExisted < 20) {
+            onDisable();
+            this.toggle();
+            return;
+        }
         if(e instanceof EventSendPacket){
             EventSendPacket event = (EventSendPacket) e;
             Packet packet = event.getPacket();

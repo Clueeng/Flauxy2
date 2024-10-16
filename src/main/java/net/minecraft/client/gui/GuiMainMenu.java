@@ -686,14 +686,14 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
     public Changelog getLongestChangelog(ArrayList<Changelog> changelogs) {
         if (changelogs == null || changelogs.isEmpty()) {
-            return null; // Return null if the input list is empty or null
+            return new Changelog("", Changelog.Type.EDITED);
         }
 
-        Changelog longest = changelogs.get(0); // Assume the first changelog is the longest initially
+        Changelog longest = changelogs.get(0);
 
         for (Changelog changelog : changelogs) {
             if (changelog.getChangelog().length() > longest.getChangelog().length()) {
-                longest = changelog; // Update longest if a longer changelog is found
+                longest = changelog;
             }
         }
 

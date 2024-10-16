@@ -25,6 +25,7 @@ import uwu.noctura.utils.MinecraftInstance;
 import uwu.noctura.utils.config.ConfigManager;
 import uwu.noctura.utils.config.ConfigUtil;
 import uwu.noctura.utils.config.Folder;
+import uwu.noctura.utils.config.KeyLoader;
 import uwu.noctura.utils.font.FontManager;
 import uwu.noctura.waypoint.WaypointManager;
 
@@ -119,14 +120,14 @@ public enum Noctura implements MinecraftInstance {
 
     public java.util.ArrayList<Changelog> getLogs(){
         java.util.ArrayList<Changelog> list = new java.util.ArrayList<>();
-        list.add(new Changelog("1.3", Changelog.Type.TITLE));
-        list.add(new Changelog("Fixed killaura", Changelog.Type.ADDED));
-        list.add(new Changelog("Renamed to Noctura", Changelog.Type.ADDED));
-        list.add(new Changelog("Hypixel Ground Strafe", Changelog.Type.ADDED));
-        list.add(new Changelog("Hypixel Velocity", Changelog.Type.ADDED));
-        list.add(new Changelog("Telly Scaffold", Changelog.Type.ADDED));
-        list.add(new Changelog("Reworked Name Randomness", Changelog.Type.EDITED));
-        list.add(new Changelog("Changed Main menu", Changelog.Type.ADDED));
+//        list.add(new Changelog("1.3", Changelog.Type.TITLE));
+//        list.add(new Changelog("Fixed killaura", Changelog.Type.ADDED));
+//        list.add(new Changelog("Renamed to Noctura", Changelog.Type.ADDED));
+//        list.add(new Changelog("Hypixel Ground Strafe", Changelog.Type.ADDED));
+//        list.add(new Changelog("Hypixel Velocity", Changelog.Type.ADDED));
+//        list.add(new Changelog("Telly Scaffold", Changelog.Type.ADDED));
+//        list.add(new Changelog("Reworked Name Randomness", Changelog.Type.EDITED));
+//        list.add(new Changelog("Changed Main menu", Changelog.Type.ADDED));
         return list;
     }
 
@@ -151,20 +152,14 @@ public enum Noctura implements MinecraftInstance {
         }
     }
 
-    public static void onEventIgnore(Event e){
-        for(Module m : ModuleManager.modules){
-            m.onEventIgnore(e);
-        }
-    }
-
     public static String oldIP;
 
     public void onShutDownApplet(){
         discordRP.close();
         waypointManager.saveWaypoints();
-
-        // here we're gonna try to save all the modules that aare moveable in the gui
         getModuleManager().saveHudPosition();
+        Noctura.INSTANCE.getConfigManager().save("Default");
+        KeyLoader.save(ModuleManager.modules);
     }
 
 

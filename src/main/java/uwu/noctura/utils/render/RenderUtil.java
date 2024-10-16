@@ -18,6 +18,8 @@ import uwu.noctura.module.impl.other.Performance;
 
 import java.awt.*;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -515,6 +517,63 @@ public class RenderUtil  {
         GlStateManager.disableBlend();
     }
 
+    public static void convertTo2D(double x3D, double y3D, double z3D, float[] coords) {
+        if (coords == null) return;
+        double camX = mc.getRenderManager().viewerPosX;
+        double camY = mc.getRenderManager().viewerPosY;
+        double camZ = mc.getRenderManager().viewerPosZ;
+        double translatedX = x3D - camX;
+        double translatedY = y3D - camY;
+        double translatedZ = z3D - camZ;
+        double[] screenPos = RenderUtil.project2D(translatedX, translatedY, translatedZ);
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        float top = (mc.displayHeight / (float) scaledResolution.getScaleFactor());
+        float w = (float) screenPos[2];
+        if (w > 1 || w < 0) return;
+        coords[0] = (float) screenPos[0]; // X coordinate
+        coords[1] = top - (float) screenPos[1]; // Y coordinate (flipped)
+    }
+
+    public static void convertTo2D(AxisAlignedBB interpolatedBB, double[][] vectors, float[] coords) {
+        if(coords == null || vectors == null || interpolatedBB == null) return;
+        double x = mc.getRenderManager().viewerPosX;
+        double y = mc.getRenderManager().viewerPosY;
+        double z = mc.getRenderManager().viewerPosZ;
+
+        vectors[0] = RenderUtil.project2D(interpolatedBB.minX - x, interpolatedBB.minY - y,
+                interpolatedBB.minZ - z);
+        vectors[1] = RenderUtil.project2D(interpolatedBB.minX - x, interpolatedBB.minY - y,
+                interpolatedBB.maxZ - z);
+        vectors[2] = RenderUtil.project2D(interpolatedBB.minX - x, interpolatedBB.maxY - y,
+                interpolatedBB.minZ - z);
+        vectors[3] = RenderUtil.project2D(interpolatedBB.maxX - x, interpolatedBB.minY - y,
+                interpolatedBB.minZ - z);
+        vectors[4] = RenderUtil.project2D(interpolatedBB.maxX - x, interpolatedBB.maxY - y,
+                interpolatedBB.minZ - z);
+        vectors[5] = RenderUtil.project2D(interpolatedBB.maxX - x, interpolatedBB.minY - y,
+                interpolatedBB.maxZ - z);
+        vectors[6] = RenderUtil.project2D(interpolatedBB.minX - x, interpolatedBB.maxY - y,
+                interpolatedBB.maxZ - z);
+        vectors[7] = RenderUtil.project2D(interpolatedBB.maxX - x, interpolatedBB.maxY - y,
+                interpolatedBB.maxZ - z);
+        try{
+            float minW = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
+            float maxW = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[2])).orElse(new double[]{0.5})[2];
+            if (maxW > 1 || minW < 0) return;
+            float minX = (float) Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
+            float maxX = (float) Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> pos[0])).orElse(new double[]{0})[0];
+            final float top = (mc.displayHeight / (float) new ScaledResolution(mc).getScaleFactor());
+            float minY = (float) (top - Arrays.stream(vectors).min(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
+            float maxY = (float) (top - Arrays.stream(vectors).max(Comparator.comparingDouble(pos -> top - pos[1])).orElse(new double[]{0})[1]);
+            coords[0] = minX;
+            coords[1] = minY;
+            coords[2] = maxX;
+            coords[3] = maxY;
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
 
     public static void drawRect(double left, double top, double right, double bottom, int color) {
         if (left < right) {
@@ -739,7 +798,32 @@ public class RenderUtil  {
         GL11.glScissor((int)(x * (float)factor), (int)(((float)scale.getScaledHeight() - y2) * (float)factor), (int)((x2 - x) * (float)factor), (int)((y2 - y) * (float)factor));
     }
 
-    public static void drawFilledCircle(final int xx, final int yy, final float radius, final Color color) {
+    public static void drawFilledCircleAngle(final int xx, final int yy, final float radius, final Color color, final float angle) {
+        int sections = 50;
+        double dAngle = (angle / 360) * 2 * Math.PI / sections;
+        float x, y;
+
+        glPushAttrib(GL_ENABLE_BIT);
+
+        glEnable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_LINE_SMOOTH);
+        glBegin(GL_TRIANGLE_FAN);
+        glColor(color);
+        glVertex2f(xx, yy);
+        for (int i = 0; i <= sections * (angle / 360); i++) {
+            x = (float) (radius * Math.sin(i * dAngle));
+            y = (float) (radius * Math.cos(i * dAngle));
+
+            glVertex2f(xx + x, yy + y);
+        }
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glEnd();
+        glPopAttrib();
+    }
+
+    public static void drawFilledCircle(final float xx, final float yy, final float radius, final Color color) {
         int sections = 50;
         double dAngle = 2 * Math.PI / sections;
         float x, y;
@@ -1021,6 +1105,8 @@ public class RenderUtil  {
             e.printStackTrace();
         }
     }
+
+
 
     public static void drawFilledBlock(AxisAlignedBB box, int color) {
         try {

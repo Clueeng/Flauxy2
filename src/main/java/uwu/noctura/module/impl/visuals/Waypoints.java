@@ -67,29 +67,17 @@ public class Waypoints extends Module {
 
     private void convertTo2D(double x3D, double y3D, double z3D, float[] coords) {
         if (coords == null) return;
-
-        // Get the player's position in the world (camera position)
         double camX = mc.getRenderManager().viewerPosX;
         double camY = mc.getRenderManager().viewerPosY;
         double camZ = mc.getRenderManager().viewerPosZ;
-
-        // Subtract camera position to translate coordinates into the camera's coordinate space
         double translatedX = x3D - camX;
         double translatedY = y3D - camY;
         double translatedZ = z3D - camZ;
-
-        // Project the 3D coordinates to 2D screen space
         double[] screenPos = RenderUtil.project2D(translatedX, translatedY, translatedZ);
-
-        // Get the scaling factor and the height of the display
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         float top = (mc.displayHeight / (float) scaledResolution.getScaleFactor());
-
-        // Check if the position is within the screen bounds
         float w = (float) screenPos[2];
-        if (w > 1 || w < 0) return; // The point is outside the screen bounds
-
-        // Convert the Y coordinate from OpenGL's bottom-left origin to top-left origin
+        if (w > 1 || w < 0) return;
         coords[0] = (float) screenPos[0]; // X coordinate
         coords[1] = top - (float) screenPos[1]; // Y coordinate (flipped)
     }

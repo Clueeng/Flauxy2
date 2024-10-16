@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiPlayerTabOverlay;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,7 @@ import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventReceivePacket;
 import uwu.noctura.event.impl.EventRender2D;
+import uwu.noctura.event.impl.EventRender3D;
 import uwu.noctura.event.impl.EventUpdate;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
@@ -27,6 +29,8 @@ import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationType;
 import uwu.noctura.utils.BedwarsUtils;
+import uwu.noctura.utils.MathHelper;
+import uwu.noctura.utils.MathUtils;
 import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.font.TTFFontRenderer;
 import uwu.noctura.utils.render.RenderUtil;
@@ -35,7 +39,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-@ModuleInfo(name = "BedwarsOverlay", displayName = "BedwarsOverlay", key = -1, cat = Category.Ghost)
+@ModuleInfo(name = "BedwarsOverlay", displayName = "Bedwars Overlay", key = -1, cat = Category.Ghost)
 public class BedwarsOverlay extends Module {
 
     BooleanSetting autoRestart = new BooleanSetting("Auto Restart",true);
@@ -96,9 +100,43 @@ public class BedwarsOverlay extends Module {
     HashMap<String, String> playerEnchantments = new HashMap<>();
     int sharpLevel, protLevel;
     boolean gameStarted;
+    float lerpedProgress = 0.0f;
 
     @Override
     public void onEvent(Event e) {
+        if(e instanceof EventRender2D){
+            EventRender2D ev = (EventRender2D) e;
+            for(BlockPos bedPos : allBeds){
+                Block bedBlock = mc.theWorld.getBlockState(bedPos).getBlock();
+                if(bedBlock instanceof BlockBed){ // just in case cuz funny lo
+
+                    float[] positions = new float[2];
+                    float dist = (float) (bedPos.distanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ));
+                    float minSize = 10.0f;
+                    float maxSize = 20.0f;
+                    float maxDistance = 100.0f;
+                    float size = Math.max(minSize, maxSize - (maxSize - minSize) * (dist / maxDistance));
+
+                    RenderUtil.convertTo2D(bedPos.getX() + 0.5 , bedPos.getY(), bedPos.getZ() + 0.5, positions);
+                    int x = (int)positions[0];
+                    int y = (int)positions[1];
+                    if(x >= 10 && y >= 10){
+                        float prog = ((float) (mc.playerController.curBlockDamageMP * 10.0F) - 1) * 40f;
+                        lerpedProgress = (float) MathHelper.lerp(0.4f, lerpedProgress, prog);
+                        int opacity =  Math.min(Math.max((int)lerpedProgress / 2, 0), 254);
+                        Color c = new Color(254 - opacity, opacity, 0, opacity);
+                        //System.out.println(lerpedProgress);
+                        if(mc.thePlayer.getDistanceSq(bedPos) < 64){
+                            RenderUtil.drawFilledCircleAngle(x, y, size, c, lerpedProgress);
+                        }
+                        RenderUtil.drawUnfilledCircle(x, y, size
+                                , Color.white);
+                    }
+                    //RenderUtil.drawRect(x, y, x + 16, y + 16, -1);
+                    //System.out.println(positions);
+                }
+            }
+        }
         if(e instanceof EventReceivePacket){
             EventReceivePacket ev = (EventReceivePacket) e;
             if(ev.getPacket() instanceof S02PacketChat){
@@ -273,6 +311,7 @@ public class BedwarsOverlay extends Module {
             Wrapper.instance.log("Error, center pos is somehow null");
             return;
         }
+        allBeds.clear();
         int startX = centerPos.getX() - radius;
         int endX = centerPos.getX() + radius;
         int startZ = centerPos.getZ() - radius;
@@ -286,14 +325,13 @@ public class BedwarsOverlay extends Module {
                 for (int y = startY; y <= endY; y++) {
                     BlockPos pos = new BlockPos(x, y, z);
                     Block block = world.getBlockState(pos).getBlock();
-
-                    // Check if the block is a bed
                     if (block instanceof BlockBed) {
                         IBlockState state = world.getBlockState(pos);
                         boolean isHead = state.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD;
-                        if(!isHead)return;
-                        System.out.println("Bed found at: " + pos);
-                        allBeds.add(pos);  // Store the bed position in the list
+                        if(isHead) {
+                            System.out.println("Added " + allBeds.size());
+                            allBeds.add(pos);
+                        }
                     }
                 }
             }

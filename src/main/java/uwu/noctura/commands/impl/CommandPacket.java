@@ -50,6 +50,10 @@ public class CommandPacket extends Command {
                 packetName = "C05PacketPlayerLook";
                 break;
             }
+            case "C06":{
+                packetName = "C06PacketPlayerPosLook";
+                break;
+            }
             case "C08":{
                 packetName = "C08PacketPlayerBlockPlacement";
                 break;

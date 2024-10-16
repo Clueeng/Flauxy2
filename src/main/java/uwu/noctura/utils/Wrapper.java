@@ -10,7 +10,8 @@ public class Wrapper {
 
     public static Wrapper instance = new Wrapper();
     public void log(String message) {
-        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.DARK_PURPLE + "[" + EnumChatFormatting.LIGHT_PURPLE + Noctura.INSTANCE.getName() + EnumChatFormatting.DARK_PURPLE + "] " + EnumChatFormatting.WHITE + message));
+        Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(EnumChatFormatting.DARK_PURPLE + "[" + EnumChatFormatting.LIGHT_PURPLE + Noctura.INSTANCE.getName()
+                + EnumChatFormatting.DARK_PURPLE + "] " + EnumChatFormatting.GRAY + message));
     }
     public void logHover(String mess, String hover){
         HoverEvent hoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(hover));

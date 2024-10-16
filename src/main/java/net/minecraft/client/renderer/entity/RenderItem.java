@@ -365,6 +365,25 @@ public class RenderItem implements IResourceManagerReloadListener
         this.textureManager.bindTexture(TextureMap.locationBlocksTexture);
         this.textureManager.getTexture(TextureMap.locationBlocksTexture).restoreLastBlurMipmap();
     }
+    public void renderItemIntoGUINoctura(ItemStack stack, int x, int y)
+    {
+        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(stack.stackSize == 1 ? "" : String.valueOf(stack.stackSize), x + 8, y + 8, -1);
+        IBakedModel ibakedmodel = this.itemModelMesher.getItemModel(stack);
+        GlStateManager.pushMatrix();
+        this.textureManager.bindTexture(TextureMap.locationBlocksTexture);
+        this.textureManager.getTexture(TextureMap.locationBlocksTexture).setBlurMipmap(false, false);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.alphaFunc(516, 0.1F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        this.setupGuiTransform(x, y, ibakedmodel.isGui3d());
+        ibakedmodel.getItemCameraTransforms().applyTransform(ItemCameraTransforms.TransformType.GUI);
+        this.renderItem(stack, ibakedmodel);
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
+        GlStateManager.popMatrix();
+        this.textureManager.bindTexture(TextureMap.locationBlocksTexture);
+        this.textureManager.getTexture(TextureMap.locationBlocksTexture).restoreLastBlurMipmap();
+    }
 
     private void setupGuiTransform(int xPosition, int yPosition, boolean isGui3d)
     {
@@ -483,6 +502,22 @@ public class RenderItem implements IResourceManagerReloadListener
                 GlStateManager.enableBlend();
                 GlStateManager.enableAlpha();
                 GlStateManager.enableTexture2D();
+                GlStateManager.enableLighting();
+                GlStateManager.enableDepth();
+            }
+        }
+    }
+    public void renderItemOverlayIntoGUIButBetter(FontRenderer fr, ItemStack stack, int xPosition, int yPosition)
+    {
+        if (stack != null)
+        {
+            if (stack.stackSize != 1)
+            {
+                String s = String.valueOf(stack.stackSize);
+                GlStateManager.disableLighting();
+                GlStateManager.disableDepth();
+                GlStateManager.disableBlend();
+                fr.drawStringWithShadow(s, (float)(xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215);
                 GlStateManager.enableLighting();
                 GlStateManager.enableDepth();
             }

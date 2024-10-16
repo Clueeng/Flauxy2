@@ -15,10 +15,11 @@ import uwu.noctura.ui.flat.FlatUi;
 public class ClickGUI extends Module {
 
     uwu.noctura.ui.dropdown.ClickGUI clickgui;
+    uwu.noctura.ui.noctura.ClickGUI clickguiNoctura;
     uwu.noctura.ui.astolfo.ClickGUI clickguiAs;
     Discord discordUi;
     FlatUi flatUi;
-    public ModeSetting mode = new ModeSetting("Mode", "Dropdown", "Dropdown", "Flat", "Astolfo");
+    public ModeSetting mode = new ModeSetting("Mode", "Noctura", "Dropdown", "Astolfo", "Noctura");
     public static NumberSetting red = new NumberSetting("R", 180, 1, 250, 1);
     public static NumberSetting green = new NumberSetting("G", 10, 1, 250, 1);
     public static NumberSetting blue = new NumberSetting("B", 120, 1, 250, 1);
@@ -30,22 +31,16 @@ public class ClickGUI extends Module {
     public void onEnable() {
         switch (mode.getMode()) {
             case "Astolfo":{
-
                 mc.displayGuiScreen(clickguiAs == null ? clickguiAs = new uwu.noctura.ui.astolfo.ClickGUI() : clickguiAs);
-                break;
-            }
-            case "Discord":{
-
-                mc.displayGuiScreen(new Discord());
-                break;
-            }
-            case "Flat": {
-                mc.displayGuiScreen(flatUi == null ? flatUi = new FlatUi() : flatUi);
-                toggle();
                 break;
             }
             case "Dropdown": {
                 mc.displayGuiScreen(clickgui == null ? clickgui = new uwu.noctura.ui.dropdown.ClickGUI() : clickgui);
+                break;
+            }
+            case "Noctura": {
+                //mc.displayGuiScreen(clickguiNoctura == null ? clickguiNoctura = new uwu.noctura.ui.noctura.ClickGUI() : clickguiNoctura);
+                mc.displayGuiScreen(new uwu.noctura.ui.noctura.ClickGUI());
                 break;
             }
         }

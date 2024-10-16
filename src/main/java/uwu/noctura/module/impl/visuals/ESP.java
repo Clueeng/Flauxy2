@@ -53,11 +53,10 @@ public class ESP extends Module {
     //public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
     //public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
     //public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
-    public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
-    public GraphSetting sat2 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
-
+    public NumberSetting hue1 = new NumberSetting("Col1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public GraphSetting sat1 = new GraphSetting("Sat",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
+    public NumberSetting hue2 = new NumberSetting("Col2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
+    public GraphSetting sat2 = new GraphSetting("Sat2",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
 
 
 

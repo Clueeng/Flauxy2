@@ -46,7 +46,7 @@ public class Noslow extends Module {
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
-            this.setDisplayName("Noslow " + EnumChatFormatting.WHITE + "" + mode.getMode());
+            this.setArrayListName("Noslow " + EnumChatFormatting.WHITE + "" + mode.getMode());
         }
         switch(mode.getMode()){
             case "Hypixel":{

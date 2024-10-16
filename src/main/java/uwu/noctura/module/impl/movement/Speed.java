@@ -3,6 +3,7 @@ package uwu.noctura.module.impl.movement;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
+import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventMotion;
 import uwu.noctura.event.impl.EventStrafe;
@@ -11,6 +12,7 @@ import uwu.noctura.event.impl.packet.EventMove;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
+import uwu.noctura.module.impl.combat.Killaura;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.MoveUtils;
@@ -54,7 +56,8 @@ public class Speed extends Module {
 
     public void onEvent(Event event){
         if(event instanceof EventUpdate){
-            this.setDisplayName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
+            if(mc.thePlayer == null || mc.theWorld == null) this.toggle();
+            this.setArrayListName("Speed " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
             case "Hypixel":{
@@ -214,14 +217,21 @@ public class Speed extends Module {
                                 mc.gameSettings.keyBindJump.pressed = false;
                                 onGroundTicks += 1;
                                 offGroundTicks = 0;
-                                MoveUtils.strafe(0.49); // .47
+                                int amp = MoveUtils.getSpeedEffect();
+                                MoveUtils.strafe(0.49 + (0.2f * amp)); // .47
                             }
                             if(!mc.thePlayer.onGround){
                                 offGroundTicks += 1;
                                 onGroundTicks = 0;
+                                if(mc.thePlayer.hurtTime > 7 && Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).currentTarget != null){
+
+                                    int amp = MoveUtils.getSpeedEffect();
+                                    MoveUtils.strafe(0.71f + (0.12f * amp));
+                                }
                             }
                             if(offGroundTicks > 2){
-                                MoveUtils.strafe(MoveUtils.getMotion() * 0.91);
+                                int amp = MoveUtils.getSpeedEffect();
+                                MoveUtils.strafe(MoveUtils.getMotion() * (0.91 + (amp / 100f)));
                             }
                         }
                         if(event instanceof EventMove){

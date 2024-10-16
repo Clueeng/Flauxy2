@@ -41,7 +41,6 @@
       <root url="jar://$PROJECT_DIR$/libs/lwjgl_util-2.9.4-nightly-20150209.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/realms-1.7.39.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/commons-io-2.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/netty-all-4.0.23.Final.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/junixsocket-mysql-2.3.3-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/jinput-2.0.5.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/oshi-core-1.1.jar!/" />
@@ -66,6 +65,7 @@
       <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaBackwards-5.0.2-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaRewind-4.0.1-SNAPSHOT.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/downgraded-ViaVersion-5.0.2-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/netty-all-4.0.23.Final.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

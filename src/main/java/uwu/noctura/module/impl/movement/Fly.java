@@ -2,7 +2,9 @@ package uwu.noctura.module.impl.movement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFireball;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.*;
@@ -35,7 +37,7 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "Vulcant", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP Bow", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel");
     public ModeSetting glideMode = new ModeSetting("Mode","Chunk","Chunk", "Web");
     public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
@@ -66,9 +68,42 @@ public class Fly extends Module {
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
 
-            this.setDisplayName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
+            this.setArrayListName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "NCP Bow":{
+                if(e instanceof EventMotion){
+                    EventMotion ev = (EventMotion)e;
+                    switchToBowSlot();
+                    shootBow(ev);
+                    if(mc.thePlayer.hurtTime > 0){
+                        wasHit = true;
+                    }
+                    if(go && !wasHit){
+                        MoveUtils.cancelMoveInputs();
+                        MoveUtils.stopMoving();
+                    }
+                    if(go && wasHit){
+                        MoveUtils.enableMoveInputs();
+                        flyTicks++;
+                        if(mc.thePlayer.onGround && ev.isPre()){
+                            mc.thePlayer.jump();
+                            mc.thePlayer.motionY += 0.23f;
+                        }
+                        if(flyTicks < 2){
+                            mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY - 0.24, mc.thePlayer.posZ);
+                        }
+                        mc.timer.timerSpeed = 0.75f;
+                        MoveUtils.strafe(MoveUtils.getBaseSpeed() * 3.14);
+                        if(flyTicks > 10){
+                            this.onDisable();
+                            toggle();
+                        }
+                    }
+                }
+
+                break;
+            }
             case "Hypixel":{
                 hypixel(e);
                 break;
@@ -298,6 +333,48 @@ public class Fly extends Module {
         }
     }
 
+    int bowTick = 0;
+    boolean go;
+    boolean wasHit = false;
+    public int oldItem, itemSpoofed;
+
+    public void switchToBowSlot() {
+        boolean already = false;
+        if(mc.thePlayer.inventory.getCurrentItem() != null){
+            if(mc.thePlayer.inventory.getCurrentItem().getItem() instanceof ItemBow){
+                already = true;
+            }
+        }
+        for (int i = 0; i < 9; i++) {
+            if (mc.thePlayer.inventory.getStackInSlot(i) == null || already)
+                continue;
+            if (mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBow) {
+                oldItem = mc.thePlayer.inventory.currentItem;
+                mc.thePlayer.inventory.currentItem = i;
+                itemSpoofed = i;
+            }
+        }
+    }
+    public void switchBackToOld(){
+        mc.thePlayer.inventory.currentItem = oldItem;
+    }
+
+    public void shootBow(EventMotion e){
+        e.setPitch(-90f);
+        bowTick++;
+        if(bowTick > 1){
+            if(mc.thePlayer.inventory.getCurrentItem() != null){
+                ItemStack s = mc.thePlayer.inventory.getCurrentItem();
+                if(s.getItem() instanceof ItemBow){
+                    go = true;
+                }
+            }
+            if(go){
+                mc.gameSettings.keyBindUseItem.pressed = bowTick < 9;
+            }
+        }
+    }
+
     int hypixelTicks = 0;
     int decreaseTicks = 0;
     boolean launch;
@@ -377,6 +454,8 @@ public class Fly extends Module {
     public void onEnable() {
         exemptWebs = false;
         tempY = 0;
+        go = false;
+        bowTick = 0;
         flyTicks = 0;
         hypixelTicks = 0;
         decreaseTicks = 0;
@@ -398,6 +477,7 @@ public class Fly extends Module {
 
     @Override
     public void onDisable() {
+        wasHit = false;
         mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
         disableValues();
         resetBlocks();

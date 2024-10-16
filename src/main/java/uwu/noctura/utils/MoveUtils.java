@@ -15,6 +15,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovementInput;
+import org.lwjgl.input.Keyboard;
 import uwu.noctura.event.impl.EventStrafe;
 import uwu.noctura.event.impl.packet.EventMove;
 
@@ -40,6 +41,17 @@ public class MoveUtils {
         mc.gameSettings.keyBindRight.pressed = false;
         mc.gameSettings.keyBindBack.pressed = false;
         mc.gameSettings.keyBindForward.pressed = false;
+    }
+
+    public static void enableMoveInputs(){
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.gameSettings.keyBindJump.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode());
+        mc.gameSettings.keyBindSneak.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode());
+        mc.gameSettings.keyBindLeft.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode());
+        mc.gameSettings.keyBindRight.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode());
+        mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode());
+        mc.gameSettings.keyBindForward.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
+
     }
 
 
@@ -141,6 +153,13 @@ public class MoveUtils {
         double yaw = direction();
         mc.thePlayer.motionX = -Math.sin(yaw) * speed;
         mc.thePlayer.motionZ = Math.cos(yaw) * speed;
+    }
+
+    public static int getSpeedEffect() {
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            return mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+        }
+        return 0;
     }
 
     public static void strafe(EventMove e, double speed){

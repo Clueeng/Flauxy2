@@ -81,7 +81,8 @@ public class InventoryManager extends Module {
     public void onEvent(Event e){
         if(e instanceof EventUpdate){
 
-            this.setDisplayName("Manager " + EnumChatFormatting.WHITE + "Delay: " + minDelay.getValue() + "-" + maxDelay.getValue());
+            //this.setDisplayName("Manager " + EnumChatFormatting.WHITE + "Delay: " + minDelay.getValue() + "-" + maxDelay.getValue());
+            setArrayListName("Inventory Manager");
         }
 
         if(e instanceof EventMotion){

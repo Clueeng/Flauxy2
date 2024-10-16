@@ -18,7 +18,7 @@ public class Timer extends Module {
 
     public void onEvent(Event e){
         if(e instanceof EventMotion){
-            this.setDisplayName("Timer §f" + speed.getValue());
+            this.setArrayListName("Timer §f" + speed.getValue());
             mc.timer.timerSpeed = (float)speed.getValue();
 
         }

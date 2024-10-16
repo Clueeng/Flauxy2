@@ -183,7 +183,7 @@ public class Scaffold extends Module {
 
         tower(e);
 
-        this.setDisplayName("Scaffold " + EnumChatFormatting.WHITE + mode.getMode());
+        this.setArrayListName("Scaffold " + EnumChatFormatting.WHITE + mode.getMode());
 
         if(e instanceof EventUpdate) {
             if(timer.getValue() != 1) {
@@ -855,7 +855,7 @@ public class Scaffold extends Module {
         mc.thePlayer.motionZ *= mult;
     }
 
-    private void clientRotations(float yaw, float pitch) {
+    public void clientRotations(float yaw, float pitch) {
         mc.thePlayer.rotationYawHead = yaw;
         mc.thePlayer.renderYawOffset = yaw;
         mc.thePlayer.rotationPitchHead = pitch;

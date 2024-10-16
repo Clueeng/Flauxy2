@@ -1429,6 +1429,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
      */
     public void shutdown()
     {
+        System.out.println("Saving everything");
         Noctura.INSTANCE.getConfigManager().save("Default");
         KeyLoader.save(Noctura.INSTANCE.getModuleManager().modules);
         Noctura.INSTANCE.getWaypointManager().saveWaypoints();

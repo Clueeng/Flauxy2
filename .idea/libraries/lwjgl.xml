@@ -48,7 +48,6 @@
       <root url="jar://$PROJECT_DIR$/libs/lwjgl-platform-2.9.4-nightly-20150209-natives-windows.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/lwjgl_util-2.9.4-nightly-20150209.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/netty-1.6.jar!/" />
-      <root url="jar://$PROJECT_DIR$/libs/netty-all-4.0.23.Final.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/openauth-1.1.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/oshi-core-1.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/platform-3.4.0.jar!/" />

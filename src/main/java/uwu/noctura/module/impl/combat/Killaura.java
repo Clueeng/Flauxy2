@@ -125,6 +125,10 @@ public class Killaura extends Module {
     public void onEvent(Event ev){
         if(ev instanceof EventStrafe){
             EventStrafe e = (EventStrafe) ev;
+            if(mc.thePlayer == null || mc.theWorld == null) {
+                this.toggle();
+                return;
+            }
             if(mc.thePlayer.ticksExisted < 10) this.toggle();
 
             if(currentTarget != null && mc.thePlayer.ticksExisted > 10){
@@ -136,7 +140,7 @@ public class Killaura extends Module {
         if(ev instanceof EventUpdate){
             if(mc.thePlayer.ticksExisted < 10) this.toggle();
 
-            this.setDisplayName("Killaura " + EnumChatFormatting.WHITE + type.getMode());
+            this.setArrayListName("Killaura " + EnumChatFormatting.WHITE + type.getMode());
             // World
 
             if(!mobs.getValue()){
@@ -277,6 +281,12 @@ public class Killaura extends Module {
                         fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
+                                case "Item Use":{
+                                    if(isHoldingSword()){
+                                        mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getCurrentItem(), 1);
+                                    }
+                                    break;
+                                }
                                 case "1.9":{
                                     Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Killaura", "1.9 Blocking is not working"));
                                     autoblockMode.setSelected("Fake");
@@ -528,7 +538,7 @@ public class Killaura extends Module {
     }
 
     public float[] applyGCD(float yaw, float pitch, float prevYaw, float prevPitch){
-        float d = (this.mc.gameSettings.mouseSensitivity) * 0.6F + 0.2F;
+        float d = ((this.mc.gameSettings.mouseSensitivity) * 0.6F + 0.2F) * 1.1f;
         float e = d * d * d;
         //float f2 = (float)this.mc.mouseHelper.deltaX * f1;
         //float f3 = (float)this.mc.mouseHelper.deltaY * f1;

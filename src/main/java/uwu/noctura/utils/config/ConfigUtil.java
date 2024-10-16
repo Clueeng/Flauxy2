@@ -3,6 +3,7 @@ package uwu.noctura.utils.config;
 
 import uwu.noctura.Noctura;
 import uwu.noctura.module.Module;
+import uwu.noctura.module.ModuleManager;
 import uwu.noctura.module.setting.Setting;
 import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.GraphSetting;
@@ -37,6 +38,7 @@ public class ConfigUtil {
     }
 
     public void save(String name) {
+        KeyLoader.save(ModuleManager.modules);
         this.dir = new File(String.valueOf(Folder.dir));
         if (!this.dir.exists())
             this.dir.mkdir();

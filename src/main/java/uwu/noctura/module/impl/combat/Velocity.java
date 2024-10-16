@@ -44,7 +44,7 @@ public class Velocity extends Module {
             String addMode = "";
             addMode = mode.getMode();
 
-            this.setDisplayName("Velocity " + EnumChatFormatting.WHITE + addMode);
+            this.setArrayListName("Velocity " + EnumChatFormatting.WHITE + addMode);
         }
         if(ev instanceof EventReceivePacket){
             EventReceivePacket event = (EventReceivePacket) ev;
