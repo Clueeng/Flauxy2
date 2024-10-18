@@ -82,8 +82,12 @@ public class Scaffold extends Module {
     public Scaffold() {
         addSettings(mode, raytrace, roundRots, sameY, towerGodbridge, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
-
+    boolean hadSpeedEnabled;
     public void onEnable() {
+        hadSpeedEnabled = Noctura.INSTANCE.getModuleManager().getModule(Speed.class).isToggled();
+        if(hadSpeedEnabled){
+            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).setToggled(false);
+        }
 
         if(mode.getMode().equalsIgnoreCase("Hypixel")){
             mc.thePlayer.setSprinting(false);
@@ -122,6 +126,9 @@ public class Scaffold extends Module {
     }
 
     public void onDisable() {
+        if(hadSpeedEnabled){
+            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).setToggled(true);
+        }
         placedBlocks = 0;
         mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode());
         mc.gameSettings.keyBindForward.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());

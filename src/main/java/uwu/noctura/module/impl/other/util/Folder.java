@@ -20,7 +20,7 @@ public class Folder {
     }
 
     public static void init() {
-        auxware = new File((Minecraft.getMinecraft()).mcDataDir, "Flauxy");
+        auxware = new File((Minecraft.getMinecraft()).mcDataDir, "Noctura");
         if (!auxware.exists())
             auxware.mkdir();
         dir = new File(auxware + "/Killsult");

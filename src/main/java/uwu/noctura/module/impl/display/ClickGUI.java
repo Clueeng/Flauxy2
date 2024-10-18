@@ -39,8 +39,8 @@ public class ClickGUI extends Module {
                 break;
             }
             case "Noctura": {
-                //mc.displayGuiScreen(clickguiNoctura == null ? clickguiNoctura = new uwu.noctura.ui.noctura.ClickGUI() : clickguiNoctura);
-                mc.displayGuiScreen(new uwu.noctura.ui.noctura.ClickGUI());
+                mc.displayGuiScreen(clickguiNoctura == null ? clickguiNoctura = new uwu.noctura.ui.noctura.ClickGUI() : clickguiNoctura);
+                //mc.displayGuiScreen(new uwu.noctura.ui.noctura.ClickGUI());
                 break;
             }
         }

@@ -674,6 +674,16 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         getFont("Good", 18).drawString("Made with <3 by Flaily", width - getFont("Good", 18).getWidth("Made with <3 by Flaily") - 2,
                 height - 2 - getFont("Good", 18).getHeight("A"), -1);
 
+        if(Noctura.INSTANCE.isUpToDate){
+            String msg = "Client is up to date!";
+            getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
+                    4, new Color(20, 200, 10, 200).getRGB());
+        }else{
+            String msg = "Client is outdated :(";
+            getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
+                    4, new Color(200, 0, 10, 255).getRGB());
+        }
+
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)
         {
             drawRect(this.field_92022_t - 2, this.field_92021_u - 2, this.field_92020_v + 2, this.field_92019_w - 1, 1428160512);

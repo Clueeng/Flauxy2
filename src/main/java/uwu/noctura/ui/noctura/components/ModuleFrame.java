@@ -3,6 +3,7 @@ package uwu.noctura.ui.noctura.components;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.setting.Setting;
 import uwu.noctura.module.setting.impl.BooleanSetting;
@@ -79,7 +80,9 @@ public class ModuleFrame implements ColorHelper {
         }
     }
     float positionLerp;
+    float rotationLerp;
     float opacityLerp;
+    long openedTime, closedTime;
 
     public void drawScreen(int mouseX, int mouseY) {
         if (RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, moduleHeight) && hoveredColor) {
@@ -90,23 +93,52 @@ public class ModuleFrame implements ColorHelper {
         }
 
         // (x + (defaultWidth / 2) - (getFont().getWidth(getSetting().name.toLowerCase()))
-        getFont().drawString(module.getDisplayName(), (float) (x + 4), (float) (y + (moduleHeight / 2F - (getFont().getHeight("A") / 2F)) - 3.8 + 2.5), stringColor);
+        getFont().drawString(module.getDisplayName(), (float) (x + 4), (float) (y + (moduleHeight / 2F - (getFont().getHeight("A") / 2F)) - 3.8 + 3.5), stringColor);
         if(!this.module.getSettings().isEmpty()){
             int dotUp = (int)((float) (y + (moduleHeight / 2F - (getFont().getHeight("A") / 2F)) + 1)) + 3;
             if(mouseX >= x && mouseX <= x + defaultWidth &&
             mouseY >= y+1 && mouseY <= y + moduleHeight || opened){
+                rotationLerp = (float)MathHelper.lerp(0.03, rotationLerp, 90);
                 opacityLerp = (float) MathHelper.lerp(.1, opacityLerp, 250);
                 positionLerp = (float) MathHelper.easeInBounce(0.4,  positionLerp, 3);
             }else{
+                rotationLerp = (float)MathHelper.lerp(0.03, rotationLerp, 45);
                 opacityLerp = (float) MathHelper.lerp(.1, opacityLerp, 0);
                 positionLerp = (float) MathHelper.easeInBounce(0.2,  positionLerp, 0);
             }
             if(opacityLerp > 1 && positionLerp > 0.4f){
-                RenderUtil.drawFilledCircle(x + defaultWidth - 4, (dotUp - positionLerp), 1F, new Color(255, 255, 255, (int)opacityLerp));
-                GlStateManager.resetColor();
-                RenderUtil.drawFilledCircle(x + defaultWidth - 4, dotUp, 1, new Color(255, 255, 255, (int)opacityLerp) );
-                GlStateManager.resetColor();
-                RenderUtil.drawFilledCircle(x + defaultWidth - 4, (dotUp + positionLerp), 1, new Color(255, 255, 255, (int)opacityLerp));
+                if(!opened){
+                    openedTime = 0;
+                    closedTime ++;
+                    if (closedTime >= 1 && closedTime <= 20) {
+                        rotationLerp = 45;
+                        opacityLerp = 0;
+                    }
+                    if(closedTime > 1){
+                        RenderUtil.drawFilledCircle(x + defaultWidth - 4, (dotUp - positionLerp), 1F, new Color(255, 255, 255, (int)opacityLerp));
+                        GlStateManager.resetColor();
+                        RenderUtil.drawFilledCircle(x + defaultWidth - 4, dotUp, 1, new Color(255, 255, 255, (int)opacityLerp) );
+                        GlStateManager.resetColor();
+                        RenderUtil.drawFilledCircle(x + defaultWidth - 4, (dotUp + positionLerp), 1, new Color(255, 255, 255, (int)opacityLerp));
+                    }
+
+                }else {
+                    closedTime = 0;
+                    openedTime++;
+                    if (openedTime >= 1 && openedTime <= 20) {
+                        rotationLerp = -90; // Start rotation at 90 degrees
+                        opacityLerp = 0;   // Start with opacity at 0 (fully transparent)
+                    }
+                    GlStateManager.resetColor();
+                    GL11.glPushMatrix();
+                    GL11.glTranslatef(x + defaultWidth - 8, dotUp - 6, 0);
+                    GL11.glRotatef(rotationLerp + 90, 0, 0, 1);
+                    GL11.glTranslatef(-(x + defaultWidth - 8), -(dotUp - 6), 0);
+                    getFont().drawStringWithShadow("^", x + defaultWidth - 10, dotUp - 16, new Color(255, 255, 255, (int) opacityLerp).getRGB());
+                    GL11.glPopMatrix();
+
+                    GlStateManager.resetColor();
+                }
             }
             //getFont().drawStringWithShadow();
         }

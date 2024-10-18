@@ -1,5 +1,9 @@
 package uwu.noctura.module.impl.movement;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockIce;
+import net.minecraft.block.BlockPackedIce;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
@@ -218,20 +222,21 @@ public class Speed extends Module {
                                 onGroundTicks += 1;
                                 offGroundTicks = 0;
                                 int amp = MoveUtils.getSpeedEffect();
-                                MoveUtils.strafe(0.49 + (0.2f * amp)); // .47
+                                float funny = 0.0f;
+                                MoveUtils.strafe(0.48 + (0.205f * amp) + funny); // .47
                             }
                             if(!mc.thePlayer.onGround){
                                 offGroundTicks += 1;
                                 onGroundTicks = 0;
-                                if(mc.thePlayer.hurtTime > 7 && Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).currentTarget != null){
-
-                                    int amp = MoveUtils.getSpeedEffect();
-                                    MoveUtils.strafe(0.71f + (0.12f * amp));
-                                }
                             }
                             if(offGroundTicks > 2){
                                 int amp = MoveUtils.getSpeedEffect();
                                 MoveUtils.strafe(MoveUtils.getMotion() * (0.91 + (amp / 100f)));
+                            }
+                            if(mc.thePlayer.hurtTime > 6 && Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).currentTarget != null && offGroundTicks > 5){
+
+                                int amp = MoveUtils.getSpeedEffect();
+                                MoveUtils.strafe(0.74f + (0.15f * amp));
                             }
                         }
                         if(event instanceof EventMove){

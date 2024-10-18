@@ -6,6 +6,8 @@ import club.minnced.discord.rpc.DiscordRichPresence;
 import com.viaversion.viaversion.api.connection.UserConnection;
 import de.florianmichael.viamcp.ViaMCP;
 import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.Display;
 import uwu.noctura.alts.AltManager;
 import uwu.noctura.cape.CapeManager;
@@ -30,9 +32,12 @@ import uwu.noctura.utils.font.FontManager;
 import uwu.noctura.waypoint.WaypointManager;
 
 import java.awt.*;
-import java.io.File;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 @Getter
 public enum Noctura implements MinecraftInstance {
@@ -50,6 +55,10 @@ public enum Noctura implements MinecraftInstance {
     private CommandManager commandManager;
     public WaypointManager waypointManager;
     private final ConfigManager nonShittyConfigManager = new ConfigManager();
+    @Getter
+    public boolean isUpToDate;
+    @Getter
+    public String currentVer, remoteVer;
     @Getter
     public DiscordRPC discordRPC;
     @Getter
@@ -102,6 +111,7 @@ public enum Noctura implements MinecraftInstance {
         nonShittyConfigManager.init();
         loadHudPosition();
         initialized = true;
+        isUpToDate = upToDate();
     }
 
     public void loadHudPosition(){
@@ -168,5 +178,65 @@ public enum Noctura implements MinecraftInstance {
     }
     public void setGhost(boolean g){
         Noctura.INSTANCE.getCommandManager().getCommand(CommandGhost.class).setGhostmode(g);
+    }
+
+    private boolean upToDate() {
+        System.out.println("Checking for client vertsion");
+        File nocturaFolder = new File(Minecraft.getMinecraft().mcDataDir, "Noctura");
+        if (!nocturaFolder.exists() || !nocturaFolder.isDirectory()) {
+            nocturaFolder.mkdirs();
+        }
+        File localFile = new File(nocturaFolder, "latest.txt");
+        String remoteFileUrl = "https://raw.githubusercontent.com/Clueeng/flauxy-files/main/latest.txt";
+        String remoteVersion = "";
+        try {
+            URL url = new URL(remoteFileUrl);
+            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            int responseCode = httpConn.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+                remoteVersion = reader.readLine();
+                reader.close();
+            } else {
+                System.out.println("oops " + responseCode);
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!localFile.exists()) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(localFile))) {
+                writer.write(remoteVersion);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return false;
+        }
+        String localVersion = "";
+        try (BufferedReader reader = new BufferedReader(new FileReader(localFile))) {
+            localVersion = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        System.out.println("Local Version: " + localVersion);
+        currentVer = localVersion;
+        System.out.println("Remote Version: " + remoteVersion);
+        this.remoteVer = remoteVersion;
+        if (!Objects.equals(localVersion, remoteVersion)) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(localFile))) {
+                writer.write(remoteVersion);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return false;
+        }
+
+        return true;
     }
 }

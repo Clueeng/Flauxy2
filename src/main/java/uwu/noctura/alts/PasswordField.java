@@ -5,6 +5,9 @@ import net.minecraft.client.gui.*;
 import net.minecraft.client.*;
 import org.lwjgl.opengl.*;
 import net.minecraft.client.renderer.*;
+import uwu.noctura.utils.render.RenderUtil;
+
+import java.awt.*;
 
 public class PasswordField extends Gui
 {
@@ -330,8 +333,14 @@ public class PasswordField extends Gui
     public void drawTextBox() {
         if (this.func_73778_q()) {
             if (this.getEnableBackgroundDrawing()) {
-                Gui.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336);
-                Gui.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216);
+                //Gui.drawRect(this.xPos - 1, this.yPos - 1, this.xPos + this.width + 1, this.yPos + this.height + 1, -6250336);
+                //Gui.drawRect(this.xPos, this.yPos, this.xPos + this.width, this.yPos + this.height, -16777216);
+                if(this.isFocused){
+                    RenderUtil.drawRoundedRect2(xPos - .75f, yPos - 1, xPos + width + .75f, yPos + height + 1, 4, new Color(149, 149, 149, 200).getRGB());
+                }else{
+                    RenderUtil.drawRoundedRect2(xPos - .75f, yPos - 1, xPos + width + .75f, yPos + height + 1, 4, new Color(80, 76, 89, 200).getRGB());
+                }
+                RenderUtil.drawRoundedRect2(xPos, yPos, xPos + width, yPos + height, 4, new Color(0, 0, 0, 200).getRGB());
             }
             final int var1 = this.isEnabled ? this.enabledColor : this.disabledColor;
             final int var2 = this.cursorPosition - this.i;

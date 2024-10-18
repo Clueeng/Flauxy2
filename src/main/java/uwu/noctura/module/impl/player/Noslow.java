@@ -103,23 +103,15 @@ public class Noslow extends Module {
     ConcurrentLinkedQueue<Packet> blinked = new ConcurrentLinkedQueue<>();
     private void hypixel(Event ev) {
         // thanks David "error" Azura :pray:
-        if(ev instanceof EventUpdate){
-            EventUpdate e = (EventUpdate) ev;
-            if(!e.isPre() || mc.thePlayer.inventory.getCurrentItem() == null){
-                return;
-            }
-            if(mc.thePlayer.isUsingItem() && (mc.thePlayer.inventory.getCurrentItem().getItem() instanceof ItemSword) && blockTick != mc.thePlayer.ticksExisted){
-                if(mc.thePlayer.ticksExisted % 2 == 0){
-                    startBlink = false;
-                    mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem());
-                }else if(mc.thePlayer.ticksExisted % 2 == 1){ // changed from % 3 == 1 to % 2 == 1
-                    startBlink = true;
-                    //PacketUtil.sendSilentPacket(new C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 8));
-                    //PacketUtil.sendSilentPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem)); changed from changing slot to release use item
-                    PacketUtil.sendSilentPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+        if(ev instanceof EventMotion){
+            EventMotion e = (EventMotion) ev;
+            if(isUsingSword()){
+                if(e.isPre()){
+                    PacketUtil.sendSilentPacket(new C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9));
+                    PacketUtil.sendSilentPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                }else{
+                    //PacketUtil.sendSilentPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, mc.thePlayer.getPosition().add(0, -1, 0), EnumFacing.DOWN));
                 }
-            }else{
-                startBlink = false;
             }
         }
         if(ev instanceof EventSendPacket){

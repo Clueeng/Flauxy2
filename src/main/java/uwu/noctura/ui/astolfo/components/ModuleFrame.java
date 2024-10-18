@@ -118,10 +118,6 @@ public class ModuleFrame implements ColorHelper {
 
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
-
-        System.out.println(mouseY);
-        System.out.println((owner.getY() + 16) + " " + owner);
-
         if(RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, moduleHeight) && RenderUtil.hover(owner.getX(), owner.getY(), mouseX, mouseY, defaultWidth, owner.getHeight()) && !(mouseY < owner.getY() + 16))
         {
             switch(mouseButton)

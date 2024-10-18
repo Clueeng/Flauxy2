@@ -2,12 +2,18 @@ package net.minecraft.client.gui;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.MathHelper;
+import uwu.noctura.Noctura;
+import uwu.noctura.utils.font.TTFFontRenderer;
+import uwu.noctura.utils.render.RenderUtil;
+
+import java.awt.*;
 
 public class GuiTextField extends Gui
 {
@@ -528,16 +534,25 @@ public class GuiTextField extends Gui
         {
             if (this.getEnableBackgroundDrawing())
             {
-                drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, -6250336);
-                drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
+                //drawRect(this.xPosition - 1, this.yPosition - 1, this.xPosition + this.width + 1, this.yPosition + this.height + 1, -6250336);
+                //drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, -16777216);
+                if(this.isFocused){
+                    RenderUtil.drawRoundedRect2(xPosition - .75f, yPosition - 1, xPosition + width + .75f, yPosition + height + 1, 4, new Color(149, 149, 149, 200).getRGB());
+                }else{
+                    RenderUtil.drawRoundedRect2(xPosition - .75f, yPosition - 1, xPosition + width + .75f, yPosition + height + 1, 4, new Color(80, 76, 89, 200).getRGB());
+                }
+                RenderUtil.drawRoundedRect2(xPosition, yPosition, xPosition + width, yPosition + height, 4, new Color(0, 0, 0, 200).getRGB());
             }
+
+            TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 18");
 
             int i = this.isEnabled ? this.enabledColor : this.disabledColor;
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
             String s = this.fontRendererInstance.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
             boolean flag = j >= 0 && j <= s.length();
-            boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
+            if(cursorCounter > 9) cursorCounter = 0;
+            boolean flag1 = this.isFocused && cursorCounter / 6 % 2 == 0 && flag;
             int l = this.enableBackgroundDrawing ? this.xPosition + 4 : this.xPosition;
             int i1 = this.enableBackgroundDrawing ? this.yPosition + (this.height - 8) / 2 : this.yPosition;
             int j1 = l;
@@ -550,7 +565,9 @@ public class GuiTextField extends Gui
             if (s.length() > 0)
             {
                 String s1 = flag ? s.substring(0, j) : s;
-                j1 = this.fontRendererInstance.drawStringWithShadow(s1, (float)l, (float)i1, i);
+                //this.fontRendererInstance.drawStringWithShadow(s1, (float)l, (float)i1, i);
+                j1 += (int) font.getWidth(s1);
+                font.drawStringWithShadow(s1, l, i1, -1);
             }
 
             boolean flag2 = this.cursorPosition < this.text.length() || this.text.length() >= this.getMaxStringLength();
@@ -565,27 +582,27 @@ public class GuiTextField extends Gui
                 k1 = j1 - 1;
                 --j1;
             }
-
-            if (s.length() > 0 && flag && j < s.length())
-            {
-                j1 = this.fontRendererInstance.drawStringWithShadow(s.substring(j), (float)j1, (float)i1, i);
+            if (s.length() > 0 && flag && j < s.length()) {
+                String remainingText = s.substring(j);
+                System.out.println(j1);
+                font.drawStringWithShadow(remainingText, j1, (float)i1, -1);
             }
 
             if (flag1)
             {
                 if (flag2)
                 {
-                    Gui.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT, -3092272);
+                    //Gui.drawRect(k1, i1 - 1, k1 + 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT, -3092272);
                 }
                 else
                 {
-                    this.fontRendererInstance.drawStringWithShadow("_", (float)k1, (float)i1, i);
                 }
+                this.fontRendererInstance.drawStringWithShadow("_", (float)k1, (float)i1, i);
             }
 
             if (k != j)
             {
-                int l1 = l + this.fontRendererInstance.getStringWidth(s.substring(0, k));
+                int l1 = (int) (l + font.getWidth(s.substring(0, k)));
                 this.drawCursorVertical(k1, i1 - 1, l1 - 1, i1 + 1 + this.fontRendererInstance.FONT_HEIGHT);
             }
         }

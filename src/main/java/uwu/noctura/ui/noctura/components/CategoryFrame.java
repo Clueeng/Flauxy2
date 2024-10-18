@@ -65,58 +65,85 @@ public class CategoryFrame implements ColorHelper {
     }
 
     private float targetOffset, currentOffset;
+    private float targetCloseAnim, currentCloseAnim;
+    private int prevMouseX, prevMouseY;
+    private float rotationAngle;
 
     public void drawScreen(int mouseX, int mouseY)
     {
+        if (drag) {
+            int deltaX = mouseX - prevMouseX;
+            int deltaY = mouseY - prevMouseY;
+            float velocity = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            float targetAngle = Math.min(velocity * 0.8f, 75.0f) * (deltaX < 0 ? -1 : 1);
+            // Interpolate smoothly towards the target angle
+            rotationAngle = (float) MathHelper.lerp(0.1, rotationAngle, targetAngle);
+        } else {
+            // Smoothly interpolate towards 0 when not dragging
+            rotationAngle = (float) MathHelper.lerp(0.1, rotationAngle, 0);
+        }
+        prevMouseX = mouseX;
+        prevMouseY = mouseY;
+
         // category top draw
         int colT = new Color(169, 88, 211).getRGB();
 
+
+        GL11.glPushMatrix();
+        GL11.glTranslatef(getX() + width / 2f, getY() + 7.5f, 0); // Translate to the center of the category tab
+        GL11.glRotatef(rotationAngle, 0, 0, 1); // Rotate around the Z-axis
+        GL11.glTranslatef(-(getX() + width / 2f), -(getY() + 7.5f), 0); // Translate back
+
+        RenderUtil.drawRoundedRect2(getX(), getY() - 1, getX() + width, getY() + 15 + 1, 14, colT);
+
+        getFont().drawStringWithShadow(category.name(), x + 2, y + (categoryNameHeight / 2f - getFont().getHeight("A") / 2f), stringColor);
+
+
         RenderUtil.drawRoundedRect2(getX(), getY() - 1, getX() + width, getY() + 15 + 1, 14, colT);
         Gui.drawRect(getX(), getY() + 6, getX() + width, getY() + 15 + 1, colT);
+        getFont().drawStringWithShadow(category.name(), x + 2, y + (categoryNameHeight / 2f - getFont().getHeight("A") / 2f), stringColor);
 
 
         // background
 
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(getX() - 1, getY() + 17, getX() + width + 1, Math.max(currentCloseAnim, getY() + 17));
+        Gui.drawRect(getX() - 1, getY() + 17, getX() + width + 1, currentCloseAnim , new Color(0, 0, 0, 45).getRGB());
+        GaussianBlur.renderBlur(8f);
 
+        Gui.drawRect(getX() - 1, getY() + 17, getX() + width + 1, getY() + getHeight() + 1, new Color(0, 0, 0, 45).getRGB());
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
         if(!hideCat){
-
-            Gui.drawRect(getX() - 1, getY() + 17, getX() + width + 1, getY() + getHeight() + 1 , new Color(0, 0, 0, 45).getRGB());
-
-            GL11.glPushMatrix();
-            GL11.glEnable(3089);
-            RenderUtil.prepareScissorBox(getX() - 1, getY() + 17, getX() + width + 1, getY() + getHeight() + 1);
-            GaussianBlur.renderBlur(8f);
-
-            Gui.drawRect(getX() - 1, getY() + 17, getX() + width + 1, getY() + getHeight() + 1, new Color(0, 0, 0, 45).getRGB());
-
-            GL11.glDisable(3089);
-            GL11.glPopMatrix();
-            StencilUtil.uninitStencilBuffer();
-
-
-            AtomicInteger offCat = new AtomicInteger();
-            this.modules.forEach(module -> offCat.addAndGet(module.getOffset()+1));
-
-            // Calculate height
-            height = Math.min(categoryNameHeight + offCat.get(), defaultHeight);
-            if (Mouse.hasWheel() && RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, height)) {
-                int wheel = Mouse.getDWheel();
-                if (wheel > 0 && targetOffset > 0) {
-                    targetOffset -= moduleHeight;
-                } else if (wheel < 0 && targetOffset + (moduleHeight - 1) <= offCat.get() - height + categoryNameHeight) {
-                    targetOffset += moduleHeight;
-                }
+            handleScrolling(mouseX, mouseY);
+            targetCloseAnim = getY() + getHeight() + 1;
+        }else{
+            targetCloseAnim = getY() + categoryNameHeight + 1;
+            if(currentCloseAnim < getY() + categoryNameHeight + 2){
+                currentCloseAnim = getY() + categoryNameHeight + 1;
             }
-            currentOffset = (float) MathHelper.lerp(0.1, currentOffset, targetOffset);
-            if (currentOffset >= offCat.get() - height + categoryNameHeight) {
-                targetOffset -= 2;
-            }
-            if(currentOffset < 0){
-                targetOffset = 0;
+            if(currentCloseAnim > getY() + categoryNameHeight + 2 && currentCloseAnim < getY() + categoryNameHeight + 4){
+                System.out.println(getY() + categoryNameHeight + 2);
+                System.out.println(currentCloseAnim);
+                currentCloseAnim = getY() + categoryNameHeight + 2;
             }
         }
+        currentCloseAnim = (float) MathHelper.lerp(0.025, currentCloseAnim, targetCloseAnim);
+        if(currentCloseAnim > getY() + getHeight() + 1){
+            currentCloseAnim = getY() + getHeight() + 1;
+        }
+        int safeguard = hideCat ? 2 : 30;
+        if(currentCloseAnim < getY() + categoryNameHeight + safeguard){
+            currentCloseAnim = getY() + categoryNameHeight + safeguard;
+        }
+        if(this.category.equals(Category.Display)){
+        }
 
-        getFont().drawStringWithShadow(category.name(), x + 2, y + (categoryNameHeight / 2f - getFont().getHeight("A") / 2f), stringColor);
+
+
 
         // Drag ClickGUI
         if(drag) {
@@ -125,26 +152,20 @@ public class CategoryFrame implements ColorHelper {
         }
         GlStateManager.color(1f,1f,1f,1f);
 
-        // Drawing category name
+        // modules with scissorbox
         GL11.glPushMatrix();
         GL11.glEnable(3089);
         RenderUtil.prepareScissorBox(getX() + (width / 2F) - animation.update().getValue(), getY() + categoryNameHeight, x + (width / 2F) + animation.getValue(), y + getHeight());
 
-        GlStateManager.color(1f,1f,1f,1f);
-        // Drawing modules
-        int i = 0;
-        if(!hideCat){
-            for (ModuleFrame module : this.modules) {
-                module.setX(x);
-                module.setY((int) (y + categoryNameHeight + i - currentOffset));
-                module.drawScreen(mouseX, mouseY);
-                i += module.getOffset();
-            }
-        }
+        handleModuleRendering(mouseX, mouseY);
 
         GL11.glDisable(3089);
         GL11.glPopMatrix();
         Gui.drawRect(getX(), getY() + 15, getX() + width, getY() + 16, new Color(255, 255, 255).getRGB());
+        // Drawing category name
+
+        // End rotation
+        GL11.glPopMatrix();
     }
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton)
@@ -152,16 +173,18 @@ public class CategoryFrame implements ColorHelper {
         // I really need to explain?
         for (ModuleFrame module : this.modules)
         {
-            if(module.mouseClicked(mouseX, mouseY, mouseButton) && !hideCat) {
-                setDrag(false);
-                return;
+            if(!hideCat){
+                if(module.mouseClicked(mouseX, mouseY, mouseButton) && !hideCat) {
+                    setDrag(false);
+                    return;
+                }
             }
         }
         if(mouseButton == 1 && RenderUtil.hover(x, y, mouseX, mouseY, width, categoryNameHeight)){
             hideCat = !hideCat;
         }
 
-        if(RenderUtil.hover(x, y, mouseX, mouseY, width, height) && mouseButton == 0)
+        if(RenderUtil.hover(x, y, mouseX, mouseY, width, categoryNameHeight) && mouseButton == 0)
         {
             setDrag(true);
             setXDrag(getX() - mouseX);
@@ -169,6 +192,49 @@ public class CategoryFrame implements ColorHelper {
         } else{
             setDrag(false);
         }
+
+    }
+
+    public void handleScrolling(int mouseX, int mouseY){
+        AtomicInteger offCat = new AtomicInteger();
+        this.modules.forEach(module -> offCat.addAndGet(module.getOffset()+1));
+
+        // Calculate height
+        height = Math.min(categoryNameHeight + offCat.get(), defaultHeight);
+        if (Mouse.hasWheel() && RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, height)) {
+            int wheel = Mouse.getDWheel();
+            if (wheel > 0 && targetOffset > 0) {
+                targetOffset -= moduleHeight;
+            } else if (wheel < 0 && targetOffset + (moduleHeight - 1) <= offCat.get() - height + categoryNameHeight) {
+                targetOffset += moduleHeight;
+            }
+        }
+        currentOffset = (float) MathHelper.lerp(0.1, currentOffset, targetOffset);
+        if (currentOffset >= offCat.get() - height + categoryNameHeight) {
+            targetOffset -= 2;
+        }
+        if(currentOffset < 0){
+            targetOffset = 0;
+        }
+    }
+
+    public void handleModuleRendering(int mouseX, int mouseY){
+        // draw modules on top of bg
+        GlStateManager.color(1f,1f,1f,1f);
+        int i = 0;
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(getX() - 1, getY() + 17, getX() + width + 1, Math.max(currentCloseAnim, getY() + 17));
+
+        for (ModuleFrame module : this.modules) {
+            module.setX(x);
+            module.setY((int) (y + categoryNameHeight + i - currentOffset));
+            module.drawScreen(mouseX, mouseY);
+            i += module.getOffset();
+        }
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
 
     }
 

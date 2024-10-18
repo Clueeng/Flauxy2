@@ -18,6 +18,7 @@ import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationType;
 import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.Wrapper;
+import uwu.noctura.utils.font.TTFFontRenderer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,25 +88,30 @@ public class PacketTweaker extends GuiScreen {
     }
 
     @Override
+    public void updateScreen() {
+        if(packetNameField.isFocused()){
+            packetNameField.updateCursorCounter();
+        }
+        if(msField.isFocused()){
+            this.msField.drawTextBox();
+        }
+        for (GuiTextField field : argumentFields) {
+            if (field.isFocused()) {
+                field.updateCursorCounter();
+            }
+        }
+
+    }
+
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 21");
+        TTFFontRenderer smallerFont = Noctura.INSTANCE.getFontManager().getFont("Good 18");
         this.drawDefaultBackground();
         this.packetNameField.drawTextBox();
         this.msField.drawTextBox();
-        if(System.currentTimeMillis() % 100 == 0){
-            if(packetNameField.isFocused()){
-                packetNameField.updateCursorCounter();
-            }
-            if(msField.isFocused()){
-                this.msField.drawTextBox();
-            }
-        }
         for (GuiTextField field : argumentFields) {
             field.drawTextBox();
-            if(System.currentTimeMillis() % 100 == 0){
-                if(field.isFocused()){
-                    field.updateCursorCounter();
-                }
-            }
         }
 
         // hints
@@ -115,45 +121,71 @@ public class PacketTweaker extends GuiScreen {
         String field = packetNameField.getText();
         if(field.contains("C03")){
             search = "Do you mean C03PacketPlayer?";
+            autoComplete(packetNameField, "C03PacketPlayer");
         }
         if(field.contains("C04")){
             search = "Do you mean C04PacketPlayerPosition?";
+            autoComplete(packetNameField, "C04PacketPlayerPosition");
+        }
+        if(field.contains("C16")){
+            search = "Do you mean C16PacketClientStatus?";
+            autoComplete(packetNameField, "C16PacketClientStatus");
         }
         if(field.contains("C05")){
             search = "Do you mean C05PacketPlayerLook?";
+            autoComplete(packetNameField, "C05PacketPlayerLook");
         }
         if(field.contains("C06")){
             search = "Do you mean C06PacketPlayerPosLook?";
+            autoComplete(packetNameField, "C06PacketPlayerPosLook");
         }
         if(field.contains("C08")){
             search = "Do you mean C08PacketPlayerBlockPlacement?";
+            autoComplete(packetNameField, "C06PacketPlayerPosLook");
         }
         if(field.contains("C00")){
             search = "Do you mean C00PacketKeepAlive?";
+            autoComplete(packetNameField, "C00PacketKeepAlive");
         }
         if(field.contains("C0F")){
             search = "Do you mean C0FPacketConfirmTransaction?";
+            autoComplete(packetNameField, "C0FPacketConfirmTransaction");
         }
         if(field.contains("C0C")){
             search = "Do you mean C0CPacketInput?";
+            autoComplete(packetNameField, "C0CPacketInput");
         }
         if(field.contains("C07")){
             search = "Do you mean C07PacketPlayerDigging?";
+            autoComplete(packetNameField, "C07PacketPlayerDigging");
         }
         if(field.contains("C13")){
             search = "Do you mean C13PacketPlayerAbilities?";
+            autoComplete(packetNameField, "C13PacketPlayerAbilities");
         }
         if(field.contains("C0B")){
             search = "Do you mean C0BPacketEntityAction?";
+            autoComplete(packetNameField, "C0BPacketEntityAction");
         }
         if(field.contains("C18")){
             search = "Do you mean C18PacketSpectate?";
+            autoComplete(packetNameField, "C18PacketSpectate");
         }
 
-        mc.fontRendererObj.drawString(search, (int) (width / 2f - (mc.fontRendererObj.getStringWidth(search) / 2f)), 24, -1);
+        //mc.fontRendererObj.drawString(search, (int) (width / 2f - (mc.fontRendererObj.getStringWidth(search) / 2f)), 12, -1);
+        font.drawStringWithShadow(search, (int) (width / 2f - (font.getWidth(search) / 2f)), 12, -1);
+        if(!search.isEmpty() && field.length() < 10){
+            smallerFont.drawStringWithShadow("Press TAB for autocomplete", (int) (width / 2f - (smallerFont.getWidth("Press TAB for autocomplete") / 2f)), 24, -1);
+        }
 
         if(field.equals("C0B") || field.equals("C0BPacketEntityAction")){
             hints[0] = "C0BAction (?)";
+        }
+        if(field.equals("C0F") || field.equals("C0FPacketConfirmTransaction")){
+            // int windowId, short uid, boolean accepted
+            hints[0] = "Window ID (I)";
+            hints[1] = "UID (Short)";
+            hints[2] = "Accepted (B)";
         }
         if(field.equals("C18") || field.equals("C18PacketSpectate")){
             hints[0] = "Player Name (S)";
@@ -205,6 +237,12 @@ public class PacketTweaker extends GuiScreen {
             hints[2] = "BlockPos Z (D)";
             hints[3] = "Face (?)";
         }
+        if(field.equals("C16") || field.equals("C16PacketClientStatus")){
+            //hints[0] = "BlockPos X (D)";
+            //hints[1] = "BlockPos Y (D)";
+            //hints[2] = "BlockPos Z (D)";
+            hints[0] = "Status In (?)";
+        }
         /*
 
                     boolean creative = Boolean.parseBoolean(args.get(2));
@@ -223,24 +261,29 @@ public class PacketTweaker extends GuiScreen {
 
         int i = 0;
         for(String s : hints){
-            if(hints == null){
-                return;
+            if(s == null || s.isEmpty()){
+                continue;
             }
-            mc.fontRendererObj.drawString(s, width / 2 - 200, 70 + (i * 30) + 6, -1);
+            //mc.fontRendererObj.drawString(s, width / 2 - 200, 70 + (i * 30) + 6, -1);
+            smallerFont.drawStringWithShadow(s, width / 2f - 200, 70 + (i * 30) + 6, -1);
             int x = width / 2 - 200;
             int y= 70 + (i * 30) + 6;
-            if(s != null){
-                if(s.contains("?")){
-                    if(mouseX >= x && mouseX <= x + (mc.fontRendererObj.getStringWidth(s)) && mouseY >= y && mouseY <= y + 24) {
-                        if(s.toLowerCase().contains("C07Action".toLowerCase())){
-                            mc.fontRendererObj.drawString("(START_DESTROY_BLOCK, DROP_ITEM etc...)", x + 310, y, -1);
-                        }
-                        if(s.toLowerCase().contains("C0BAction".toLowerCase())){
-                            mc.fontRendererObj.drawString("(START_SNEAKING, OPEN_INVENTORY etc...)", x + 310, y, -1);
-                        }
-                        if(s.toLowerCase().contains("Face".toLowerCase())){
-                            mc.fontRendererObj.drawString("(DOWN, UP, EAST, WEST, NORTH, SOUTH, SELF)", x + 310, y, -1);
-                        }
+            if (s.contains("?")) {
+                if (mouseX >= x && mouseX <= x + (mc.fontRendererObj.getStringWidth(s)) && mouseY >= y && mouseY <= y + 24) {
+                    if (s.toLowerCase().contains("C07Action".toLowerCase())) {
+                        mc.fontRendererObj.drawString("(START_DESTROY_BLOCK, DROP_ITEM etc...)", x + 310, y, -1);
+                    }
+                    /*
+
+                     */
+                    if (s.toLowerCase().contains("Status In".toLowerCase())) {
+                        mc.fontRendererObj.drawString("(PERFORM_RESPAWN, REQUEST_STATS, OPEN_INVENTORY_ACHIEVEMENT)", x + 310, y, -1);
+                    }
+                    if (s.toLowerCase().contains("C0BAction".toLowerCase())) {
+                        mc.fontRendererObj.drawString("(START_SNEAKING, OPEN_INVENTORY etc...)", x + 310, y, -1);
+                    }
+                    if (s.toLowerCase().contains("Face".toLowerCase())) {
+                        mc.fontRendererObj.drawString("(DOWN, UP, EAST, WEST, NORTH, SOUTH, SELF)", x + 310, y, -1);
                     }
                 }
             }
@@ -252,6 +295,12 @@ public class PacketTweaker extends GuiScreen {
 
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    public void autoComplete(GuiTextField field, String toComplete){
+        if(Keyboard.isKeyDown(Keyboard.KEY_TAB) && field.isFocused()){
+            field.setText(toComplete);
+        }
     }
 
     @Override
@@ -421,6 +470,10 @@ public class PacketTweaker extends GuiScreen {
                     packetName = "C05PacketPlayerLook";
                     break;
                 }
+                case "C06":{
+                    packetName = "C06PacketPlayerPosLook";
+                    break;
+                }
                 case "C08":{
                     packetName = "C08PacketPlayerBlockPlacement";
                     break;
@@ -457,11 +510,35 @@ public class PacketTweaker extends GuiScreen {
                     packetName = "C09PacketHeldItemChange";
                     break;
                 }
+                case "C16":{
+                    packetName = "C16PacketClientStatus";
+                    break;
+                }
             }
             switch (packetName) {
                 case "C09PacketHeldItemChange":{
                     int slotId = Integer.parseInt(args.get(2));
                     cachedPacket = new C09PacketHeldItemChange(slotId);
+                    PacketUtil.sendPacket(cachedPacket);
+                    break;
+                }
+                case "C16PacketClientStatus":{
+                    C16PacketClientStatus.EnumState state = C16PacketClientStatus.EnumState.valueOf(args.get(2));
+                    cachedPacket = new C16PacketClientStatus(state);
+                    PacketUtil.sendPacket(cachedPacket);
+                    break;
+                }
+                case "C0FPacketConfirmTransaction":{
+                    /*
+
+            hints[0] = "Window ID (I)";
+            hints[1] = "UID (Short)";
+            hints[2] = "Accepted (B)";
+                     */
+                    int windowId = Integer.parseInt(args.get(2));
+                    short uid = Short.parseShort(args.get(3));
+                    boolean accepted = Boolean.parseBoolean(args.get(4));
+                    cachedPacket = new C0FPacketConfirmTransaction(windowId, uid, accepted);
                     PacketUtil.sendPacket(cachedPacket);
                     break;
                 }

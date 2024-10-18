@@ -283,7 +283,7 @@ public class Killaura extends Module {
                             switch(autoblockMode.getMode()){
                                 case "Item Use":{
                                     if(isHoldingSword()){
-                                        mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getCurrentItem(), 1);
+                                        //mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getCurrentItem(), mc.thePlayer.inventory.getCurrentItem().getItem().getMaxItemUseDuration(mc.thePlayer.inventory.getCurrentItem()));
                                     }
                                     break;
                                 }

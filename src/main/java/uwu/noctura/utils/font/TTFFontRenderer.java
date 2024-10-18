@@ -267,7 +267,7 @@ public class TTFFontRenderer {
      * @param shadow If the text should be rendered with the shadow color.
      * @param color  The color of the text.
      */
-    private int renderString(String text, float x, float y, int color, boolean shadow) {
+    public int renderString(String text, float x, float y, int color, boolean shadow) {
         // Returns if the text is empty.
         if (text == "" || text.length() == 0) return 0;
 

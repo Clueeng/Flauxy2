@@ -148,9 +148,10 @@ public class GuiInventory extends InventoryEffectRenderer
         RenderHelper.enableStandardItemLighting();
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(-((float)Math.atan((double)(mouseY / 40.0F))) * 20.0F, 1.0F, 180.0F, 0);
-        ent.renderYawOffset = (float)Math.atan((double)(mouseX / 40.0F)) * 20.0F;
-        ent.rotationYaw = (float)Math.atan((double)(mouseX / 40.0F)) * 40.0F;
-        ent.rotationPitch = -((float)Math.atan((double)(mouseY / 40.0F))) * 20.0F;
+        mouseX *= .8f;
+        ent.renderYawOffset = (float)Math.atan((double)(mouseX / 440.0F)) * 120.0F;
+        ent.rotationYaw = (float)Math.atan((double)(mouseX / 440.0F)) * 140.0F;
+        ent.rotationPitch = -((float)Math.atan((double)(mouseY / 40.0F))) * 120.0F;
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
         GlStateManager.translate(0.0F, 0.0F, 0.0F);
