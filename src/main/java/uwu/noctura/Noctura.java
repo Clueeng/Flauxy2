@@ -209,6 +209,7 @@ public enum Noctura implements MinecraftInstance {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
                 remoteVersion = reader.readLine();
+                System.out.println("Fetched " + remoteVersion + " as remote version");
                 reader.close();
             } else {
                 System.out.println("oops " + responseCode);

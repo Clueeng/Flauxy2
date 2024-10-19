@@ -159,6 +159,7 @@ public class CategoryFrame implements ColorHelper {
 
         handleModuleRendering(mouseX, mouseY);
 
+
         GL11.glDisable(3089);
         GL11.glPopMatrix();
         Gui.drawRect(getX(), getY() + 15, getX() + width, getY() + 16, new Color(255, 255, 255).getRGB());

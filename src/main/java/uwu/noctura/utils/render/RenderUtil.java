@@ -15,6 +15,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.impl.other.Performance;
+import uwu.noctura.utils.render.shader.StencilUtil;
 
 import java.awt.*;
 import java.nio.FloatBuffer;
@@ -29,6 +30,20 @@ public class RenderUtil  {
 
     private static Minecraft mc = Minecraft.getMinecraft();
     private static final Frustum frustum = new Frustum();
+
+    public static void prepareBlur(float x, float y, float x2, float y2){
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(x
+                ,y,x2, y2);
+        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+    }
+    public static void finishBlur(){
+        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
+    }
 
 
     public static void drawImage(final int x, final int y, final int width, final int height, final ResourceLocation image) {

@@ -15,20 +15,26 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
 import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationType;
+import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.MathHelper;
 import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.font.TTFFontRenderer;
 import uwu.noctura.utils.render.RenderUtil;
+import uwu.noctura.utils.render.shader.StencilUtil;
+import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
+
+import static uwu.noctura.ui.star.StarParticle.drawLinesToNearestParticles;
+import static uwu.noctura.ui.star.StarParticle.getNearestParticles;
 
 public class PacketTweaker extends GuiScreen {
 
@@ -93,6 +99,21 @@ public class PacketTweaker extends GuiScreen {
         this.toggleButton = new GuiButton(3, this.width / 2 - 100, height - 120, 200, 20, "Start");
         toggleButton.displayString = isRunning ? "Stop" : "Start";
         this.buttonList.add(this.toggleButton);
+
+        generateStars(45);
+    }
+
+    private List<StarParticle> stars = new ArrayList<>();
+
+    public void generateStars(int count) {
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            float x = random.nextInt(width);
+            float y = random.nextInt(height);
+            float size = 0.1f;
+            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f; // Controls twinkling speed
+            stars.add(new StarParticle(x, y, size, alphaChangeRate));
+        }
     }
 
     @Override
@@ -114,13 +135,69 @@ public class PacketTweaker extends GuiScreen {
 
     String[] fieldsOld = new String[7];
 
+    public Map<String, String> packetSuggestion(){
+        Map<String, String> packetSuggestions = new HashMap<>();
+        packetSuggestions.put("C03", "C03PacketPlayer");
+        packetSuggestions.put("C17", "C17PacketCustomPayload");
+        packetSuggestions.put("C0E", "C0EPacketClickWindow");
+        packetSuggestions.put("C02", "C02PacketUseEntity");
+        packetSuggestions.put("C04", "C04PacketPlayerPosition");
+        packetSuggestions.put("C16", "C16PacketClientStatus");
+        packetSuggestions.put("C05", "C05PacketPlayerLook");
+        packetSuggestions.put("C06", "C06PacketPlayerPosLook");
+        packetSuggestions.put("C08", "C08PacketPlayerBlockPlacement");
+        packetSuggestions.put("C00", "C00PacketKeepAlive");
+        packetSuggestions.put("C0F", "C0FPacketConfirmTransaction");
+        packetSuggestions.put("C0C", "C0CPacketInput");
+        packetSuggestions.put("C07", "C07PacketPlayerDigging");
+        packetSuggestions.put("C13", "C13PacketPlayerAbilities");
+        packetSuggestions.put("C0B", "C0BPacketEntityAction");
+        packetSuggestions.put("C18", "C18PacketSpectate");
+
+        return packetSuggestions;
+    }
+
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 21");
         TTFFontRenderer smallerFont = Noctura.INSTANCE.getFontManager().getFont("Good 18");
         currentOpacity = currentOpacity < 3 ? 0 : (int) MathHelper.lerp(0.01, currentOpacity, 0);
+
+        GL11.glPushMatrix();
+        GL11.glEnable(3089);
+        RenderUtil.prepareScissorBox(0
+                ,0,width, height);
+
+        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+        GaussianBlur.renderBlur(5f);
+        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+
+        GL11.glDisable(3089);
+        GL11.glPopMatrix();
+        StencilUtil.uninitStencilBuffer();
+
+        int mid = 240;
+        int x2 = mid;
+        int rightX = width - mid;
+        int y2 = 4;
+        int bottom = height - 4;
+
+        RenderUtil.drawUnfilledRectangle(x2-1, y2-1, rightX+1, bottom+1, 4, new Color(255, 255, 255).getRGB());
+
+        RenderUtil.prepareBlur(x2, y2, rightX, bottom);
+        GaussianBlur.renderBlur(23f);
+        RenderUtil.finishBlur();
+
         this.drawDefaultBackground();
+
+        for (StarParticle star : stars) {
+            star.update();
+            star.render(mouseX, mouseY, stars);
+        }
+        List<StarParticle> nearestParticles = getNearestParticles(mouseX, mouseY, stars, 3);
+        drawLinesToNearestParticles(mouseX, mouseY, nearestParticles);
         this.packetNameField.drawTextBox();
+
         this.msField.drawTextBox();
         for (GuiTextField field : argumentFields) {
             field.drawTextBox(field.ok);
@@ -131,70 +208,14 @@ public class PacketTweaker extends GuiScreen {
         String search = "";
 
         String field = packetNameField.getText();
-        if(field.contains("C03")){
-            search = "Do you mean C03PacketPlayer?";
-            autoComplete(packetNameField, "C03PacketPlayer");
+        String suggestion = packetSuggestion().get(field);
+
+        if (suggestion != null) {
+            search = "Do you mean " + suggestion + "?";
+            autoComplete(packetNameField, suggestion);
         }
-        if(field.contains("C17")){
-            search = "Do you mean C17PacketCustomPayload?";
-            autoComplete(packetNameField, "C17PacketCustomPayload");
-        }
-        if(field.contains("C0E")){
-            search = "Do you mean C0EPacketClickWindow?";
-            autoComplete(packetNameField, "C0EPacketClickWindow");
-        }
-        if(field.contains("C02")){
-            search = "Do you mean C02PacketUseEntity?";
-            autoComplete(packetNameField, "C02PacketUseEntity");
-        }
-        if(field.contains("C04")){
-            search = "Do you mean C04PacketPlayerPosition?";
-            autoComplete(packetNameField, "C04PacketPlayerPosition");
-        }
-        if(field.contains("C16")){
-            search = "Do you mean C16PacketClientStatus?";
-            autoComplete(packetNameField, "C16PacketClientStatus");
-        }
-        if(field.contains("C05")){
-            search = "Do you mean C05PacketPlayerLook?";
-            autoComplete(packetNameField, "C05PacketPlayerLook");
-        }
-        if(field.contains("C06")){
-            search = "Do you mean C06PacketPlayerPosLook?";
-            autoComplete(packetNameField, "C06PacketPlayerPosLook");
-        }
-        if(field.contains("C08")){
-            search = "Do you mean C08PacketPlayerBlockPlacement?";
-            autoComplete(packetNameField, "C08PacketPlayerBlockPlacement");
-        }
-        if(field.contains("C00")){
-            search = "Do you mean C00PacketKeepAlive?";
-            autoComplete(packetNameField, "C00PacketKeepAlive");
-        }
-        if(field.contains("C0F")){
-            search = "Do you mean C0FPacketConfirmTransaction?";
-            autoComplete(packetNameField, "C0FPacketConfirmTransaction");
-        }
-        if(field.contains("C0C")){
-            search = "Do you mean C0CPacketInput?";
-            autoComplete(packetNameField, "C0CPacketInput");
-        }
-        if(field.contains("C07")){
-            search = "Do you mean C07PacketPlayerDigging?";
-            autoComplete(packetNameField, "C07PacketPlayerDigging");
-        }
-        if(field.contains("C13")){
-            search = "Do you mean C13PacketPlayerAbilities?";
-            autoComplete(packetNameField, "C13PacketPlayerAbilities");
-        }
-        if(field.contains("C0B")){
-            search = "Do you mean C0BPacketEntityAction?";
-            autoComplete(packetNameField, "C0BPacketEntityAction");
-        }
-        if(field.contains("C18")){
-            search = "Do you mean C18PacketSpectate?";
-            autoComplete(packetNameField, "C18PacketSpectate");
-        }
+
+
 
         //mc.fontRendererObj.drawString(search, (int) (width / 2f - (mc.fontRendererObj.getStringWidth(search) / 2f)), 12, -1);
         if(!search.isEmpty()){
@@ -519,12 +540,17 @@ public class PacketTweaker extends GuiScreen {
             i++;
         }
 
-        smallerFont.drawString(packetStatus, (int) ((width/2f) - (smallerFont.getWidth(packetStatus)/2f)), height - 24, -1);
-        smallerFont.drawString(String.valueOf(sentTimestamp), (int) ((width/2f) - (smallerFont.getWidth(String.valueOf(sentTimestamp))/2f)), height - 12, -1);
+        //smallerFont.drawString(String.valueOf(sentTimestamp), (int) ((width/2f) - (smallerFont.getWidth(String.valueOf(sentTimestamp))/2f)), height - 12, -1);
 
         // the overlay
         currentOpacity = net.minecraft.util.MathHelper.clamp_int(currentOpacity, 0, 255);
         RenderUtil.drawGradientRect(0, height - 128, width, height, new Color(feedbackColor.getRed(), feedbackColor.getGreen(), feedbackColor.getBlue(), currentOpacity).getRGB(), new Color(0, 0, 0, 0).getRGB());
+
+        RenderUtil.drawGradientRect(0, height / 1.8f, width, height + 100,
+                new Color(60, 68, 170, 100).getRGB(),
+                new Color(0, 0, 0, 0).getRGB());
+
+        smallerFont.drawString(packetStatus, (int) ((width/2f) - (smallerFont.getWidth(packetStatus)/2f)), height - 24, new Color(255, 255, 255, 200).getRGB());
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }

@@ -357,7 +357,6 @@ public class GuiTextField extends Gui
      */
     public boolean textboxKeyTyped(char p_146201_1_, int p_146201_2_)
     {
-        System.out.println("typed");
         if (!this.isFocused)
         {
             return false;
