@@ -35,6 +35,7 @@ import java.util.List;
 
 import static uwu.noctura.ui.star.StarParticle.drawLinesToNearestParticles;
 import static uwu.noctura.ui.star.StarParticle.getNearestParticles;
+import static uwu.noctura.utils.render.RenderUtil.generateStars;
 
 public class PacketTweaker extends GuiScreen {
 
@@ -68,7 +69,7 @@ public class PacketTweaker extends GuiScreen {
         this.argumentFields = new GuiTextField[7];
         for (int i = 0; i < argumentFields.length; i++) {
             argumentFields[i] = new GuiTextField(i + 1, this.fontRendererObj, this.width / 2 - 100, 70 + (i * 30), 200, 20);
-            argumentFields[i].setMaxStringLength(50);
+            argumentFields[i].setMaxStringLength(25000);
             argumentFields[i].setText("");
         }
         if(cachedPacketName != null){
@@ -100,21 +101,12 @@ public class PacketTweaker extends GuiScreen {
         toggleButton.displayString = isRunning ? "Stop" : "Start";
         this.buttonList.add(this.toggleButton);
 
-        generateStars(45);
+        generateStars(140, stars, width, height);
     }
 
     private List<StarParticle> stars = new ArrayList<>();
 
-    public void generateStars(int count) {
-        Random random = new Random();
-        for (int i = 0; i < count; i++) {
-            float x = random.nextInt(width);
-            float y = random.nextInt(height);
-            float size = 0.1f;
-            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f; // Controls twinkling speed
-            stars.add(new StarParticle(x, y, size, alphaChangeRate));
-        }
-    }
+
 
     @Override
     public void updateScreen() {
@@ -191,7 +183,7 @@ public class PacketTweaker extends GuiScreen {
         this.drawDefaultBackground();
 
         for (StarParticle star : stars) {
-            star.update();
+            star.update(width, height);
             star.render(mouseX, mouseY, stars);
         }
         List<StarParticle> nearestParticles = getNearestParticles(mouseX, mouseY, stars, 3);

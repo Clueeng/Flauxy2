@@ -15,12 +15,16 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.impl.other.Performance;
+import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.render.shader.StencilUtil;
 
 import java.awt.*;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
@@ -838,6 +842,19 @@ public class RenderUtil  {
         glPopAttrib();
     }
 
+    public static void generateStars(int count, List<StarParticle> stars, int width, int height) {
+        stars.clear();
+        int offset = 0;
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            float x = random.nextInt(width + (offset / 2)) - (offset);
+            float y = random.nextInt(height + (offset / 2)) - (offset);
+            float size = 0.1f;
+            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f;
+            stars.add(new StarParticle(x, y, size, alphaChangeRate));
+        }
+    }
+
     public static void drawFilledCircle(final float xx, final float yy, final float radius, final Color color) {
         int sections = 50;
         double dAngle = 2 * Math.PI / sections;
@@ -898,7 +915,7 @@ public class RenderUtil  {
         GlStateManager.color((float) color.getRed() / 255F, (float) color.getGreen() / 255F, (float) color.getBlue() / 255F, (float) color.getAlpha() / 255F);
     }
 
-    public static boolean hover(int x, int y, int mouseX, int mouseY, int width, int height) {
+    public static boolean hover(float x, float y, int mouseX, int mouseY, int width, int height) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 

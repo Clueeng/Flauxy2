@@ -1,21 +1,13 @@
 package uwu.noctura.ui.star;
 
 import java.awt.*;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.MathHelper;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import uwu.noctura.utils.render.RenderUtil;
 
 public class StarParticle {
@@ -23,6 +15,7 @@ public class StarParticle {
     private float alpha;
     private float size;
     private float alphaChangeRate;
+    float velocityY, velocityX;
 
     public StarParticle(float x, float y, float size, float alphaChangeRate) {
         this.x = x;
@@ -30,9 +23,17 @@ public class StarParticle {
         this.size = size;
         this.alphaChangeRate = alphaChangeRate;
         this.alpha = new Random().nextFloat();
+        this.velocityY = ((new Random().nextFloat()) - 0.5f) * new Random().nextFloat();
+        this.velocityX = ((new Random().nextFloat()) - 0.5f) * new Random().nextFloat();
     }
 
-    public void update() {
+    private void resetPosition(int width, int height) {
+        Random random = new Random();
+        x = random.nextInt(width);
+        y = height + random.nextInt(100);
+    }
+
+    public void update(int width, int height) {
         alpha += alphaChangeRate;
         if (alpha > 1.0f) {
             alpha = 1.0f;
@@ -41,25 +42,35 @@ public class StarParticle {
             alpha = 0.01f;
             alphaChangeRate = -alphaChangeRate;
         }
+        y -= velocityY;
+        x -= velocityX;
+        if (y < -200 || y >= height + 200 || x <= -200 || x >= width + 200) {
+            resetPosition(width, height);
+        }
     }
 
     public void render(float mouseX, float mouseY, List<StarParticle> allParticles) {
-        // Set up blending and color for the star
+        float dx = mouseX - x;
+        float dy = mouseY - y;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        float parallaxFactor = 0.04f;
+        float newX = x + dx * parallaxFactor;
+        float newY = y + dy * parallaxFactor;
+
         GL11.glPushMatrix();
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        // Set star color
         GL11.glColor4f(1.0f, 1.0f, 1.0f, alpha);
-
-        // Draw the star
-        drawStar(x, y,size);
+        // i will violently touch myself if this does not work
+        drawStar(newX, newY, size);
 
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }
+
     private static double distance(float x1, float y1, float x2, float y2) {
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
@@ -69,7 +80,6 @@ public class StarParticle {
     }
 
     public static List<StarParticle> getNearestParticles(float mouseX, float mouseY, List<StarParticle> allParticles, int count) {
-        // Sort particles by distance from the mouse and select the nearest ones
         List<StarParticle> sortedParticles = new ArrayList<>(allParticles);
         sortedParticles.sort(Comparator.comparingDouble(p -> distance(mouseX, mouseY, p.x, p.y)));
         return sortedParticles.subList(0, Math.min(count, sortedParticles.size()));
@@ -80,17 +90,19 @@ public class StarParticle {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
-        // Set line color to white with 40% opacity
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.4f);
 
         GL11.glBegin(GL11.GL_LINES);
         for (StarParticle particle : nearestParticles) {
             float distance = (float) Math.sqrt(Math.pow(mouseX - particle.x, 2) + Math.pow(mouseY - particle.y, 2));
-            // Draw lines only if within max distance (e.g., 100 pixels)
             if (distance < 100) {
+                float parallaxFactor = 0.04f;
+                float dx = mouseX - particle.x;
+                float dy = mouseY - particle.y;
+                float newX = particle.x + dx * parallaxFactor;
+                float newY = particle.y + dy * parallaxFactor;
                 GL11.glVertex2f(mouseX, mouseY);
-                GL11.glVertex2f(particle.x, particle.y);
+                GL11.glVertex2f(newX, newY);
             }
         }
         GL11.glEnd();

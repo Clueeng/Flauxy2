@@ -7,6 +7,7 @@ import org.lwjgl.Sys;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.module.Category;
 import uwu.noctura.ui.noctura.components.CategoryFrame;
+import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.MathHelper;
 import uwu.noctura.utils.render.RenderUtil;
 import uwu.noctura.utils.render.shader.StencilUtil;
@@ -16,6 +17,10 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static uwu.noctura.ui.noctura.ColorHelper.categoryNameHeight;
+import static uwu.noctura.ui.star.StarParticle.drawLinesToNearestParticles;
+import static uwu.noctura.ui.star.StarParticle.getNearestParticles;
 
 public class ClickGUI extends GuiScreen {
     private final List<CategoryFrame> categories;
@@ -38,16 +43,19 @@ public class ClickGUI extends GuiScreen {
         super.onGuiClosed();
     }
 
+    private List<StarParticle> stars = new ArrayList<>();
     @Override
     public void initGui()
     {
         gaussianAnim = 0.1f;
         opacityAnim = 0;
         categories.forEach(CategoryFrame::initGui);
+        RenderUtil.generateStars(140, stars, width, height);
         super.initGui();
     }
     float gaussianAnim;
     float opacityAnim;
+    CategoryFrame topMost;
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
@@ -64,25 +72,57 @@ public class ClickGUI extends GuiScreen {
         GaussianBlur.renderBlur(gaussianAnim); // 9f
         Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
 
+
+        for (StarParticle star : stars) {
+            star.update(width, height);
+            star.render(mouseX, mouseY, stars);
+        }
+        List<StarParticle> nearestParticles = getNearestParticles(mouseX, mouseY, stars, 3);
+        drawLinesToNearestParticles(mouseX, mouseY, nearestParticles);
+
         GL11.glDisable(3089);
         GL11.glPopMatrix();
         StencilUtil.uninitStencilBuffer();
 
-        categories.forEach(frameCategory -> frameCategory.drawScreen(mouseX, mouseY));
+        //categories.forEach(frameCategory -> frameCategory.drawScreen(mouseX, mouseY));
+        for(CategoryFrame categoryFrame : categories){
+            categoryFrame.drawScreen(mouseX, mouseY);
+            if (RenderUtil.hover(categoryFrame.getX(), categoryFrame.getY(), mouseX, mouseY, categoryFrame.getWidth(), categoryFrame.hideCat ? categoryNameHeight : categoryFrame.getHeight())) {
+                topMost = categoryFrame;
+            }
+        }
+
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
-        categories.forEach(frameCategory -> frameCategory.mouseClicked(mouseX, mouseY, mouseButton));
+        //categories.forEach(frameCategory -> frameCategory.mouseClicked(mouseX, mouseY, mouseButton));
+        for(CategoryFrame frameCategory : categories){
+            if(frameCategory.equals(topMost)){
+                frameCategory.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+        }
+        for (int i = 0; i < categories.size(); i++) {
+            CategoryFrame categoryFrame = categories.get(i);
+            if (RenderUtil.hover(categoryFrame.getX(), categoryFrame.getY(), mouseX, mouseY, categoryFrame.getWidth(), categoryNameHeight) && categoryFrame.equals(topMost) && mouseButton == 0) {
+                categories.remove(i);
+                categories.add(categoryFrame);
+                categoryFrame.mouseClicked(mouseX, mouseY, mouseButton);
+                break;
+            }
+        }
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
-        categories.forEach(frameCategory -> frameCategory.mouseReleased(mouseX, mouseY, state));
+        //categories.forEach(frameCategory -> frameCategory.mouseReleased(mouseX, mouseY, state));
+        for(CategoryFrame frameCategory : categories){
+            frameCategory.mouseReleased(mouseX, mouseY, state);
+        }
         super.mouseReleased(mouseX, mouseY, state);
     }
 

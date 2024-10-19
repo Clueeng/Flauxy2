@@ -150,7 +150,7 @@ public class GraphComponent extends Component implements ColorHelper {
             // Draw grid lines for Y (Brightness) axis
             for (float i = minY; i <= maxY; i += incrementY) {
                 float relativePosition = (i - minY) / (maxY - minY);  // Relative position in the range [0, 1]
-                int gridY = y + 20 + Math.round(relativePosition * (getOffset() - 20)); // Use Math.round for pixel-perfect alignment
+                float gridY = y + 20 + Math.round(relativePosition * (getOffset() - 20)); // Use Math.round for pixel-perfect alignment
                 Gui.drawRect(x, gridY, x + defaultWidth, gridY + 1, new Color(200, 200, 200, 35).getRGB());
             }
 

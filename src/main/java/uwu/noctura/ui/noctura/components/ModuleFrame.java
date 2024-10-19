@@ -35,7 +35,7 @@ public class ModuleFrame implements ColorHelper {
 
     private final Animate moduleAnimation;
 
-    private int x, y;
+    private float x, y;
     private int offset;
 
     private boolean opened;
@@ -248,7 +248,7 @@ public class ModuleFrame implements ColorHelper {
         this.offset = offset;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 

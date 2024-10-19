@@ -34,7 +34,7 @@ public class ModeComponent extends Component implements ColorHelper {
         int amountOfModes = ((ModeSetting) getSetting()).modes.size();
         int totalCircleWidth = amountOfModes * (2 * circleRadius);
         int spacing = (defaultWidth - totalCircleWidth) / (amountOfModes + 1);
-        int startX = (x + (defaultWidth - totalCircleWidth - spacing * (amountOfModes - 1)) / 2) + 8;
+        float startX = (x + (float) (defaultWidth - totalCircleWidth - spacing * (amountOfModes - 1)) / 2) + 8;
         int index = 0;
 
         for (String choice : ((ModeSetting) getSetting()).modes) {

@@ -242,6 +242,8 @@ public class AutoClicker extends Module {
         }
         if(e.isPre()){
             mc.thePlayer.swingItem();
+        }else{
+            return;
         }
 
         switch (mc.objectMouseOver.typeOfHit) {

@@ -59,6 +59,7 @@ public class Speed extends Module {
     }
 
     public void onEvent(Event event){
+        if(mc.thePlayer == null) return;
         if(event instanceof EventUpdate){
             if(mc.thePlayer == null || mc.theWorld == null) this.toggle();
             this.setArrayListName("Speed " + EnumChatFormatting.WHITE + mode.getMode());

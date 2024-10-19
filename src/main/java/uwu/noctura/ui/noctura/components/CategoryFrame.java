@@ -1,7 +1,11 @@
 package uwu.noctura.ui.noctura.components;
 
 
+import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -25,15 +29,20 @@ import static uwu.noctura.utils.font.FontManager.getFont;
 
 public class CategoryFrame implements ColorHelper {
 
-    private int x, y, xDrag, yDrag;
+    @Getter
+    @Setter
+    private float x, y, xDrag, yDrag;
+    @Getter
     private int width, height;
+    private float velocityX, velocityY;
 
     private float offset;
 
+    @Setter
     private boolean drag;
 
     private final Category category;
-    private boolean hideCat;
+    public boolean hideCat;
 
     private final ArrayList<ModuleFrame> modules;
     private final Animate animation;
@@ -71,6 +80,10 @@ public class CategoryFrame implements ColorHelper {
 
     public void drawScreen(int mouseX, int mouseY)
     {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(getX() + width / 2f, getY() + 7.5f, 0); // Translate to the center of the category tab
+        GL11.glRotatef(rotationAngle, 0, 0, 1); // Rotate around the Z-axis
+        GL11.glTranslatef(-(getX() + width / 2f), -(getY() + 7.5f), 0); // Translate back
         if (drag) {
             int deltaX = mouseX - prevMouseX;
             int deltaY = mouseY - prevMouseY;
@@ -82,17 +95,11 @@ public class CategoryFrame implements ColorHelper {
             // Smoothly interpolate towards 0 when not dragging
             rotationAngle = (float) MathHelper.lerp(0.1, rotationAngle, 0);
         }
-        prevMouseX = mouseX;
-        prevMouseY = mouseY;
 
         // category top draw
         int colT = new Color(169, 88, 211).getRGB();
 
 
-        GL11.glPushMatrix();
-        GL11.glTranslatef(getX() + width / 2f, getY() + 7.5f, 0); // Translate to the center of the category tab
-        GL11.glRotatef(rotationAngle, 0, 0, 1); // Rotate around the Z-axis
-        GL11.glTranslatef(-(getX() + width / 2f), -(getY() + 7.5f), 0); // Translate back
 
         RenderUtil.drawRoundedRect2(getX(), getY() - 1, getX() + width, getY() + 15 + 1, 14, colT);
 
@@ -147,8 +154,34 @@ public class CategoryFrame implements ColorHelper {
 
         // Drag ClickGUI
         if(drag) {
-            setX(this.xDrag + mouseX);
-            setY(this.yDrag + mouseY);
+            velocityX = (mouseX - this.prevMouseX) * 1.0f;
+            velocityY = (mouseY - this.prevMouseY) * 1.0f;
+
+            ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
+            float w = (float)(sr.getScaledWidth());
+            float h = (float)(sr.getScaledHeight());
+
+            setX(net.minecraft.util.MathHelper.clamp_float(this.xDrag + mouseX, 0, w - width));
+            setY(net.minecraft.util.MathHelper.clamp_float(this.yDrag + mouseY, 0, h - categoryNameHeight));
+
+
+            System.out.println(mouseX + " " + prevMouseX);
+        }else{
+            ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
+            float w = (float)(sr.getScaledWidth());
+            float h = (float)(sr.getScaledHeight());
+
+            setX(net.minecraft.util.MathHelper.clamp_float((getX() + velocityX), 0, w - width));
+            setY(net.minecraft.util.MathHelper.clamp_float((getY() + velocityY), 0, h - categoryNameHeight));
+            velocityX = (float) MathHelper.lerp(0.1, velocityX, 0);
+            velocityY = (float) MathHelper.lerp(0.1, velocityY, 0);
+            if(Math.abs(velocityX) < 0.00045f){
+                velocityX = 0;
+            }
+            if(Math.abs(velocityY) < 0.00045f){
+                velocityY = 0;
+            }
+
         }
         GlStateManager.color(1f,1f,1f,1f);
 
@@ -167,6 +200,8 @@ public class CategoryFrame implements ColorHelper {
 
         // End rotation
         GL11.glPopMatrix();
+        prevMouseX = mouseX;
+        prevMouseY = mouseY;
     }
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton)
@@ -247,47 +282,14 @@ public class CategoryFrame implements ColorHelper {
         }
     }
 
-    public int getX()
-    {
-        return x;
-    }
-
-    public void setX(int x)
-    {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getY()
-    {
-        return y;
-    }
-
-    public void setXDrag(int xDrag)
+    public void setXDrag(float xDrag)
     {
         this.xDrag = xDrag;
     }
 
-    public void setYDrag(int yDrag)
+    public void setYDrag(float yDrag)
     {
         this.yDrag = yDrag;
     }
 
-    public void setDrag(boolean drag)
-    {
-        this.drag = drag;
-    }
-
-    public int getWidth()
-    {
-        return width;
-    }
-
-    public int getHeight()
-    {
-        return height;
-    }
 }
