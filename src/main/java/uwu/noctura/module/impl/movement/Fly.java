@@ -557,7 +557,7 @@ public class Fly extends Module {
         mc.thePlayer.capabilities.allowFlying = false;
         mc.thePlayer.capabilities.isFlying = false;
         mc.thePlayer.speedInAir = 0.02f;
-        mc.thePlayer.stepHeight = 0.5f;
+        mc.thePlayer.stepHeight = 0.6f;
         /*mc.thePlayer.motionX = 0;
         mc.thePlayer.motionY = 0;
         mc.thePlayer.motionZ = 0;*/

@@ -19,10 +19,13 @@ import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleManager;
 import uwu.noctura.module.impl.display.ArrayList;
 import uwu.noctura.module.impl.display.HUD;
+import uwu.noctura.module.impl.other.Killsults;
 import uwu.noctura.module.impl.player.Noslow;
 import uwu.noctura.module.impl.player.Sprint;
 import uwu.noctura.module.impl.visuals.Animations;
+import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationManager;
+import uwu.noctura.notification.NotificationType;
 import uwu.noctura.utils.MinecraftInstance;
 import uwu.noctura.utils.config.ConfigManager;
 import uwu.noctura.utils.config.ConfigUtil;
@@ -37,6 +40,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Getter
@@ -178,6 +182,14 @@ public enum Noctura implements MinecraftInstance {
     }
     public void setGhost(boolean g){
         Noctura.INSTANCE.getCommandManager().getCommand(CommandGhost.class).setGhostmode(g);
+    }
+
+    public void cycleSave(){
+        getConfigManager().save(getConfigManager().getCurrentloadedConfig);
+        getConfigManager().save("Default");
+        getModuleManager().saveHudPosition();
+        KeyLoader.save(Arrays.asList(getModuleManager().getModules()));
+        getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Auto-Save", "Saved Settings"));
     }
 
     private boolean upToDate() {

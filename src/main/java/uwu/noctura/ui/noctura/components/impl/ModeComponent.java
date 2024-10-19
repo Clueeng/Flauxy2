@@ -39,7 +39,7 @@ public class ModeComponent extends Component implements ColorHelper {
 
         for (String choice : ((ModeSetting) getSetting()).modes) {
             int circleX = (int) (startX + index * (2f * circleRadius + spacing));
-            RenderUtil.drawFilledCircle(circleX, circleY, 2, ((ModeSetting) getSetting()).is(choice) ? Color.white : new Color(80, 80, 80, 90));
+            RenderUtil.drawFilledCircle(circleX, circleY, 2, ((ModeSetting) getSetting()).is(choice) ? Color.white : new Color(80, 80, 80, 250));
             GlStateManager.resetColor();
             index++;
         }

@@ -20,7 +20,7 @@ public class ConfigManager implements MinecraftInstance {
     public void init(){
         configs.clear();
         try{
-            Files.list(configDirectory).map(Path::toFile).forEach(config -> configs.put(new Config(config.getName().replace(".json", "")), config));
+            //Files.list(configDirectory).map(Path::toFile).forEach(config -> configs.put(new Config(config.getName().replace(".json", "")), config));
         }catch (Exception ex){
             ex.printStackTrace();
         }

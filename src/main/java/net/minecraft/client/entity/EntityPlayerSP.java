@@ -234,7 +234,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             boolean serverExists = this.mc.getCurrentServerData() != null;
             String ip = "Singleplayer";
-            if(mc.thePlayer.ticksExisted < 20){
+            if(mc.thePlayer.ticksExisted > 20){
                 int modulesTotal = Noctura.INSTANCE.getModuleManager().getModules().length;
                 int enabledModules = Noctura.INSTANCE.getModuleManager().getEnabledModules().length;
                 String s2 = enabledModules + "/" + modulesTotal + "  modules enabled";
@@ -286,6 +286,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
         if(!g){
             em.setType(EventType.PRE);
             Noctura.onEvent(em);
+        }
+
+        if(mc.thePlayer.ticksExisted % 1800 == 0){
+            Noctura.INSTANCE.cycleSave();
         }
         double ghX = g ? this.posX : em.getX();
         double ghY = g ? this.posY : em.getY();

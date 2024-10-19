@@ -166,102 +166,100 @@ public class Killaura extends Module {
         if(ev instanceof EventRender2D){
             EventRender2D event = (EventRender2D) ev;
             if(currentTarget != null){
-                if(autoblock.getValue()){
-                    ScaledResolution sr = new ScaledResolution(mc);
-                    switch (targetHudMode.getMode()){
-                        case "Noctura":{
-                            renderNocturaHud(ev, sr.getScaledWidth() / 2f + 35, sr.getScaledHeight() / 2f - 22);
-                            break;
-                        }
-                        case "Flaily":{
-                            renderTargetHudBasic(ev, sr.getScaledWidth() / 2 + 35, sr.getScaledHeight() / 2 - 45);
-                            break;
-                        }
-                        case "Rainbow": {
-                            TTFFontRenderer tFont = Noctura.INSTANCE.fontManager.getFont("auxy " + (21));
-                            int FirstLetterColor =  getGradientOffset(new Color(255, 60, 234), new Color(27, 179, 255), (Math.abs(((System.currentTimeMillis()) / 10)) / 100D) + (3 / (tFont.getHeight("A") + 6 ) / 2)).getRGB();
-                            EntityLivingBase ent = (EntityLivingBase) currentTarget;
-                            if (ent != null && ent.getHealth() != 0) {
-                                float scaledWidth = (float) sr.getScaledWidth();
-                                float scaledHeight = (float) sr.getScaledHeight();
-                                if (/*ent instanceof EntityPlayer && */ent != null) {
-                                    double hpPercentage = (ent.getHealth() / ent.getMaxHealth());
-                                    //EntityPlayer player = (EntityPlayer) ent;
-                                    EntityLivingBase player = (EntityLivingBase) ent;
-                                    if (hpPercentage > 1.0D) {
-                                        hpPercentage = 1.0D;
-                                    } else if (hpPercentage < 0.0D) {
-                                        hpPercentage = 0.0D;
-                                    }
-                                    RenderUtil.drawUnfilledRectangle( (scaledWidth / 2.0F - 200.0F) - 0.5, (scaledHeight / 2.0F - 42.0F) - 0.8, (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10 + 0.5) : 105 + 0.5)), (scaledHeight / 2.0F - 2.0F) + 0.5, 2,  new Color(FirstLetterColor).getRGB());
-                                    RenderUtil.drawRect2((scaledWidth / 2.0F - 200.0F), (scaledHeight / 2.0F - 42.0F), (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10) : 105)), (scaledHeight / 2.0F - 2.0F),(new Color(0, 0, 0, 150)).getRGB());
-                                    if(ent instanceof EntityPlayer){
-                                        drawFace((int) scaledWidth / 2 - 196, (int) (scaledHeight / 2.0F - 38.0F), 8.0F, 8.0F, 8, 8, 32, 32, 64.0F, 64.0F, (AbstractClientPlayer) player);
-                                    }
-                                    tFont.drawStringWithShadow(player.getName(), (scaledWidth / 2.0F - 196.0F + 40.0F), (float) ((scaledHeight / 2.0F - 36.0F) + 1 - 0.5), -1);
-                                    RenderUtil.drawRoundedRectangle((scaledWidth / 2.0F - 196.0F + 40.0F), (scaledHeight / 2.0F - 26.0F + 3), (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (scaledHeight / 2.0F - 14.0F), 2, getHealthColor(ent)); // hel bar
-                                    //      FontManager.small.drawString(healthStr + "%", (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (float) ((scaledHeight / 2.0F - 36.0F) + 12.5), getHealthColor(ent));
-
+                ScaledResolution sr = new ScaledResolution(mc);
+                switch (targetHudMode.getMode()){
+                    case "Noctura":{
+                        renderNocturaHud(ev, sr.getScaledWidth() / 2f + 35, sr.getScaledHeight() / 2f - 22);
+                        break;
+                    }
+                    case "Flaily":{
+                        renderTargetHudBasic(ev, sr.getScaledWidth() / 2 + 35, sr.getScaledHeight() / 2 - 45);
+                        break;
+                    }
+                    case "Rainbow": {
+                        TTFFontRenderer tFont = Noctura.INSTANCE.fontManager.getFont("auxy " + (21));
+                        int FirstLetterColor =  getGradientOffset(new Color(255, 60, 234), new Color(27, 179, 255), (Math.abs(((System.currentTimeMillis()) / 10)) / 100D) + (3 / (tFont.getHeight("A") + 6 ) / 2)).getRGB();
+                        EntityLivingBase ent = (EntityLivingBase) currentTarget;
+                        if (ent != null && ent.getHealth() != 0) {
+                            float scaledWidth = (float) sr.getScaledWidth();
+                            float scaledHeight = (float) sr.getScaledHeight();
+                            if (/*ent instanceof EntityPlayer && */ent != null) {
+                                double hpPercentage = (ent.getHealth() / ent.getMaxHealth());
+                                //EntityPlayer player = (EntityPlayer) ent;
+                                EntityLivingBase player = (EntityLivingBase) ent;
+                                if (hpPercentage > 1.0D) {
+                                    hpPercentage = 1.0D;
+                                } else if (hpPercentage < 0.0D) {
+                                    hpPercentage = 0.0D;
                                 }
+                                RenderUtil.drawUnfilledRectangle( (scaledWidth / 2.0F - 200.0F) - 0.5, (scaledHeight / 2.0F - 42.0F) - 0.8, (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10 + 0.5) : 105 + 0.5)), (scaledHeight / 2.0F - 2.0F) + 0.5, 2,  new Color(FirstLetterColor).getRGB());
+                                RenderUtil.drawRect2((scaledWidth / 2.0F - 200.0F), (scaledHeight / 2.0F - 42.0F), (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10) : 105)), (scaledHeight / 2.0F - 2.0F),(new Color(0, 0, 0, 150)).getRGB());
+                                if(ent instanceof EntityPlayer){
+                                    drawFace((int) scaledWidth / 2 - 196, (int) (scaledHeight / 2.0F - 38.0F), 8.0F, 8.0F, 8, 8, 32, 32, 64.0F, 64.0F, (AbstractClientPlayer) player);
+                                }
+                                tFont.drawStringWithShadow(player.getName(), (scaledWidth / 2.0F - 196.0F + 40.0F), (float) ((scaledHeight / 2.0F - 36.0F) + 1 - 0.5), -1);
+                                RenderUtil.drawRoundedRectangle((scaledWidth / 2.0F - 196.0F + 40.0F), (scaledHeight / 2.0F - 26.0F + 3), (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (scaledHeight / 2.0F - 14.0F), 2, getHealthColor(ent)); // hel bar
+                                //      FontManager.small.drawString(healthStr + "%", (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (float) ((scaledHeight / 2.0F - 36.0F) + 12.5), getHealthColor(ent));
 
                             }
-                            break;
+
                         }
+                        break;
+                    }
 
-                        case "Astolfo": {
-                            EntityLivingBase target = (EntityLivingBase) this.currentTarget;
-                            if (target != null && target.getHealth() != 0) {
+                    case "Astolfo": {
+                        EntityLivingBase target = (EntityLivingBase) this.currentTarget;
+                        if (target != null && target.getHealth() != 0) {
 
 
-                                float scaledWidth = (float) sr.getScaledWidth();
-                                float scaledHeight = (float) sr.getScaledHeight();
-                                float x = scaledWidth / 2.0F - 170.0F;
-                                float y = scaledHeight / 2.0F - 25;
-                                int color, xHealthbar, yHealthbar;
-                                Color healthColor = Color.GREEN;
-                                float health = target.getHealth();
-                                float maxHealth = target.getMaxHealth();
+                            float scaledWidth = (float) sr.getScaledWidth();
+                            float scaledHeight = (float) sr.getScaledHeight();
+                            float x = scaledWidth / 2.0F - 170.0F;
+                            float y = scaledHeight / 2.0F - 25;
+                            int color, xHealthbar, yHealthbar;
+                            Color healthColor = Color.GREEN;
+                            float health = target.getHealth();
+                            float maxHealth = target.getMaxHealth();
 
-                                if (health < maxHealth / 1f) healthColor = new Color(93, 234, 42);
-                                if (health < maxHealth / 1.25f) healthColor = new Color(104, 219, 32);
-                                if (health < maxHealth / 1.5f) healthColor = new Color(219, 185, 32);
-                                if (health < maxHealth / 2) healthColor = new Color(219, 157, 32);
-                                if (health < maxHealth / 3) healthColor = new Color(219, 116, 32);
-                                if (health < maxHealth / 4) healthColor = new Color(219, 48, 32);
-                                healthColor = new Color(healthColor.getRed(), healthColor.getGreen(), healthColor.getBlue(), (int)(1 * 255));
-                                float add;
-                                double addX;
-                                int index;
-                                color = (new Color(16734296)).getRGB();
-                                drawRect(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
-                                this.mc.fontRendererObj.drawStringWithShadow(target.getName(), (x + 31.0F), (y + 6.0F), -1);
-                                GL11.glPushMatrix();
-                                GlStateManager.translate(x, y, 1.0F);
-                                GL11.glScalef(2.0F, 2.0F, 2.0F);
-                                GlStateManager.translate(-x, -y, 1.0F);
-                                this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
-                                GL11.glPopMatrix();
-                                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                                GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
-                                xHealthbar = 30;
-                                yHealthbar = 46;
-                                add = 120.0F;
-                                if(tempX < target.getHealth() / target.getMaxHealth() * add){
-                                    tempX+=0.48f;
-                                }else{
-                                    tempX-=0.16f;
-                                }
-                                drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
-                                drawRect(x + xHealthbar, y + yHealthbar, tempX, 8.0F, healthColor);
-                                addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
-                                for (index = 1; index < 5; index++) {
-                                    if (target.getEquipmentInSlot(index) == null) ;
-                                }
+                            if (health < maxHealth / 1f) healthColor = new Color(93, 234, 42);
+                            if (health < maxHealth / 1.25f) healthColor = new Color(104, 219, 32);
+                            if (health < maxHealth / 1.5f) healthColor = new Color(219, 185, 32);
+                            if (health < maxHealth / 2) healthColor = new Color(219, 157, 32);
+                            if (health < maxHealth / 3) healthColor = new Color(219, 116, 32);
+                            if (health < maxHealth / 4) healthColor = new Color(219, 48, 32);
+                            healthColor = new Color(healthColor.getRed(), healthColor.getGreen(), healthColor.getBlue(), (int)(1 * 255));
+                            float add;
+                            double addX;
+                            int index;
+                            color = (new Color(16734296)).getRGB();
+                            drawRect(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
+                            this.mc.fontRendererObj.drawStringWithShadow(target.getName(), (x + 31.0F), (y + 6.0F), -1);
+                            GL11.glPushMatrix();
+                            GlStateManager.translate(x, y, 1.0F);
+                            GL11.glScalef(2.0F, 2.0F, 2.0F);
+                            GlStateManager.translate(-x, -y, 1.0F);
+                            this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
+                            GL11.glPopMatrix();
+                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                            GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
+                            xHealthbar = 30;
+                            yHealthbar = 46;
+                            add = 120.0F;
+                            if(tempX < target.getHealth() / target.getMaxHealth() * add){
+                                tempX+=0.48f;
+                            }else{
+                                tempX-=0.16f;
+                            }
+                            drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
+                            drawRect(x + xHealthbar, y + yHealthbar, tempX, 8.0F, healthColor);
+                            addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
+                            for (index = 1; index < 5; index++) {
+                                if (target.getEquipmentInSlot(index) == null) ;
                             }
                         }
                     }
-                    GlStateManager.color(1f, 1f, 1f);
                 }
+                GlStateManager.color(1f, 1f, 1f);
             }
         }
 

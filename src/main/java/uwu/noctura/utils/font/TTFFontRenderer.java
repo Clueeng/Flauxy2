@@ -258,6 +258,46 @@ public class TTFFontRenderer {
         renderString(text, (float)x, (float)y, color, false);
     }
 
+    public String trimStringToWidth(String text, int width, boolean reverse) {
+        TTFFontRenderer fontRenderer = new TTFFontRenderer(null, null, new Font("Arial", Font.PLAIN, 12)); // Replace with actual font initialization
+
+        float totalWidth = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            float charWidth = fontRenderer.getWidth(String.valueOf(c));
+            totalWidth += charWidth;
+
+            if (totalWidth > width) {
+                break;
+            }
+        }
+
+        if (totalWidth <= width) {
+            return text;
+        }
+
+        StringBuilder result = new StringBuilder();
+        int lastAddedIndex = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            float charWidth = fontRenderer.getWidth(String.valueOf(c));
+            totalWidth -= charWidth;
+
+            if (totalWidth <= width) {
+                result.append(c);
+                lastAddedIndex = i;
+            }
+        }
+
+        if (!reverse) {
+            return text.substring(lastAddedIndex + 1) + result.reverse().toString();
+        } else {
+            return result.reverse().toString() + text.substring(0, lastAddedIndex);
+        }
+    }
+
     /**
      * Renders the given string.
      *

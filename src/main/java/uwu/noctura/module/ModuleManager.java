@@ -61,7 +61,7 @@ public class ModuleManager {
 
     private File dir;
     public void saveHudPosition(){
-        this.dir = new File(String.valueOf(Folder.dir)); // Assuming Folder.dir is a valid directory path
+        this.dir = new File(String.valueOf(Folder.dir));
         if (!this.dir.exists()) {
             this.dir.mkdir();
         }

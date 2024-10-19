@@ -1095,8 +1095,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     long packetMs = Long.parseLong(PacketTweaker.cachedMs);
                     Packet cachedPacket = PacketTweaker.cachedPacket;
                     if(packetTimer.hasTimeElapsed(packetMs, true)){
-                        if(cachedPacket == null){
-                        }else {
+                        Wrapper.instance.log("Sent");
+                        if(cachedPacket != null){
                             PacketUtil.sendSilentPacket(cachedPacket);
                         }
                     }

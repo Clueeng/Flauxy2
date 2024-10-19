@@ -53,6 +53,7 @@ extends Thread {
         Session auth = this.createSession(this.username, this.password);
         if (auth == null) {
             this.status = (Object)((Object)EnumChatFormatting.RED) + "Login failed!";
+            Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Invalid SSL Verification", "The client cannot perform any request to the Internet, this may be due to your Java version, or OS"));
         } else {
             AltManager altManager = Noctura.INSTANCE.altManager;
             AltManager.lastAlt = new Alt(this.username, this.password);
