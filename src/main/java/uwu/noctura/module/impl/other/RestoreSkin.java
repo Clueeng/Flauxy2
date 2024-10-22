@@ -28,9 +28,6 @@ public class RestoreSkin extends Module {
     @Override
     public void onEvent(Event e) {
         if(e instanceof EventUpdate){
-            if(!oldUsername.equals(mc.session.getUsername()) || !oldUsername.equals(mc.thePlayer.getName())){
-
-            }
         }
     }
 

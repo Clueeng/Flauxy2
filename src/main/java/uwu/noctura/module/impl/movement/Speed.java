@@ -503,6 +503,25 @@ public class Speed extends Module {
     private float airTick, groundTick, karhuSpeed = 1.6f;
     private boolean funny;
     public void karhuSpeed(Event e){
+        if(e instanceof EventMotion){
+            EventMotion em = (EventMotion) e;
+            if(mc.thePlayer.onGround && em.isPre()){
+                //mc.thePlayer.jump();
+                MoveUtils.jumpVanilla(false, em);
+                //mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.5, mc.thePlayer.posZ);
+                MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.3f);
+                if(MoveUtils.standsOnIce()){
+                    MoveUtils.strafe(MoveUtils.getBaseSpeed() * 2.7f);
+                }
+                mc.timer.timerSpeed = 0.74f;
+                funny = false;
+            }
+            if(mc.thePlayer.motionY <= 0.3 && !funny){
+                mc.timer.timerSpeed = 1.06f;
+                mc.thePlayer.motionY = -0.03;
+                funny = true;
+            }
+        }
     }
 
     @Override

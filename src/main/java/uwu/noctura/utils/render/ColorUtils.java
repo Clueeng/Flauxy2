@@ -4,6 +4,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MathHelper;
 
 import java.awt.*;
+import java.util.Random;
 
 public class ColorUtils {
 
@@ -183,5 +184,21 @@ public class ColorUtils {
         color |= MathHelper.clamp_int(green, 0, 255) << 8;
         color |= MathHelper.clamp_int(blue, 0, 255);
         return color;
+    }
+    public static Color randomRainbowColor() {
+        Random random = new Random();
+        float hue = random.nextFloat();
+        float saturation = 1.0f;
+        float brightness = 1.0f;
+
+        Color color = Color.getHSBColor(hue, saturation, brightness);
+
+        return color;
+    }
+    public static Color randomGray() {
+        Random random = new Random();
+        float value = random.nextFloat();
+
+        return new Color((int)(value*255f), (int)(value*255f), (int)(value*255f));
     }
 }

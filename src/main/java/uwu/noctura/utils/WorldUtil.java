@@ -15,12 +15,14 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import java.util.function.BiPredicate;
 
 import com.google.common.base.Predicate;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.Vector3d;
 import uwu.noctura.Noctura;
@@ -39,6 +41,16 @@ public class WorldUtil {
             }
         }
         return entities;
+    }
+
+    public static EnumChatFormatting quadColHealth(EntityLivingBase e){
+        return e.getHealth() < 5 ? EnumChatFormatting.RED : e.getHealth() < 10 ? EnumChatFormatting.GOLD : e.getHealth() < 15 ? EnumChatFormatting.YELLOW : EnumChatFormatting.GREEN;
+    }
+
+    public static float wrappedHealth(EntityLivingBase entity){
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);
+        return Float.parseFloat(df.format(entity.getHealth()));
     }
 
 

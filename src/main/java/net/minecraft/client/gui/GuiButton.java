@@ -105,17 +105,24 @@ public class GuiButton extends Gui
             deltaTime = (now - lastTime) / 1_000_000_000.0f; // Convertit en secondes
             lastTime = now;
             float adjustment = deltaTime * 60;
-            if(hovered && this.enabled){
-                this.smoothnessX = Math.max(0.982f, this.smoothnessX * 0.95f);
-                this.offsetX += (1 / this.smoothnessX) * adjustment;
-
-            }else{
-                this.smoothnessX = Math.min(1f, this.smoothnessX * 1.05f);
-                this.offsetX -= (1 * this.smoothnessX) * adjustment;
+            if(enabled){
+                if(hovered){
+                    //this.smoothnessX = Math.max(0.982f, this.smoothnessX * 0.95f);
+                    //this.offsetX += (1 / this.smoothnessX) * adjustment;
+                    this.offsetX = (float) uwu.noctura.utils.MathHelper.lerp(0.1, offsetX, .75);
+                    this.smoothnessX = (float) uwu.noctura.utils.MathHelper.lerp(0.01, smoothnessX, 255);
+                }else{
+                    //this.smoothnessX = Math.min(1f, this.smoothnessX * 1.05f);
+                    //this.offsetX -= (1 * this.smoothnessX) * adjustment;
+                    this.offsetX = (float) uwu.noctura.utils.MathHelper.lerp(0.1, offsetX, 0);
+                    this.smoothnessX = (float) uwu.noctura.utils.MathHelper.lerp(0.1, smoothnessX, 0);
+                }
             }
             this.offsetX = MathHelper.clamp_float(this.offsetX, 0, 4);
             RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 4, 2, new Color(0, 0, 0, 250).getRGB());
             RoundedUtils.drawRoundedOutline(this.xPosition + (this.offsetX * 4), this.yPosition, this.xPosition + this.width - (this.offsetX * 4), this.yPosition + 19, 4, 2, this.enabled ? -1 : new Color(91, 72, 72).getRGB());
+            FontManager.getFont().drawStringWithShadow(">", this.xPosition + (this.offsetX * 4) + 4, (this.yPosition + (this.height - 8) / 2f) - 2, new Color(255, 255, 255, (int)smoothnessX).getRGB());
+            FontManager.getFont().drawStringWithShadow("<", this.xPosition + this.width - (this.offsetX * 4) - 12, (this.yPosition + (this.height - 8) / 2f) - 2, new Color(255, 255, 255, (int)smoothnessX).getRGB());
 
             this.mouseDragged(mc, mouseX, mouseY);
             int j = 14737632;

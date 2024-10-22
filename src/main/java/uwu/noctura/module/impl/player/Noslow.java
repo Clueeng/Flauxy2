@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ModuleInfo(name = "Noslow", displayName = "No Slow", key = -1, cat = Category.Player)
 public class Noslow extends Module {
 
-    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky", "Hypixel");
+    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky", "Item Switch");
     NumberSetting redudeX = new NumberSetting("Reduce X", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
     NumberSetting redudeZ = new NumberSetting("Reduce Z", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
 
@@ -51,6 +51,23 @@ public class Noslow extends Module {
         switch(mode.getMode()){
             case "Hypixel":{
                 hypixel(e);
+                break;
+            }
+            case "Item Switch":{
+                if(e instanceof EventMotion){
+                    EventMotion event = (EventMotion) e;
+                    if(mc.thePlayer == null) return;
+                    if(mc.thePlayer.getHeldItem() == null) return;
+                    if(!shouldBeNoslowing()) return;
+                    if(!(mc.thePlayer.getHeldItem().getItem() instanceof ItemSword)){
+                        return;
+
+                    }
+                    if ((mc.thePlayer.getHeldItem().getItem() instanceof ItemSword) && event.isPre()) {
+                        mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9));
+                        mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                    }
+                }
                 break;
             }
             case "RedeSky":{

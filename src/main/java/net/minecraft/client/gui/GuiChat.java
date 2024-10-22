@@ -18,6 +18,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.Module;
+import uwu.noctura.module.impl.combat.Killaura;
 import uwu.noctura.module.impl.display.KeyStrokes;
 import uwu.noctura.utils.render.RenderUtil;
 
@@ -67,7 +68,7 @@ public class GuiChat extends GuiScreen
         Keyboard.enableRepeatEvents(true);
         this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
         this.inputField = new GuiTextField(0, this.fontRendererObj, 4, this.height - 12, this.width - 4, 12);
-        this.inputField.setMaxStringLength(100);
+        this.inputField.setMaxStringLength(Noctura.INSTANCE.getMAX_CHAT_LENGTH());
         this.inputField.setEnableBackgroundDrawing(false);
         this.inputField.setFocused(true);
         this.inputField.setText(this.defaultInputFieldText);
@@ -318,7 +319,8 @@ public class GuiChat extends GuiScreen
             heldTick = 0;
         }
         for (Module hudMod : Noctura.INSTANCE.getModuleManager().getHudModules()) {
-            if (hudMod.isToggled()) {
+            boolean isTargethud = hudMod.getName().equals(Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).getName());
+            if (hudMod.isToggled() || isTargethud) {
                 ScaledResolution sr = new ScaledResolution(mc);
                 boolean isKeyStrokes = hudMod instanceof KeyStrokes;
                 double xpos = hudMod.getMoveX();
@@ -361,6 +363,23 @@ public class GuiChat extends GuiScreen
                     }
 
                 } else {
+                    if(isTargethud){
+                        Killaura module = Noctura.INSTANCE.getModuleManager().getModule(Killaura.class);
+                        String mode = module.targetHudMode.getMode();
+                        boolean render = module.targethud.isEnabled();
+                        if(render){
+                            switch (mode){
+                                case "Noctura":{
+                                    module.renderNocturaHud(module.getMoveX(), module.getMoveY(), mc.thePlayer);
+                                    break;
+                                }
+                                case "Star":{
+                                    module.renderStarTargetHud(module.getMoveX(), module.getMoveY(), mc.thePlayer);
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     if ((withinX && withinY && movingModule == null) || movingModule == hudMod) {
                         RenderUtil.drawUnfilledRectangle(xpos, ypos, xpos + width, ypos + height, 4, -1, 2);
                         RenderUtil.drawCircle(xpos, ypos, 4, new Color(255, 0, 0).getRGB());
@@ -386,7 +405,8 @@ public class GuiChat extends GuiScreen
                         }
                     }
 
-                    if (closeX && closeY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod)  && heldTick < 2) {
+                    if (closeX && closeY && Mouse.isButtonDown(0) && (movingModule == null || movingModule == hudMod)  && heldTick < 2
+                    && !isTargethud) {
                         hudMod.toggle();
                     }
                 }

@@ -36,6 +36,7 @@ import org.lwjgl.util.glu.Project;
 import uwu.noctura.Changelog;
 import uwu.noctura.Noctura;
 import uwu.noctura.alts.GuiAltManager;
+import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.DiscordPresenceUtil;
 import uwu.noctura.utils.font.FontManager;
 import uwu.noctura.utils.font.TTFFontRenderer;
@@ -197,6 +198,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
     {
     }
 
+    ArrayList<StarParticle> stars = new ArrayList<>();
+
     /**
      * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
      * window resizes, the buttonList is cleared beforehand.
@@ -216,6 +219,8 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
     public void initGui()
     {
+        RenderUtil.generateStars(200, stars, width + 400, height + 400);
+        Noctura.INSTANCE.isUpToDate = Noctura.INSTANCE.upToDate();
         DiscordPresenceUtil.setPresence("Main menu", "", false);
         tickToGenerate = 0;
         generateImage();
@@ -604,8 +609,16 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         RenderUtil.drawImage(0, 0, width, height, RL_Background);
         Gui.drawRect(0,0,width,height,new Color(0, 0, 0, 130).getRGB());
 
+        GaussianBlur.renderBlur(7f);
+        Gui.drawRect(0,0,0,0,new Color(0, 0, 0, 130).getRGB());
 
-        GaussianBlur.renderBlur(12f);
+        for(StarParticle s : stars){
+            s.update(width, height, mouseX, mouseY);
+            s.render(mouseX, mouseY, stars);
+        }
+        StarParticle.drawLinesToNearestParticles(mouseX, mouseY, StarParticle.getNearestParticles(mouseX, mouseY, stars, 3));
+
+        GaussianBlur.renderBlur(5f);
 
         GL11.glDisable(3089);
         GL11.glPopMatrix();
@@ -640,6 +653,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
 
         this.drawGradientRect(0, 0, width, height, 0, new Color(0, 0, 0, (int)opacity).getRGB());
         this.drawGradientRect(0, 0, width, height, new Color(1, 1, 1, 69).getRGB(), new Color(1, 1, 1, 69).getRGB());
+
         TTFFontRenderer font2 = FontManager.getFont("Good", 18);
 
         String title = Noctura.INSTANCE.getName() + " Client";

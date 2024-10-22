@@ -58,10 +58,13 @@ import uwu.noctura.event.impl.packet.EventMove;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.impl.player.Noslow;
+import uwu.noctura.notification.Notification;
+import uwu.noctura.notification.NotificationType;
 import uwu.noctura.ui.dropdown.ClickGUI;
 import uwu.noctura.ui.packet.PacketTweaker;
 import uwu.noctura.utils.DiscordPresenceUtil;
 import uwu.noctura.utils.PacketUtil;
+import uwu.noctura.utils.ViaUtil;
 import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.timer.Timer;
 
@@ -191,6 +194,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         EventUpdate e = new EventUpdate();
         e.setType(EventType.PRE);
         Noctura.onEvent(e);
+
         this.prevServerYaw = this.serverYaw;
         this.prevServerPitch = this.serverPitch;
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
@@ -290,6 +294,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if(mc.thePlayer.ticksExisted % 1800 == 0){
             Noctura.INSTANCE.cycleSave();
+        }
+        if(mc.thePlayer.ticksExisted % 6000 == 0){
+            Noctura.INSTANCE.isUpToDate = Noctura.INSTANCE.upToDate();
+            if(!Noctura.INSTANCE.isUpToDate){
+                Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "You are using an outdated version of the client", "Please download the update from the installer", 9000));
+            }
         }
         double ghX = g ? this.posX : em.getX();
         double ghY = g ? this.posY : em.getY();
@@ -913,6 +923,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
         float f = 0.8F;
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
+
+        if(!ViaUtil.versionLowerThan("1.13")){
+            Noctura.INSTANCE.MAX_CHAT_LENGTH = 256;
+        }else{
+            Noctura.INSTANCE.MAX_CHAT_LENGTH = 100;
+        }
 
         if (this.isUsingItem() && !this.isRiding() && !Noctura.INSTANCE.getModuleManager().getModule(Noslow.class).isToggled())
         {

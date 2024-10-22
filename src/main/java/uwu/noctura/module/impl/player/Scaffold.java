@@ -160,6 +160,10 @@ public class Scaffold extends Module {
             mc.thePlayer.setSprinting(false);
         }
 
+        if(e instanceof EventRender2D){
+
+        }
+
 
         switch(mode.getMode()) {
             case "NCP":

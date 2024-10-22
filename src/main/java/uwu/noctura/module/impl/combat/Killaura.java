@@ -12,6 +12,7 @@ import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPacke
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
@@ -42,19 +43,19 @@ import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationType;
+import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.WorldUtil;
 import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.font.TTFFontRenderer;
+import uwu.noctura.utils.render.ColorUtils;
 import uwu.noctura.utils.render.RenderUtil;
 import uwu.noctura.utils.render.shader.StencilUtil;
 import uwu.noctura.utils.render.shader.blur.GaussianBlur;
 import uwu.noctura.utils.timer.Timer;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
@@ -94,13 +95,19 @@ public class Killaura extends Module {
     BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
     BooleanSetting wall = new BooleanSetting("Through Walls", true);
-    BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
+    public BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
     BooleanSetting movefix = new BooleanSetting("Move Fix", true);
-    ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Flaily", "Flaily", "Astolfo", "Rainbow", "Noctura").setCanShow(m -> targethud.getValue());
+    public ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Noctura", "Noctura", "Star").setCanShow(m -> targethud.getValue());
+
     Timer timer = new Timer();
 
 
     public Killaura(){
+        setHudMoveable(true);
+        setMoveX(100);
+        setMoveY(100);
+        setMoveH(72);
+        setMoveW(145);
         addSettings(autoblockMode, type, rotations, raycast, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
@@ -164,101 +171,20 @@ public class Killaura extends Module {
             }
         }
         if(ev instanceof EventRender2D){
-            EventRender2D event = (EventRender2D) ev;
-            if(currentTarget != null){
-                ScaledResolution sr = new ScaledResolution(mc);
-                switch (targetHudMode.getMode()){
-                    case "Noctura":{
-                        renderNocturaHud(ev, sr.getScaledWidth() / 2f + 35, sr.getScaledHeight() / 2f - 22);
-                        break;
-                    }
-                    case "Flaily":{
-                        renderTargetHudBasic(ev, sr.getScaledWidth() / 2 + 35, sr.getScaledHeight() / 2 - 45);
-                        break;
-                    }
-                    case "Rainbow": {
-                        TTFFontRenderer tFont = Noctura.INSTANCE.fontManager.getFont("auxy " + (21));
-                        int FirstLetterColor =  getGradientOffset(new Color(255, 60, 234), new Color(27, 179, 255), (Math.abs(((System.currentTimeMillis()) / 10)) / 100D) + (3 / (tFont.getHeight("A") + 6 ) / 2)).getRGB();
-                        EntityLivingBase ent = (EntityLivingBase) currentTarget;
-                        if (ent != null && ent.getHealth() != 0) {
-                            float scaledWidth = (float) sr.getScaledWidth();
-                            float scaledHeight = (float) sr.getScaledHeight();
-                            if (/*ent instanceof EntityPlayer && */ent != null) {
-                                double hpPercentage = (ent.getHealth() / ent.getMaxHealth());
-                                //EntityPlayer player = (EntityPlayer) ent;
-                                EntityLivingBase player = (EntityLivingBase) ent;
-                                if (hpPercentage > 1.0D) {
-                                    hpPercentage = 1.0D;
-                                } else if (hpPercentage < 0.0D) {
-                                    hpPercentage = 0.0D;
-                                }
-                                RenderUtil.drawUnfilledRectangle( (scaledWidth / 2.0F - 200.0F) - 0.5, (scaledHeight / 2.0F - 42.0F) - 0.8, (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10 + 0.5) : 105 + 0.5)), (scaledHeight / 2.0F - 2.0F) + 0.5, 2,  new Color(FirstLetterColor).getRGB());
-                                RenderUtil.drawRect2((scaledWidth / 2.0F - 200.0F), (scaledHeight / 2.0F - 42.0F), (scaledWidth / 2.0F - 200.0F + 40.0F + ((this.mc.fontRendererObj.getStringWidth(player.getName()) > 105) ? (this.mc.fontRendererObj.getStringWidth(player.getName()) - 10) : 105)), (scaledHeight / 2.0F - 2.0F),(new Color(0, 0, 0, 150)).getRGB());
-                                if(ent instanceof EntityPlayer){
-                                    drawFace((int) scaledWidth / 2 - 196, (int) (scaledHeight / 2.0F - 38.0F), 8.0F, 8.0F, 8, 8, 32, 32, 64.0F, 64.0F, (AbstractClientPlayer) player);
-                                }
-                                tFont.drawStringWithShadow(player.getName(), (scaledWidth / 2.0F - 196.0F + 40.0F), (float) ((scaledHeight / 2.0F - 36.0F) + 1 - 0.5), -1);
-                                RenderUtil.drawRoundedRectangle((scaledWidth / 2.0F - 196.0F + 40.0F), (scaledHeight / 2.0F - 26.0F + 3), (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (scaledHeight / 2.0F - 14.0F), 2, getHealthColor(ent)); // hel bar
-                                //      FontManager.small.drawString(healthStr + "%", (float) ((scaledWidth / 2.0F - 196.0F + 40.0F) + hpPercentage * 1.25D * 70.0D), (float) ((scaledHeight / 2.0F - 36.0F) + 12.5), getHealthColor(ent));
-
-                            }
-
+            if(currentTarget != null && (!(mc.currentScreen instanceof GuiChat))){
+                if(targethud.isEnabled() && currentTarget instanceof EntityLivingBase){
+                    switch (targetHudMode.getMode()){
+                        case "Noctura":{
+                            renderNocturaHud(getMoveX(), getMoveY(), currentTarget);
+                            break;
                         }
-                        break;
-                    }
-
-                    case "Astolfo": {
-                        EntityLivingBase target = (EntityLivingBase) this.currentTarget;
-                        if (target != null && target.getHealth() != 0) {
-
-
-                            float scaledWidth = (float) sr.getScaledWidth();
-                            float scaledHeight = (float) sr.getScaledHeight();
-                            float x = scaledWidth / 2.0F - 170.0F;
-                            float y = scaledHeight / 2.0F - 25;
-                            int color, xHealthbar, yHealthbar;
-                            Color healthColor = Color.GREEN;
-                            float health = target.getHealth();
-                            float maxHealth = target.getMaxHealth();
-
-                            if (health < maxHealth / 1f) healthColor = new Color(93, 234, 42);
-                            if (health < maxHealth / 1.25f) healthColor = new Color(104, 219, 32);
-                            if (health < maxHealth / 1.5f) healthColor = new Color(219, 185, 32);
-                            if (health < maxHealth / 2) healthColor = new Color(219, 157, 32);
-                            if (health < maxHealth / 3) healthColor = new Color(219, 116, 32);
-                            if (health < maxHealth / 4) healthColor = new Color(219, 48, 32);
-                            healthColor = new Color(healthColor.getRed(), healthColor.getGreen(), healthColor.getBlue(), (int)(1 * 255));
-                            float add;
-                            double addX;
-                            int index;
-                            color = (new Color(16734296)).getRGB();
-                            drawRect(x - 1.0F, y + 2.0F, 155.0F, 57.0F, new Color(-1459157241, true));
-                            this.mc.fontRendererObj.drawStringWithShadow(target.getName(), (x + 31.0F), (y + 6.0F), -1);
-                            GL11.glPushMatrix();
-                            GlStateManager.translate(x, y, 1.0F);
-                            GL11.glScalef(2.0F, 2.0F, 2.0F);
-                            GlStateManager.translate(-x, -y, 1.0F);
-                            this.mc.fontRendererObj.drawStringWithShadow((Math.round((target.getHealth() / 2.0F) * 10.0D) / 10.0D) + "\u2764", (x + 16.0F), (y + 13.0F), (new Color(color)).darker().getRGB());
-                            GL11.glPopMatrix();
-                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                            GuiInventory.drawEntityOnScreen((int) x + 16, (int) y + 55, 25, target.rotationYaw, -target.rotationPitch, target);
-                            xHealthbar = 30;
-                            yHealthbar = 46;
-                            add = 120.0F;
-                            if(tempX < target.getHealth() / target.getMaxHealth() * add){
-                                tempX+=0.48f;
-                            }else{
-                                tempX-=0.16f;
-                            }
-                            drawRect(x + xHealthbar, y + yHealthbar, add, 8.0F, (new Color(color)).darker().darker().darker());
-                            drawRect(x + xHealthbar, y + yHealthbar, tempX, 8.0F, healthColor);
-                            addX = (x + xHealthbar + target.getHealth() / target.getMaxHealth() * add);
-                            for (index = 1; index < 5; index++) {
-                                if (target.getEquipmentInSlot(index) == null) ;
-                            }
+                        case "Star":{
+                            renderStarTargetHud(getMoveX(), getMoveY(), (EntityLivingBase) currentTarget);
+                            break;
                         }
                     }
                 }
+
                 GlStateManager.color(1f, 1f, 1f);
             }
         }
@@ -415,6 +341,9 @@ public class Killaura extends Module {
                             if(type.is("Post")) attack(target, event);
                             if(type.is("Pre") && event.isPre()) attack(target, event);
                             if(type.is("Mix") && event.isPre() || event.isPost()) attack(target, event);
+                            if(((EntityLivingBase)currentTarget).hurtTime > 3){
+                                attacked = System.currentTimeMillis();
+                            }
                         }else{
                             switch(autoblockMode.getMode()){
                                 case "Redesky":{
@@ -445,31 +374,92 @@ public class Killaura extends Module {
         }
 
     }
+    long attacked;
+    private ArrayList<StarParticle> stars = new ArrayList<>();
+    Color hurtTimeColor = new Color(-1);
+
+    public void renderStarTargetHud(float x, float y, EntityLivingBase entityToRender) {
+        setMoveX(x);
+        setMoveY(y);
+
+        int height = 52;
+        int width = 130;
+        setMoveW(width);
+        setMoveH(height);
+        if(entityToRender.hurtTime >= 9){
+            boolean unison = false;
+            if(unison){
+                hurtTimeColor = ColorUtils.randomGray();
+            }
+            if(!unison){
+                for(StarParticle s : stars){
+                    s.setColorInstant(ColorUtils.randomGray().getRGB());
+                    s = s.setColor(ColorUtils.randomGray());
+                }
+            }
+        }
+        for (StarParticle star : stars) {
+            int g = (int) uwu.noctura.utils.MathHelper.lerp(0.03, new Color(star.getColor()).getGreen(), 255);
+            int b = (int) uwu.noctura.utils.MathHelper.lerp(0.03, new Color(star.getColor()).getBlue(), 255);
+            int r = (int) uwu.noctura.utils.MathHelper.lerp(0.03, new Color(star.getColor()).getRed(), 255);
+            star.setColorInstant(new Color(r, g, b, MathHelper.clamp_int((int)(star.alpha * 255), 0, 100)).getRGB());
+            star.update((int) x, (int) y, (int) x + width, (int) y + height, stars);
+            star.render();
+        }
+        GlStateManager.resetColor();
+        GL11.glEnable(GL11.GL_BLEND);
+        RenderUtil.drawUnfilledRectangle(x, y, x + width, y + height, 0, -1);
+        Gui.drawRect(x, y, x + width, y + height, new Color(0, 0, 0, 90).getRGB());
+        GL11.glDisable(GL11.GL_BLEND);
+
+        TTFFontRenderer tfont = Noctura.INSTANCE.getFontManager().getFont("Good 12");
+        //tfont.drawStringWithShadow(entityToRender.getName(), x + 4, y + 4, -1);
+        mc.fontRendererObj.drawStringWithShadow(entityToRender.getName(), x + 4, y + 4, -1);
+
+        // health bar
+        RenderUtil.drawUnfilledRectangle(x + 12, y + 36, x + width - 12, y + height - 8, 0, -1);
+        // (width - 12) * percent
+        float percent = entityToRender.getHealth() / entityToRender.getMaxHealth();
+        tempX = (float) uwu.noctura.utils.MathHelper.lerp(0.04, tempX, (width - 12) * percent); // total width of the health bar depending on the health * percent
+        Gui.drawRect(x + 13, y + 37, Math.max(x + tempX - 1, x + 13), y + height - 8 - 1, Color.red.getRGB());
+
+        String hp = WorldUtil.wrappedHealth(entityToRender) + "hp";
+        float healthX = x + 4 + ((width - 12) / 2f) - (tfont.getWidth(hp) / 2f);
+        tfont.drawStringWithShadow(hp, healthX, y + height - 14, -1);
+    }
+
+    private int getHurtTimeColor(EntityLivingBase entity) {
+        int hurtTime = entity.hurtTime;
+        int maxHurtTime = entity.maxHurtTime;
+        float factor = Math.min(1.0f, (float) hurtTime / maxHurtTime);
+        int red = (int) (255 * factor);
+        int green = (int) (255 * (1 - factor));
+        int blue = (int) (255 * (1 - factor));
+        return (red << 16) | (green << 8) | blue;
+    }
+
+    float cachedX, cachedY, cachedW, cachedH;
 
     float animation = 0.0f;
-    public void renderNocturaHud(Event ev, float x, float y) {
+    public void renderNocturaHud(float x, float y, Entity entityToRender) {
 
         TTFFontRenderer font = getFont("Good", 18);
-        if(!isValid(currentTarget, 6.0f))return;
-        String target = currentTarget.getName();
-        float health = ((EntityLivingBase)currentTarget).getHealth();
-        float maxHealth = ((EntityLivingBase)currentTarget).getMaxHealth();
+        if(!isValid(entityToRender, 6.0f))return;
+        String target = entityToRender.getName();
+        float health = ((EntityLivingBase)entityToRender).getHealth();
+        float maxHealth = ((EntityLivingBase)entityToRender).getMaxHealth();
         float percentHealth = (health / maxHealth) * 100.0f;
-        int armorPoints = 0;
-        if(currentTarget instanceof EntityLivingBase){
-            armorPoints = ((EntityLivingBase)currentTarget).getTotalArmorValue();
-        }
+        int armorPoints = ((EntityLivingBase) entityToRender).getTotalArmorValue();
         int playerArmorPoints = mc.thePlayer.getTotalArmorValue();
         animation = (float) uwu.noctura.utils.MathHelper.lerp(0.1f, animation, (percentHealth / 100f));
 
         float endX = x + 130;
         float endY = y + 36;
+        setMoveH(36); setMoveW(130);
+        cachedH = getMoveH(); cachedW = getMoveW(); cachedX = getMoveX(); cachedY = getMoveY();
 
         Gui.drawRect(x, y, endX, endY, new Color(0, 0, 0, 110).getRGB());
-
-        //Gui.drawRect(x + 4, y + 22, x - 4 - (animation * (x - endX)), endY - 4, getHealthColor((EntityLivingBase) currentTarget));
-
-        RenderUtil.drawRoundedRect2(x + 4, y + 22, x - 4 - (animation * (x - endX)), endY - 4, 4, getHealthColor((EntityLivingBase) currentTarget));
+        RenderUtil.drawRoundedRect2(x + 4, y + 22, x - 4 - (animation * (x - endX)), endY - 4, 4, getHealthColor((EntityLivingBase) entityToRender));
 
         GL11.glPushMatrix();
         GL11.glEnable(3089);
@@ -479,15 +469,13 @@ public class Killaura extends Module {
         boolean advantage = playerArmorPoints > armorPoints;
         font.drawString(target, x + 4, y + 2, -1);
         font.drawString(advantage ? "Armor Advantage" : "Armor Disadvantage", x + 4, y + 12, advantage ? new Color(20, 200, 100).getRGB() : new Color(220, 20, 80).getRGB());
-        //Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
         GaussianBlur.renderBlur(8f);
-        //Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
 
         GL11.glDisable(3089);
         GL11.glPopMatrix();
         StencilUtil.uninitStencilBuffer();
 
-        RenderUtil.drawRoundedRect2(x + 4, y + 22, x - 4 - (animation * (x - endX)), endY - 4, 4, getHealthColor((EntityLivingBase) currentTarget));
+        RenderUtil.drawRoundedRect2(x + 4, y + 22, x - 4 - (animation * (x - endX)), endY - 4, 4, getHealthColor((EntityLivingBase) entityToRender));
         font.drawString(target, x + 4, y + 2, -1);
         font.drawString(advantage ? "Armor Advantage" : "Armor Disadvantage", x + 4, y + 12, advantage ? new Color(20, 200, 100).getRGB() : new Color(220, 20, 80).getRGB());
 
@@ -630,6 +618,14 @@ public class Killaura extends Module {
         return result != null;
     }
 
+    @Override
+    public void onEnable() {
+        int height = 52;
+        int width = 130;
+        StarParticle starTemplate = new StarParticle(getMoveX(), getMoveY()).setSize(3f).setAlphaChangeRate(0.001f);
+        RenderUtil.generateStars(80, stars, (int)getMoveX(), (int)getMoveY(), (int)getMoveX()+width, (int)getMoveX()+height, starTemplate, -0.125f, 0.125f, -0.125f, 0.125f);
+    }
+
     public void attack(Entity target, EventMotion em){
         boolean ray = !raycast.isEnabled() || isLookingAtEntity(mc.thePlayer, target, reach.getValue(), em);
         mc.thePlayer.swingItem();
@@ -644,10 +640,20 @@ public class Killaura extends Module {
     }
     float thing = 0f;
 
-    public void renderTargetHudBasic(Event e, int x, int y){
+    public void renderTargetHudBasic(Event e, float x, float y){
         if(e instanceof EventRender2D){
             GlStateManager.color(1f, 1f, 1f);
             Entity target = currentTarget;
+
+
+            setMoveH(36);
+            setMoveW(130);
+            cachedH = getMoveH();
+            cachedW = getMoveW();
+            cachedX = getMoveX();
+            cachedY = getMoveY();
+
+
             if(currentTarget != null){
                 float maxDist = 6;
                 if(((EntityLivingBase)currentTarget).getHealth() <= 0 || !isValid(currentTarget, maxDist + 5)) return;
@@ -656,7 +662,7 @@ public class Killaura extends Module {
                     if(currentTarget instanceof EntityPlayer){
                         drawHead( (AbstractClientPlayer)target, (x + 4) / thing, (y + 4) / thing, 44 / thing, 44 / thing);
                     }else{
-                        GuiInventory.drawEntityOnScreen(x + 20, y + 50, 25, target.rotationYaw, 0, (EntityLivingBase) target);
+                        GuiInventory.drawEntityOnScreen((int) (x + 20), (int) (y + 50), 25, target.rotationYaw, 0, (EntityLivingBase) target);
                     }
                     Gui.drawRect(x / thing, y / thing, (x + 192) / thing, (y +52) / thing, new Color(0, 0, 0, 90).getRGB());
                     TTFFontRenderer tFont = Noctura.INSTANCE.fontManager.getFont("auxy " + (21 - offset));

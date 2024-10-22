@@ -854,6 +854,55 @@ public class RenderUtil  {
             stars.add(new StarParticle(x, y, size, alphaChangeRate));
         }
     }
+    public static void generateStars(int count, List<StarParticle> stars, int minX, int minY, int maxX, int maxY, int color) {
+        stars.clear();
+        int offset = 0;
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            float x = minX + random.nextFloat() * (maxX - minX);
+            float y = minY + random.nextFloat() * (maxY - minY);
+            float size = 0.1f;
+            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f;
+                stars.add(new StarParticle(x, y, size, alphaChangeRate).setColor(color));
+        }
+    }
+    public static void generateStars(int count, List<StarParticle> stars, int minX, int minY, int maxX, int maxY, StarParticle construct) {
+        stars.clear();
+        Random random = new Random();
+        for (int i = 0; i < count; i++) {
+            float x = minX + random.nextFloat() * (maxX - minX);
+            float y = minY + random.nextFloat() * (maxY - minY);
+            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f;
+            StarParticle newStar = new StarParticle(x, y)
+                    .setColor(construct.getColor())
+                    .setSize(construct.getSize())
+                    .setVelocityX(construct.getVelocityX())
+                    .setVelocityY(construct.getVelocityY())
+                    .setAlphaChangeRate(alphaChangeRate);
+
+            stars.add(newStar);
+        }
+    }
+
+    public static void generateStars(int count, List<StarParticle> stars, int minX, int minY, int maxX, int maxY, StarParticle construct, float velXMin, float velXMax, float velYMin, float velYMax) {
+        stars.clear();
+        for (int i = 0; i < count; i++) {
+            Random random = new Random();
+            float x = minX + random.nextFloat() * (maxX - minX);
+            float y = minY + random.nextFloat() * (maxY - minY);
+            float velX = velXMin + random.nextFloat() * (velXMax - velXMin);
+            float velY = velYMin + random.nextFloat() * (velYMax - velYMin);
+            float alphaChangeRate = random.nextFloat() * 0.00003f + 0.01f;
+            StarParticle newStar = new StarParticle(x, y)
+                    .setColor(construct.getColor())
+                    .setSize(construct.getSize())
+                    .setVelocityX(velX)
+                    .setVelocityY(velY)
+                    .setAlphaChangeRate(alphaChangeRate);
+
+            stars.add(newStar);
+        }
+    }
 
     public static void drawFilledCircle(final float xx, final float yy, final float radius, final Color color) {
         int sections = 50;

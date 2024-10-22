@@ -2323,19 +2323,23 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
                 double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)partialTicks;
                 drawOutline(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2));
 
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
-                GlStateManager.enableBlend();
-                GL11.glDisable(GL11.GL_CULL_FACE);
-                GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                 GlStateManager.disableTexture2D();
                 if(outline.fullblock.isEnabled() && outline.isToggled()){
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+                    GlStateManager.enableBlend();
+                    GL11.glDisable(GL11.GL_CULL_FACE);
+                    GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                     drawBoxOverlay(block.getSelectedBoundingBox(this.theWorld, blockpos).expand(0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D).offset(-d0, -d1, -d2), new Color(255, 0 ,0 , 90));
 
+                    GL11.glEnable(GL11.GL_CULL_FACE);
+                    GlStateManager.disableBlend();
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
                 }
             }
             GlStateManager.depthMask(true);
             GlStateManager.enableTexture2D();
             GlStateManager.disableBlend();
+            GL11.glLineWidth(2.0F);
         }
     }
     public static void drawBoxOverlay(AxisAlignedBB boundingBox, Color color) {

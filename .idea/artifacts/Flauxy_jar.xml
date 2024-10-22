@@ -94,6 +94,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/downgraded-ViaBackwards-5.0.2-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/downgraded-ViaRewind-4.0.1-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/downgraded-ViaVersion-5.0.2-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/luaj-jse-3.0.2.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

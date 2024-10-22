@@ -32,15 +32,9 @@ public class ArrayList extends Module {
 
     public ModeSetting color = new ModeSetting("Color", "Default", "Astolfo", "Default", "Rainbow", "Custom", "Blend", "Theme");
     public ModeSetting themes = new ModeSetting("Theme","Cotton Candy","Cotton Candy", "Sunset").setCanShow(m -> color.is("Theme"));
+    public ModeSetting fonts = new ModeSetting("Text Font","Iskpota","Iskpota", "Main", "Good");
     public ModeSetting animAlgo = new ModeSetting("Animation","Lerp","Lerp", "Quad");
     public NumberSetting animSpeed = new NumberSetting("Animation Speed", 7, 1, 10, 1); // divide by 20
-
-    //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    //public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    //public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    //public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    //public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    //public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
     public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
@@ -65,7 +59,7 @@ public class ArrayList extends Module {
         hue2.setColorDisplay(true);
         sat1.setColorDisplay(true);
         sat2.setColorDisplay(true);
-        addSettings(color, glow, bloom, hideSomeCategories, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
+        addSettings(fonts, color, glow, bloom, hideSomeCategories, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -81,7 +75,7 @@ public class ArrayList extends Module {
         if(event instanceof EventRender2D){
             ScaledResolution sr = new ScaledResolution(mc);
             java.util.ArrayList<Module> mods = new java.util.ArrayList<Module>();
-            TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 18");
+            TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont(fonts.getMode() + " 18");
             double animFactor = 100;
             for (Module m : (hideSomeCategories.isEnabled() ? Noctura.INSTANCE.getModuleManager().getModulesExcluding(Category.Display, Category.Visuals
             ,Category.Other, Category.False) : Noctura.INSTANCE.getModuleManager().modules)) {
@@ -115,7 +109,7 @@ public class ArrayList extends Module {
                 }
             }
             if(customfont.getValue()){
-                mods.sort(Comparator.comparingDouble(m ->  (double) Noctura.INSTANCE.getFontManager().getFont("Good 18").getWidth(modName((Module) m))).reversed());
+                mods.sort(Comparator.comparingDouble(m ->  (double) Noctura.INSTANCE.getFontManager().getFont(fonts.getMode() + " 18").getWidth(modName((Module) m))).reversed());
             }else{
                 mods.sort(Comparator.comparingInt(m ->  (int)mc.fontRendererObj.getStringWidth(modName((Module) m))).reversed());
             }

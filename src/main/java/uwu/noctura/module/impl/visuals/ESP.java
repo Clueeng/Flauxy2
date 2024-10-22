@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
@@ -45,6 +46,7 @@ public class ESP extends Module {
     private ModeSetting mode = new ModeSetting("Mode", "Box", "Box");
     public NumberSetting thickness = new NumberSetting("Thickness", 1, 1, 5, 0.25);
     public BooleanSetting nametags = new BooleanSetting("Nametags", true);
+    public ModeSetting nametagsMode = new ModeSetting("Nametag Mode", "Blur", "Blur", "Classic").setCanShow(c -> nametags.isEnabled());
     public ModeSetting color = new ModeSetting("Color", "Astolfo", "Astolfo", "Rainbow", "Custom", "Blend");
 
     //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
@@ -67,7 +69,7 @@ public class ESP extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
 
     public ESP(){
-        addSettings(mode, nametags, thickness, color, hue1, sat1, hue2, sat2, showTargets, players, mobs, animals, shop);
+        addSettings(mode, nametags, nametagsMode, thickness, color, hue1, sat1, hue2, sat2, showTargets, players, mobs, animals, shop);
         hue1.setColorDisplay(true);
         sat1.setColorDisplay(true);
         hue2.setColorDisplay(true);
@@ -141,73 +143,82 @@ public class ESP extends Module {
                     if(nametags.getValue()){ // blur gets black when hit vec is a block ??
                         float bottom = maxY + ((minY + maxY) / maxY);
                         float top = minY - ((maxY / minY) * 10);
-
                         boolean hacking = ReportAlert.hackers.contains(entity.getName());
-
                         String nameTag = hacking ? entity.getName() + " [HACKER]" : entity.getName();
+                        if(nametagsMode.is("Blur")){
+                            int textWidth = (int) fontRenderer.getWidth(nameTag);
+                            int textHeight = 10;
+                            float centerX = (minX + maxX) / 2;
+                            float rectLeft = centerX - textWidth / 2 - 2;
+                            float rectRight = centerX + textWidth / 2 + 2;
+                            float rectTop = top - 2;
+                            float rectBottom = top + textHeight + 2;
+                            GlStateManager.pushMatrix();
+                            RenderUtil.pre3D();
+                            glEnable(GL_POLYGON_SMOOTH);
+                            glColor4f(0, 0, 0, 1);
+                            glLineWidth(0.5f);
+                            glBegin(GL_LINE_LOOP);
+                            glVertex2f(rectLeft, rectTop);
+                            glVertex2f(rectRight, rectTop);
+                            glVertex2f(rectRight, rectBottom);
+                            glVertex2f(rectLeft, rectBottom);
+                            glEnd();
 
-                        int textWidth = (int) fontRenderer.getWidth(nameTag);
-                        int textHeight = 10;
+                            glColor4f(0f, 0f, 0f, 0.95f);
+                            glLineWidth(1.0f);
+                            glBegin(GL_QUADS);
+                            glVertex2f(rectLeft, rectTop);
+                            glVertex2f(rectRight, rectTop);
+                            glVertex2f(rectRight, rectBottom);
+                            glVertex2f(rectLeft, rectBottom);
+                            glEnd();
+                            GlStateManager.popMatrix();
+                            GlStateManager.color(1f, 1f, 1f, 1f);  // Reset color after rendering
+                            RenderUtil.post3D();
 
-                        float centerX = (minX + maxX) / 2;
-                        float rectLeft = centerX - textWidth / 2 - 2;
-                        float rectRight = centerX + textWidth / 2 + 2;
-                        float rectTop = top - 2;
-                        float rectBottom = top + textHeight + 2;
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
 
-                        GlStateManager.pushMatrix();
+                            GL11.glPushMatrix();
+                            GL11.glEnable(3089);
+                            RenderUtil.prepareScissorBox(rectLeft
+                                    ,rectTop,rectRight, rectBottom);
 
-                        RenderUtil.pre3D();
-                        glEnable(GL_POLYGON_SMOOTH);
-                        glColor4f(0, 0, 0, 1);
-                        glLineWidth(0.5f);
-                        glBegin(GL_LINE_LOOP);
-                        glVertex2f(rectLeft, rectTop);
-                        glVertex2f(rectRight, rectTop);
-                        glVertex2f(rectRight, rectBottom);
-                        glVertex2f(rectLeft, rectBottom);
-                        glEnd();
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+                            GaussianBlur.renderBlur(8f);
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
 
-                        glColor4f(0f, 0f, 0f, 0.95f);
-                        glLineWidth(1.0f);
-                        glBegin(GL_QUADS);
-                        glVertex2f(rectLeft, rectTop);
-                        glVertex2f(rectRight, rectTop);
-                        glVertex2f(rectRight, rectBottom);
-                        glVertex2f(rectLeft, rectBottom);
-                        glEnd();
-
-                        GlStateManager.popMatrix();
-
-
-
-
-
-
-
-                        GlStateManager.color(1f, 1f, 1f, 1f);  // Reset color after rendering
-                        RenderUtil.post3D();
-
-                        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
-
-                        GL11.glPushMatrix();
-                        GL11.glEnable(3089);
-                        RenderUtil.prepareScissorBox(rectLeft
-                                ,rectTop,rectRight, rectBottom);
-
-                        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
-                        GaussianBlur.renderBlur(8f);
-                        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
-
-                        GL11.glDisable(3089);
-                        GL11.glPopMatrix();
-                        StencilUtil.uninitStencilBuffer();
+                            GL11.glDisable(3089);
+                            GL11.glPopMatrix();
+                            StencilUtil.uninitStencilBuffer();
 
 
-                        fontRenderer.drawStringWithShadow(nameTag, centerX - (textWidth / 2f), top, -1);
-                        Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+                            fontRenderer.drawStringWithShadow(nameTag, centerX - (textWidth / 2f), top, -1);
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+                        }
+                        if(nametagsMode.is("Classic")){
+                            nameTag = entity.getName() + " " + WorldUtil.quadColHealth(entity) + WorldUtil.wrappedHealth(entity) + EnumChatFormatting.RED + "❤";
+                            int textWidth = (int) mc.fontRendererObj.getStringWidth(nameTag);
+                            int textHeight = 10;
+                            float centerX = (minX + maxX) / 2;
+                            float rectLeft = centerX - textWidth / 2f - 2;
+                            float rectRight = centerX + textWidth / 2f + 2;
+                            float rectTop = top - 2;
+                            float rectBottom = top + textHeight + 2;
+                            GlStateManager.pushMatrix();
+                            RenderUtil.pre3D();
+                            GlStateManager.popMatrix();
+                            GlStateManager.color(1f, 1f, 1f, 1f);  // Reset color after rendering
+                            RenderUtil.post3D();
 
-                        //RenderUtil.drawUnfilledRectangle(rectLeft, rectTop-1, rectRight, rectBottom, 1, new Color(0, 0, 0).getRGB(), 2);
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+                            Gui.drawRect(centerX - (textWidth / 2f) - 2, top - 2, centerX + (textWidth / 2f) + 2,
+                                    top + mc.fontRendererObj.FONT_HEIGHT + 2, new Color(0, 0, 0, 120).getRGB());
+                            mc.fontRendererObj.drawStringWithShadow(nameTag, centerX - (textWidth / 2f), top, -1);
+                            RenderUtil.drawUnfilledRectangle(centerX - (textWidth / 2f) - 2, top - 2, centerX + (textWidth / 2f) + 2,
+                                    top + mc.fontRendererObj.FONT_HEIGHT + 2, 0, entity.equals(mc.thePlayer) ? new Color(255, 255 ,255, 90).getRGB() : new Color(255, 255 ,255, 255).getRGB());
+                            Gui.drawRect(1, 1, 1, 1, new Color(0, 0, 0, 10).getRGB());
+                        }
                     }
 
                     // blur testing

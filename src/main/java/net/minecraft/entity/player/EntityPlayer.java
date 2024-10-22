@@ -74,6 +74,8 @@ import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.LockCode;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
+import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.combat.KeepSprint;
 import uwu.noctura.module.impl.movement.Fly;
 
 @SuppressWarnings("incomplete-switch")
@@ -1359,9 +1361,13 @@ public abstract class EntityPlayer extends EntityLivingBase
                         if (i > 0)
                         {
                             targetEntity.addVelocity((double)(-MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F), 0.1D, (double)(MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F));
-                            this.motionX *= 0.6D;
-                            this.motionZ *= 0.6D;
-                            this.setSprinting(false);
+
+                            boolean isKeepSprint = Noctura.INSTANCE.getModuleManager().getModule(KeepSprint.class).isToggled();
+                            if(!isKeepSprint){
+                                this.motionX *= 0.6D;
+                                this.motionZ *= 0.6D;
+                                this.setSprinting(false);
+                            }
                         }
 
                         if (targetEntity instanceof EntityPlayerMP && targetEntity.velocityChanged)

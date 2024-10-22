@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import uwu.noctura.Noctura;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventMotion;
+import uwu.noctura.event.impl.EventReceivePacket;
 import uwu.noctura.event.impl.EventSendPacket;
 import uwu.noctura.event.impl.EventUpdate;
 import uwu.noctura.module.Category;
@@ -23,11 +24,15 @@ import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.timer.Timer;
 
 import java.util.LinkedList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @ModuleInfo(name = "Longjump", displayName = "Longjump", key = Keyboard.KEY_G, cat = Category.Movement)
 public class Longjump extends Module {
 
     public ModeSetting mode = new ModeSetting("Mode", "Hypixel", "Verus", "Hypixel", "Funcraft", "Redesky", "BlocksMC", "Test");
+    public ModeSetting bmcMode = new ModeSetting("BMC Mode", "Normal", "Delayed KB", "Normal").setCanShow(m -> mode.is("BlocksMC"));
     NumberSetting speed = new NumberSetting("Speed", 4.2, 0.1, 6, 0.1).setCanShow((m) -> mode.is("Verus"));
 
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Damage", "Damage", "Simple", "Normal").setCanShow((m) -> mode.is("Verus"));
@@ -61,7 +66,7 @@ public class Longjump extends Module {
     LinkedList<Packet> packetsLinked = new LinkedList<>();
 
     public Longjump(){
-        addSettings(mode, verusMode, speed, redeMode, redePacketCancel, redeCustomSpeedInAir, redeCustomJumpMovement, redeMotionY, redeTimer, redeMotionMult, redeSlowingDown, redeSlowDownFactor, redeBigJump,
+        addSettings(mode, bmcMode, verusMode, speed, redeMode, redePacketCancel, redeCustomSpeedInAir, redeCustomJumpMovement, redeMotionY, redeTimer, redeMotionMult, redeSlowingDown, redeSlowDownFactor, redeBigJump,
                 redeBigJumpMotion, redeBigJumpLength, redeFlagFall, redeFlagFallDistance, redeFlagFallJumpMove, redeFlagSpeedInAir, redeFlagFallMotion, groundFlag, keepSpeed
 
         );
@@ -72,6 +77,8 @@ public class Longjump extends Module {
     public void onEnable() {
         thingmotion = true;
         ticks = 0;
+        dmg = 0;
+        veloToSet = false;
         stage = 2;
         switch(mode.getMode()){
             case "Redesky":{
@@ -133,6 +140,12 @@ public class Longjump extends Module {
         }
     }
     float speedFC = 0f;
+    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    S12PacketEntityVelocity firstPacket = null;
+    S12PacketEntityVelocity secondPacket = null;
+    int hitCount = 0;
+    float dmgVelX, dmgVelY, dmgVelZ;
+    int dmg;
     @Override
     public void onEvent(Event ev){
         switch(mode.getMode()){
@@ -149,32 +162,67 @@ public class Longjump extends Module {
 
             case "BlocksMC":{
 
-                if(ev instanceof EventMotion){
-
-                    if(mc.thePlayer.onGround){
-
-                        mc.thePlayer.motionY += 0.32f;
-                    }else{
-                        stage++;
-                        if(stage > 1) MoveUtils.strafe(MoveUtils.getMotion() * 1.08f);
-                        switch(stage){
-                            case 1:{
-                                mc.thePlayer.motionY += 0.05f;
-                                break;
-                            }
-                            case 2:{
-                                break;
-                            }
-                            case 3:{
-                                mc.timer.timerSpeed = 0.9f;
-                                break;
+                if(bmcMode.is("Normal")){
+                    if(ev instanceof EventMotion){
+                        EventMotion e = (EventMotion) ev;
+                        ticks++;
+                        if(e.isPre()){
+                            if(mc.thePlayer.onGround){
+                                mc.timer.timerSpeed = 0.92f;
+                                mc.thePlayer.jump();
+                                speedV = 0.46f;
+                                if(ticks > 4) this.toggle();
+                            }else{
+                                MoveUtils.strafe(speedV);
+                                speedV *= 0.96f;
                             }
                         }
-                        if(stage >= 3){
-                            MoveUtils.strafe(MoveUtils.getMotion() * 1.04f);
+                    }
+                }
+                if(bmcMode.is("Delayed KB")){
+                    if (ev instanceof EventReceivePacket) {
+                        EventReceivePacket event = (EventReceivePacket) ev;
+
+                        if (event.getPacket() instanceof S12PacketEntityVelocity) {
+                            S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
+                            if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
+                                hitCount++;
+                                dmgVelX = packet.getMotionX() / 8000f;
+                                dmgVelY = (packet.getMotionY() / 8000f);
+                                dmgVelZ = packet.getMotionZ() / 8000f;
+                                lagbacked = true;
+                                veloToSet = false;
+                            }
                         }
-                        if(stage == 10){
-                            this.toggle();
+                    }
+                    if(ev instanceof EventMotion){
+                        EventMotion e = (EventMotion) ev;
+                        if(lagbacked && e.isPre()){
+                            if(mc.thePlayer.hurtTime >= 9 && mc.thePlayer.onGround){
+                                mc.thePlayer.jump();
+                                mc.thePlayer.motionY = 0.42f;
+                                int amp = MoveUtils.getSpeedEffect();
+                                speedV = 0.501 +  (0.105f * amp);
+                                //mc.thePlayer.motionY += 0.01;
+                            }
+                            if(!mc.thePlayer.onGround){
+                                MoveUtils.strafe(speedV);
+                                speedV *= 0.93;
+                            }
+                            if(mc.thePlayer.fallDistance > 0.05){
+                                int amp = MoveUtils.getSpeedEffect();
+                                MoveUtils.strafe(0.30+  (0.105f * amp));
+                                Wrapper.instance.log("set velocity "  + dmgVelY);
+                                mc.thePlayer.addVelocity(0, Math.abs(dmgVelY) * 3f, 0);
+                                lagbacked = false;
+                                veloToSet = true;
+                            }
+                        }
+                        if(!lagbacked && veloToSet){
+                            if(mc.thePlayer.fallDistance > 0.05){
+                                mc.thePlayer.motionY = 0;
+                                mc.thePlayer.fallDistance = -3;
+                            }
                         }
                     }
                 }
@@ -452,7 +500,7 @@ public class Longjump extends Module {
         }
     }
 
-    private boolean lagbacked;
+    private boolean lagbacked, veloToSet;
     double speedV;
     float timer;
     int offGroundTicks;

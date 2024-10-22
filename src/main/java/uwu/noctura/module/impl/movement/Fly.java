@@ -1,12 +1,15 @@
 package uwu.noctura.module.impl.movement;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import net.minecraft.client.Minecraft;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemFireball;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -23,6 +26,7 @@ import uwu.noctura.utils.*;
 import uwu.noctura.utils.timer.Timer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -37,7 +41,7 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP Bow", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP Bow", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel", "Godseye");
     public ModeSetting glideMode = new ModeSetting("Mode","Chunk","Chunk", "Web");
     public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
@@ -71,6 +75,10 @@ public class Fly extends Module {
             this.setArrayListName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
         }
         switch(mode.getMode()){
+            case "Godseye":{
+                godseye(e);
+                break;
+            }
             case "NCP Bow":{
                 if(e instanceof EventMotion){
                     EventMotion ev = (EventMotion)e;
@@ -333,6 +341,62 @@ public class Fly extends Module {
         }
     }
 
+    boolean godseyeStopSending, godseyeStartChoking;
+    ArrayList<Packet> godseyePackets =  new ArrayList<>();
+    private void godseye(Event e) {
+        if(e instanceof EventMotion){
+            EventMotion ev = (EventMotion)e;
+            switchToBowSlot();
+            shootBow(ev);
+            if(mc.thePlayer.hurtTime > 0){
+                wasHit = true;
+            }
+            if(go && !wasHit){
+                MoveUtils.cancelMoveInputs();
+                MoveUtils.stopMoving();
+            }
+            if(go && wasHit){
+                MoveUtils.enableMoveInputs();
+                flyTicks++;
+                shootBow(ev);
+                mc.thePlayer.motionY *= 0.95;
+                mc.timer.timerSpeed = 1.00f;
+                if(flyTicks < 2){
+                    MoveUtils.strafe(MoveUtils.getMotion() * 1.6f);
+                    mc.thePlayer.motionY += 0.01f;
+                }
+                if(flyTicks > 1 && flyTicks < 35){
+                    MoveUtils.strafe(Math.min(MoveUtils.getMotion() * 1.100f, 2.8f));
+                    if(mc.thePlayer.motionY < 0){
+                        mc.thePlayer.motionY *= 0.99f;
+                    }
+                }
+                if(flyTicks > 75 || (mc.thePlayer.onGround && flyTicks > 30)){
+                    this.onDisable();
+                    toggle();
+                }
+            }
+        }
+        if(e instanceof EventReceivePacket){
+            EventReceivePacket es = (EventReceivePacket) e;
+            if (es.getPacket() instanceof S12PacketEntityVelocity) {
+                S12PacketEntityVelocity packet = (S12PacketEntityVelocity) es.getPacket();
+                if (packet.getEntityID() == mc.thePlayer.getEntityId() && go) {
+                    float yaw = mc.thePlayer.rotationYaw * ((float) Math.PI / 180F);
+                    double motionMultiplier = 2.5;
+
+                    int motionX = (int) (-Math.sin(yaw) * motionMultiplier * 8000);
+                    int motionZ = (int) (Math.cos(yaw) * motionMultiplier * 8000);
+                    packet.setMotionX(motionX);
+                    packet.setMotionY((int) ((packet.getMotionY() / 100f) * (MoveUtils.standingOn(Blocks.slime_block) ? 4.5f : 2.99f)) * 100);
+                    packet.setMotionZ(motionZ);
+
+                    MoveUtils.strafe(0.2);
+                }
+            }
+        }
+    }
+
     int bowTick = 0;
     boolean go;
     boolean wasHit = false;
@@ -456,6 +520,7 @@ public class Fly extends Module {
         tempY = 0;
         go = false;
         bowTick = 0;
+        godseyePackets.clear();
         flyTicks = 0;
         hypixelTicks = 0;
         decreaseTicks = 0;

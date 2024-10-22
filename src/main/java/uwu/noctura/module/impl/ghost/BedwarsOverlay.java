@@ -329,7 +329,6 @@ public class BedwarsOverlay extends Module {
                         IBlockState state = world.getBlockState(pos);
                         boolean isHead = state.getValue(BlockBed.PART) == BlockBed.EnumPartType.HEAD;
                         if(isHead) {
-                            System.out.println("Added " + allBeds.size());
                             allBeds.add(pos);
                         }
                     }

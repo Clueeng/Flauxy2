@@ -74,7 +74,7 @@ public class ClickGUI extends GuiScreen {
 
 
         for (StarParticle star : stars) {
-            star.update(width, height);
+            star.update(width, height, mouseX, mouseY);
             star.render(mouseX, mouseY, stars);
         }
         List<StarParticle> nearestParticles = getNearestParticles(mouseX, mouseY, stars, 3);

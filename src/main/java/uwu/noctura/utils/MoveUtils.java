@@ -16,6 +16,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovementInput;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.system.CallbackI;
+import uwu.noctura.event.impl.EventMotion;
 import uwu.noctura.event.impl.EventStrafe;
 import uwu.noctura.event.impl.packet.EventMove;
 
@@ -31,6 +33,16 @@ public class MoveUtils {
         Minecraft mc = Minecraft.getMinecraft();
         mc.thePlayer.motionX = 0;
         mc.thePlayer.motionZ = 0;
+    }
+
+    public static boolean standingOn(Block block){
+        BlockPos posBelowPlayer = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+        Block blockBelowPlayer = mc.theWorld.getBlockState(posBelowPlayer).getBlock();
+        return blockBelowPlayer == block;
+    }
+
+    public static boolean standsOnIce() {
+        return standingOn(Blocks.ice) || standingOn(Blocks.packed_ice);
     }
 
     public static void cancelMoveInputs(){
@@ -325,8 +337,22 @@ public class MoveUtils {
         mc.thePlayer.motionY = 0.42f;
         mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.2F);
         mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+        mc.thePlayer.isAirBorne = true;
+    }
+    public static void jumpVanilla(boolean motion, EventMotion e){
+        if(!motion){
+            mc.thePlayer.motionY = .42f;
+        }
+        if (mc.thePlayer.isPotionActive(Potion.jump))
+        {
+            mc.thePlayer.motionY += (double)((float)(mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+        }
 
-
+        float f = 0;
+        f = e.getYaw() * 0.017453292F;
+        mc.thePlayer.motionY = 0.42f;
+        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.2F);
+        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.2F);
         mc.thePlayer.isAirBorne = true;
     }
     public static void jump(double motion) {

@@ -145,6 +145,7 @@ public class PacketTweaker extends GuiScreen {
         packetSuggestions.put("C13", "C13PacketPlayerAbilities");
         packetSuggestions.put("C0B", "C0BPacketEntityAction");
         packetSuggestions.put("C18", "C18PacketSpectate");
+        packetSuggestions.put("C09", "C09PacketHeldItemChange");
 
         return packetSuggestions;
     }
@@ -183,7 +184,7 @@ public class PacketTweaker extends GuiScreen {
         this.drawDefaultBackground();
 
         for (StarParticle star : stars) {
-            star.update(width, height);
+            star.update(width, height, mouseX, mouseY);
             star.render(mouseX, mouseY, stars);
         }
         List<StarParticle> nearestParticles = getNearestParticles(mouseX, mouseY, stars, 3);

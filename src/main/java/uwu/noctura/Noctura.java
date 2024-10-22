@@ -47,6 +47,7 @@ import java.util.Objects;
 public enum Noctura implements MinecraftInstance {
     INSTANCE;
 
+    public int MAX_CHAT_LENGTH = 100;
     public UserConnection userConnection;
     public String name = "Noctura", version = "1.5";
     public Path clientDirectory = Paths.get(mc.mcDataDir.getAbsolutePath(), name), configsDirectory = Paths.get(clientDirectory.toFile().getAbsolutePath(), "configs");
@@ -192,7 +193,7 @@ public enum Noctura implements MinecraftInstance {
         getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Auto-Save", "Saved Settings"));
     }
 
-    private boolean upToDate() {
+    public boolean upToDate() {
         System.out.println("Checking for client vertsion");
         File nocturaFolder = new File(Minecraft.getMinecraft().mcDataDir, "Noctura");
         if (!nocturaFolder.exists() || !nocturaFolder.isDirectory()) {
@@ -240,16 +241,6 @@ public enum Noctura implements MinecraftInstance {
         currentVer = localVersion;
         System.out.println("Remote Version: " + remoteVersion);
         this.remoteVer = remoteVersion;
-        if (!Objects.equals(localVersion, remoteVersion)) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(localFile))) {
-                writer.write(remoteVersion);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-            return false;
-        }
-
-        return true;
+        return Objects.equals(currentVer, remoteVersion);
     }
 }
