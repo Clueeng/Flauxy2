@@ -44,7 +44,6 @@ import optfine.Config;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
-import uwu.noctura.commands.impl.CommandSetupCPS;
 import uwu.noctura.event.impl.EventRender2D;
 import uwu.noctura.module.impl.combat.Killaura;
 import uwu.noctura.notification.Notification;
@@ -120,75 +119,8 @@ public class GuiIngame extends Gui
         this.field_175192_A = 70;
         this.field_175193_B = 20;
     }
-
-    boolean clicked = false, held = false;
-    int clicks;
     public void renderGameOverlay(float partialTicks)
-    {// i didnt know where to put that and it not be capped at 20 ticks per second
-        // Ensure Killaura data lists are initialized
-        if (Killaura.dataClickOne == null) {
-            Killaura.dataClickOne = new ArrayList<>();
-        }
-        if (Killaura.dataClickTwo == null) {
-            Killaura.dataClickTwo = new ArrayList<>();
-        }
-        if (Killaura.dataClickThree == null) {
-            Killaura.dataClickThree = new ArrayList<>();
-        }
-
-        if (CommandSetupCPS.runSetup) {
-            boolean held = Mouse.isButtonDown(0);
-            if (held && !clicked) {
-                clicked = true;
-                clicks++;
-                long currentTime = System.currentTimeMillis();
-                // first 10 clicks
-                if (clicks <= 10) {
-                    long lastCurrentTime = currentTime;
-                    if (Killaura.dataClickOne.size() > 1) {
-                        lastCurrentTime = Killaura.dataClickOne.get(clicks - 1);
-                    }
-                    Killaura.dataClickOne.add(Math.abs(currentTime - lastCurrentTime));
-                } else if (clicks <= 20) {
-                    long lastCurrentTime = currentTime;
-                    if (Killaura.dataClickTwo.size() > 1) {
-                        lastCurrentTime = Killaura.dataClickTwo.get(clicks - 1);
-                    }
-                    Killaura.dataClickTwo.add(Math.abs(currentTime - lastCurrentTime));
-                } else if (clicks <= 30) {
-                    long lastCurrentTime = currentTime;
-                    if (Killaura.dataClickThree.size() > 1) {
-                        lastCurrentTime = Killaura.dataClickThree.get(clicks - 1);
-                    }
-                    Killaura.dataClickThree.add(Math.abs(currentTime - lastCurrentTime));
-                }
-
-                // Calculate average CPS after 30 clicks
-                if (clicks >= 30) {
-                    // Combine all intervals into one list for CPS calculation
-                    List<Long> allIntervals = new ArrayList<>();
-                    allIntervals.addAll(Killaura.dataClickOne.subList(1, Killaura.dataClickOne.size()));
-                    allIntervals.addAll(Killaura.dataClickTwo.subList(1, Killaura.dataClickTwo.size()));
-                    allIntervals.addAll(Killaura.dataClickThree.subList(1, Killaura.dataClickThree.size()));
-
-                    double averageInterval = NumberUtil.getAverage(allIntervals);
-                    double cps = 1000 / averageInterval;
-                    Wrapper.instance.log("Thanks for setting up the custom CPS. Your average CPS will be: " + cps);
-
-                    // Reset for the next setup
-                    clicks = 0;
-                    CommandSetupCPS.runSetup = false;
-
-                    // Clear the lists for future use
-                    Killaura.dataClickOne.clear();
-                    Killaura.dataClickTwo.clear();
-                    Killaura.dataClickThree.clear();
-                }
-            }
-            if (!held) {
-                clicked = false;
-            }
-        }
+    {
         ScaledResolution scaledresolution = new ScaledResolution(this.mc);
         int i = scaledresolution.getScaledWidth();
         int j = scaledresolution.getScaledHeight();

@@ -58,7 +58,7 @@ public class AntiVoid extends Module {
             for(int i = (int) mc.thePlayer.posY; i > 0; i--){
                 IBlockState a = mc.theWorld.getBlockState(new BlockPos(Math.floor(mc.thePlayer.posX),i,Math.floor(mc.thePlayer.posX)));
                 if(!a.getBlock().getMaterial().equals(Material.air)){
-                    overVoid = !overVoidCheck.getValue();
+                    overVoid = overVoidCheck.getValue();
                 }
             }
             if(mc.thePlayer.fallDistance > val.getValue() ){
@@ -101,6 +101,7 @@ public class AntiVoid extends Module {
                             mc.thePlayer.motionY = 0;
                             MoveUtils.stopMoving();
                             MoveUtils.cancelMoveInputs();
+                            mc.thePlayer.setPosition(lastSafePos.getX(), lastSafePos.getY(), lastSafePos.getZ());
                         }
                         break;
                     }
@@ -115,7 +116,7 @@ public class AntiVoid extends Module {
                     if(fps == 3){
                         Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Antivoid", "Catching you in 4 seconds"));
                     }
-                    if(fps < 4 * 20){
+                    if(fps < 20){
                         if(es.getPacket() instanceof C03PacketPlayer){
                             es.setCancelled(true);
                             hoverPackets.add(es.getPacket());

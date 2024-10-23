@@ -2,6 +2,7 @@ package uwu.noctura.utils.font;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
+import uwu.noctura.ui.splash.SplashScreen;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -10,7 +11,7 @@ import java.util.concurrent.*;
 
 public class FontManager {
 
-    private TTFFontRenderer defaultFont;
+    public TTFFontRenderer defaultFont;
 
     public FontManager getInstance() {
         return instance;
@@ -43,24 +44,28 @@ public class FontManager {
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Main " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Main (" + i + ") font");
             }
             for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Japan.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Japan " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Japan (" + i + ") font");
             }
             for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/iskpota.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Iskpota " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Iskpota (" + i + ") font");
             }
             for(int i = 8; i < 49; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Good.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Good " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Good (" + i + ") font");
             }
 
 

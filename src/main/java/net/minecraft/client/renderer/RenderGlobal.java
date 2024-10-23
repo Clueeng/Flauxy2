@@ -1113,7 +1113,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 
                     if ((!flag1 || !renderglobal$containerlocalrenderinformation.setFacing.contains(enumfacing1.getOpposite())) && (!flag1 || enumfacing2 == null || renderchunk1.getCompiledChunk().isVisible(enumfacing2.getOpposite(), enumfacing1)))
                     {
-                        RenderChunk renderchunk3 = this.func_181562_a(blockpos1, renderchunk1, enumfacing1);
+                        RenderChunk renderchunk3 = this.getRenderChunk(blockpos1, renderchunk1, enumfacing1);
 
                         if (renderchunk3 != null && renderchunk3.setFrameIndex(frameCount) && ((ICamera)camera).isBoundingBoxInFrustum(renderchunk3.boundingBox))
                         {
@@ -1197,36 +1197,29 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
         return visgraph.func_178609_b(pos);
     }
 
-    private RenderChunk func_181562_a(BlockPos p_181562_1_, RenderChunk p_181562_2_, EnumFacing p_181562_3_)
+    private RenderChunk getRenderChunk(BlockPos chunkPos, RenderChunk currentChunk, EnumFacing direction)
     {
-        BlockPos blockpos = p_181562_2_.getPositionOffset16(p_181562_3_);
-
-        if (blockpos.getY() >= 0 && blockpos.getY() < 256)
-        {
-            int i = MathHelper.abs_int(p_181562_1_.getX() - blockpos.getX());
-            int j = MathHelper.abs_int(p_181562_1_.getZ() - blockpos.getZ());
-
-            if (Config.isFogOff())
-            {
-                if (i > this.renderDistance || j > this.renderDistance)
-                {
+        BlockPos offsetPos = currentChunk.getPositionOffset16(direction);
+        if (offsetPos.getY() >= 0 && offsetPos.getY() < 256) {
+            int deltaX = chunkPos.getX() - offsetPos.getX();
+            deltaX = deltaX < 0 ? -deltaX : deltaX;
+            int deltaZ = chunkPos.getZ() - offsetPos.getZ();
+            deltaZ = deltaZ < 0 ? -deltaZ : deltaZ;
+            if (Config.isFogOff()) {
+                if (deltaX > this.renderDistance || deltaZ > this.renderDistance) {
                     return null;
                 }
             }
-            else
-            {
-                int k = i * i + j * j;
+            else {
+                int distanceSq = deltaX * deltaX + deltaZ * deltaZ;
 
-                if (k > this.renderDistanceSq)
-                {
+                if (distanceSq > this.renderDistanceSq) {
                     return null;
                 }
             }
-
-            return this.viewFrustum.getRenderChunk(blockpos);
+            return this.viewFrustum.getRenderChunk(offsetPos);
         }
-        else
-        {
+        else {
             return null;
         }
     }
@@ -1292,7 +1285,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
             double d1 = entityIn.posY - this.prevRenderSortY;
             double d2 = entityIn.posZ - this.prevRenderSortZ;
 
-            if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
+            if (d0 * d0 + d1 * d1 + d2 * d2 > 0.0D)
             {
                 this.prevRenderSortX = entityIn.posX;
                 this.prevRenderSortY = entityIn.posY;

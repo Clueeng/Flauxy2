@@ -9,9 +9,10 @@ import uwu.noctura.module.setting.impl.BooleanSetting;
 public class Performance extends Module {
 
     public BooleanSetting noRounded = new BooleanSetting("No Rounded",true);
+    public BooleanSetting optimizeChunkLayer = new BooleanSetting("Optimize Chunks", true);
 
     public Performance(){
-        addSettings(noRounded);
+        addSettings(noRounded, optimizeChunkLayer);
     }
 
 }

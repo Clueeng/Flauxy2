@@ -11,6 +11,7 @@ import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
+import uwu.noctura.utils.MoveUtils;
 import uwu.noctura.utils.WorldUtil;
 import uwu.noctura.utils.Wrapper;
 
@@ -111,30 +112,9 @@ public class Velocity extends Module {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
                 if(packet.getEntityID() == mc.thePlayer.getEntityId()) {
                     receivedVelocity = true;
-                    e.setCancelled(true);
-                    mc.thePlayer.motionY = packet.getMotionY() / 8000.0D;
-                    for(int i = 0; i < 10; i++) {
-                        WorldUtil.attackFakePlayer();
-                    }
-
+                    MoveUtils.strafe(MoveUtils.getMotion());
                 }
             }
-        } else if(event instanceof EventUpdate) {
-            if(mc.thePlayer.hurtTime == 10 && receivedVelocity) {
-                for(int i = 0; i < (int) strength.getValue(); i++) {
-                    //PacketUtils.releaseUseItem(false);
-                    WorldUtil.attackFakePlayer();
-                    mc.thePlayer.motionX= 0.6D;
-                    mc.thePlayer.motionZ *= 0.6D;
-                }
-            }
-
-            if(mc.thePlayer.hurtTime == 0) {
-                receivedVelocity = false;
-            }
-        } else if(event instanceof EventMove) {
-            EventMove e = (EventMove) event;
-
         }
     }
 

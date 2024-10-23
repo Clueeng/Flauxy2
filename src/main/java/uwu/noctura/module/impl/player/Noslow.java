@@ -11,6 +11,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
+import org.lwjgl.input.Keyboard;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.EventMotion;
 import uwu.noctura.event.impl.EventPostMotionUpdate;
@@ -32,7 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ModuleInfo(name = "Noslow", displayName = "No Slow", key = -1, cat = Category.Player)
 public class Noslow extends Module {
 
-    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "RedeSky", "Item Switch");
+    ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "NCP", "Reduced", "Vulcan", "Item Switch");
     NumberSetting redudeX = new NumberSetting("Reduce X", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
     NumberSetting redudeZ = new NumberSetting("Reduce Z", 0, 0, 100, 1).setCanShow(m -> mode.is("Reduced"));
 
@@ -41,7 +42,27 @@ public class Noslow extends Module {
     }
 
     boolean blockStop;
+    float oldStrafe, oldForward;
     ConcurrentLinkedQueue<Packet> blinks = new ConcurrentLinkedQueue<>();
+
+    @Override
+    public void onEnable() {
+        if(mc.thePlayer == null){
+            return;
+        }
+
+        oldForward = mc.thePlayer.moveForward;
+        oldStrafe = mc.thePlayer.moveStrafing;
+    }
+
+    @Override
+    public void onDisable() {
+        if(mc.thePlayer == null){
+            return;
+        }
+        mc.thePlayer.moveForward = oldForward;
+        mc.thePlayer.moveStrafing = oldStrafe;
+    }
 
     @Override
     public void onEvent(Event e) {
@@ -66,6 +87,20 @@ public class Noslow extends Module {
                     if ((mc.thePlayer.getHeldItem().getItem() instanceof ItemSword) && event.isPre()) {
                         mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9));
                         mc.getNetHandler().addToSendQueue(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                    }
+                }
+                break;
+            }
+            case "Vulcan":{
+                if(e instanceof EventMotion){
+                    if(shouldBeNoslowing()){
+                        mc.thePlayer.moveForward = 1;
+                        if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){
+                            mc.thePlayer.moveStrafing = 1;
+                        }else{
+                            mc.thePlayer.moveStrafing = -1;
+
+                        }
                     }
                 }
                 break;

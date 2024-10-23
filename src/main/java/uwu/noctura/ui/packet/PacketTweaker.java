@@ -226,6 +226,11 @@ public class PacketTweaker extends GuiScreen {
         if(field.equals("C0BPacketEntityAction")){
             hints[0] = "C0BAction (?)";
         }
+        if(field.equals("C05PacketPlayerLook")){
+            hints[0] = "Yaw (D)";
+            hints[1] = "Pitch (D)";
+            hints[2] = "Ground (B)";
+        }
         if(field.equals("C02PacketUseEntity")){
             hints[0] = "Entity (?)";
             hints[1] = "Action (?)";
@@ -988,14 +993,15 @@ public class PacketTweaker extends GuiScreen {
                     PacketUtil.sendSilentPacket(cachedPacket);
                     break;
                 }
-                case "C05PacketPlayerPosition":{
+                case "C05PacketPlayerLook":{
                     double yaw = Double.parseDouble(args.get(2));
                     double pitch = Double.parseDouble(args.get(3));
                     boolean ground = Boolean.parseBoolean(args.get(4));
+                    System.out.println(ground);
                     C03PacketPlayer.C05PacketPlayerLook pack = new C03PacketPlayer.C05PacketPlayerLook((float) yaw, (float) pitch, ground);
                     cachedPacket = pack;
-                    //System.out.println("error parsing : " + args.get(4) + " to " + Boolean.parseBoolean(args.get(4)) + " to " + pack.isOnGround());
                     PacketUtil.sendSilentPacket(pack);
+                    break;
                 }
                 case "C06PacketPlayerPosLook":{
                     double x = Double.parseDouble(args.get(2));

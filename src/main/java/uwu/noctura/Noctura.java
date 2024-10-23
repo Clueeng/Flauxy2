@@ -26,6 +26,7 @@ import uwu.noctura.module.impl.visuals.Animations;
 import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationManager;
 import uwu.noctura.notification.NotificationType;
+import uwu.noctura.ui.splash.SplashScreen;
 import uwu.noctura.utils.MinecraftInstance;
 import uwu.noctura.utils.config.ConfigManager;
 import uwu.noctura.utils.config.ConfigUtil;
@@ -62,6 +63,8 @@ public enum Noctura implements MinecraftInstance {
     private final ConfigManager nonShittyConfigManager = new ConfigManager();
     @Getter
     public boolean isUpToDate;
+    @Getter
+    public int outdateErrorCode = 0;
     @Getter
     public String currentVer, remoteVer;
     @Getter
@@ -117,6 +120,7 @@ public enum Noctura implements MinecraftInstance {
         loadHudPosition();
         initialized = true;
         isUpToDate = upToDate();
+        SplashScreen.set(7, "Done");
     }
 
     public void loadHudPosition(){
@@ -213,6 +217,7 @@ public enum Noctura implements MinecraftInstance {
                 System.out.println("Fetched " + remoteVersion + " as remote version");
                 reader.close();
             } else {
+                outdateErrorCode = 1;
                 System.out.println("oops " + responseCode);
                 return false;
             }
@@ -225,9 +230,11 @@ public enum Noctura implements MinecraftInstance {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(localFile))) {
                 writer.write(remoteVersion);
             } catch (IOException e) {
+                outdateErrorCode = 2;
                 e.printStackTrace();
                 return false;
             }
+            outdateErrorCode = 3;
             return false;
         }
         String localVersion = "";
@@ -235,6 +242,7 @@ public enum Noctura implements MinecraftInstance {
             localVersion = reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
+            outdateErrorCode = 4;
             return false;
         }
         System.out.println("Local Version: " + localVersion);

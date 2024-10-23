@@ -1,9 +1,5 @@
 package uwu.noctura.module.impl.movement;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockIce;
-import net.minecraft.block.BlockPackedIce;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
@@ -24,7 +20,7 @@ import uwu.noctura.utils.Wrapper;
 
 @ModuleInfo(name = "Speed", displayName = "Speed", key = Keyboard.KEY_X, cat = Category.Movement)
 public class Speed extends Module {
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet", "Karhu", "Hypixel");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP", "Test", "BlocksMC", "Redesky", "Cos Factor", "ClueAC", "Bullet", "Vulcan", "Hypixel");
     public ModeSetting ncpMode = new ModeSetting("NCP Mode", "Funcraft", "Funcraft", "Funcraft Funny", "Hypixel Like").setCanShow(m -> mode.is("NCP"));
     public ModeSetting verusMode = new ModeSetting("Verus Mode", "Hop", "Hop", "Low", "Fast").setCanShow(m -> mode.is("Verus"));
     public ModeSetting bmcMode = new ModeSetting("BMC Mode", "Strafe", "Strafe", "Low", "No Strafe").setCanShow(m -> mode.is("BlocksMC"));
@@ -49,8 +45,7 @@ public class Speed extends Module {
                 speedV = MoveUtils.getBaseMoveSpeed();
                 break;
             }
-            case "Karhu":{
-                airTick = 0;
+            case "Vulcan":{
                 funny = false;
                 mc.timer.timerSpeed=1f;
                 break;
@@ -69,8 +64,8 @@ public class Speed extends Module {
                 hypixel(event);
                 break;
             }
-            case "Karhu":{
-                karhuSpeed(event);
+            case "Vulcan":{
+                vulcanoSped(event);
                 break;
             }
             case "Bullet":{
@@ -499,25 +494,26 @@ public class Speed extends Module {
             }
         }
     }
-
-    private float airTick, groundTick, karhuSpeed = 1.6f;
     private boolean funny;
-    public void karhuSpeed(Event e){
+    public void vulcanoSped(Event e){
         if(e instanceof EventMotion){
             EventMotion em = (EventMotion) e;
             if(mc.thePlayer.onGround && em.isPre()){
                 //mc.thePlayer.jump();
                 MoveUtils.jumpVanilla(false, em);
                 //mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.5, mc.thePlayer.posZ);
-                MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.3f);
+                int amp = MoveUtils.getSpeedEffect();
+                MoveUtils.strafe((MoveUtils.getBaseSpeed() * 1.28f) + (amp * 0.15f));
                 if(MoveUtils.standsOnIce()){
-                    MoveUtils.strafe(MoveUtils.getBaseSpeed() * 2.7f);
+                    MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.7f);
                 }
-                mc.timer.timerSpeed = 0.74f;
+                mc.timer.timerSpeed = 1.0f;
                 funny = false;
             }
-            if(mc.thePlayer.motionY <= 0.3 && !funny){
-                mc.timer.timerSpeed = 1.06f;
+            if(mc.thePlayer.fallDistance > 0.2 && mc.thePlayer.fallDistance < 0.3){
+                MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.0f);
+            }
+            if(mc.thePlayer.motionY <= 0.35 && !funny){
                 mc.thePlayer.motionY = -0.03;
                 funny = true;
             }

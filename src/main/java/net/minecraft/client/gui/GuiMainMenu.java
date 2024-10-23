@@ -36,6 +36,7 @@ import org.lwjgl.util.glu.Project;
 import uwu.noctura.Changelog;
 import uwu.noctura.Noctura;
 import uwu.noctura.alts.GuiAltManager;
+import uwu.noctura.ui.CreditsGUI;
 import uwu.noctura.ui.star.StarParticle;
 import uwu.noctura.utils.DiscordPresenceUtil;
 import uwu.noctura.utils.font.FontManager;
@@ -286,6 +287,7 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
         this.buttonList.add(new GuiButton(3, this.width / 2 - 100, p_73969_1_ + p_73969_2_ * 2, "Alt Manager"));
         this.buttonList.add(new GuiButton(40, 4, 4, 100, 20, "Github"));
         this.buttonList.add(new GuiButton(41, 108, 4, 100, 20, "Youtube"));
+        this.buttonList.add(new GuiButton(42, 4, height - 24, 100, 20, "Credits"));
     }
 
     /**
@@ -309,6 +311,9 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
      */
     protected void actionPerformed(GuiButton button) throws IOException
     {
+        if(button.id == 42){
+            mc.displayGuiScreen(new CreditsGUI());
+        }
         if (button.id == 0)
         {
             this.mc.displayGuiScreen(new GuiOptions(this, this.mc.gameSettings));
@@ -616,7 +621,6 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             s.update(width, height, mouseX, mouseY);
             s.render(mouseX, mouseY, stars);
         }
-        StarParticle.drawLinesToNearestParticles(mouseX, mouseY, StarParticle.getNearestParticles(mouseX, mouseY, stars, 3));
 
         GaussianBlur.renderBlur(5f);
 
@@ -693,9 +697,15 @@ public class GuiMainMenu extends GuiScreen implements GuiYesNoCallback
             getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
                     4, new Color(20, 200, 10, 200).getRGB());
         }else{
-            String msg = "Client is outdated :(";
-            getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
-                    4, new Color(200, 0, 10, 255).getRGB());
+            if(Noctura.INSTANCE.outdateErrorCode == 1){
+                String msg = "No internet access";
+                getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
+                        4, new Color(200, 0, 10, 255).getRGB());
+            }else{
+                String msg = "Client is outdated :(";
+                getFont("Good", 18).drawString(msg, width - getFont("Good", 18).getWidth(msg) - 2,
+                        4, new Color(200, 0, 10, 255).getRGB());
+            }
         }
 
         if (this.openGLWarning1 != null && this.openGLWarning1.length() > 0)

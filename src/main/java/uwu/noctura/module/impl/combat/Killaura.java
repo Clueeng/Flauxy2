@@ -1,19 +1,13 @@
 package uwu.noctura.module.impl.combat;
 
-import com.viaversion.viabackwards.api.data.MappedLegacyBlockItem;
 import com.viaversion.viarewind.protocol.v1_9to1_8.Protocol1_9To1_8;
 import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
-import com.viaversion.viaversion.api.type.Type;
 import com.viaversion.viaversion.api.type.Types;
-import com.viaversion.viaversion.api.type.types.math.BlockPositionType1_8;
-import com.viaversion.viaversion.protocols.v1_8to1_9.Protocol1_8To1_9;
 import com.viaversion.viaversion.protocols.v1_8to1_9.packet.ServerboundPackets1_9;
-import com.viaversion.viaversion.protocols.v1_9_1to1_9_3.packet.ServerboundPackets1_9_3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -23,7 +17,6 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemSword;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
@@ -31,13 +24,14 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
-import uwu.noctura.commands.impl.CommandSetupCPS;
 import uwu.noctura.event.Event;
 import uwu.noctura.event.impl.*;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
+import uwu.noctura.module.impl.ghost.LegitSprint;
 import uwu.noctura.module.impl.player.Scaffold;
+import uwu.noctura.module.impl.player.Sprint;
 import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
@@ -57,22 +51,15 @@ import uwu.noctura.utils.timer.Timer;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import static uwu.noctura.utils.font.FontManager.getFont;
-import static uwu.noctura.utils.render.ColorUtils.getGradientOffset;
 import static uwu.noctura.utils.render.ColorUtils.getHealthColor;
-import static uwu.noctura.utils.render.RenderUtil.drawFace;
 
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
 
-    public static ArrayList<Long> dataClickOne = new ArrayList<>();
-    public static ArrayList<Long> dataClickTwo = new ArrayList<>();
-    public static ArrayList<Long> dataClickThree = new ArrayList<>();
-
-    ModeSetting cpsMode = new ModeSetting("CPS Mode", "Normal","Normal", "Data Set");
+    ModeSetting cpsMode = new ModeSetting("CPS Mode", "Normal","Normal", "ButterFly");
     NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001).setCanShow(m -> cpsMode.is("Normal"));
     public NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
 
@@ -101,6 +88,9 @@ public class Killaura extends Module {
 
     Timer timer = new Timer();
 
+    int amountOfClicks = 0;
+    int amountOfClicks2 = 0;
+    float moveYaw, movePitch;
 
     public Killaura(){
         setHudMoveable(true);
@@ -116,18 +106,14 @@ public class Killaura extends Module {
     public void onUpdate() {
         if(WorldUtil.shouldNotRun()) return;
         if(nosprint.getValue()) {
-            if(mc.thePlayer.ticksExisted % noSprintDelay.getValue() == 0){
-                mc.thePlayer.setSprinting(false);
-            }else{
-                mc.thePlayer.setSprinting(true);
-            }
+            mc.thePlayer.setSprinting(false);
         }
     }
 
     float tempX = 0;
     public Entity currentTarget;
     List<Entity> targets;
-
+    int clicksTotal = 0;
 
     public void onEvent(Event ev){
         if(ev instanceof EventStrafe){
@@ -227,15 +213,6 @@ public class Killaura extends Module {
                                 case "Hold":{
                                     if(isHoldingSword()){
                                         mc.gameSettings.keyBindUseItem.pressed = true;
-                                        if (event.isPost()) {
-                                            if (mc.thePlayer.swingProgressInt == -1) {
-                                                PacketUtil.sendPacket(new C07PacketPlayerDigging(
-                                                        C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, new BlockPos(-1, -1, -1), EnumFacing.DOWN));
-                                            } else if (mc.thePlayer.swingProgressInt == 0) {
-                                                PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(
-                                                        new BlockPos(-1, -1, -1), 255, mc.thePlayer.getHeldItem(), 0, 0, 0));
-                                            }
-                                        }
                                     }
                                     break;
                                 }
@@ -252,10 +229,12 @@ public class Killaura extends Module {
                                     float smoothnessY = 30;
                                     if(event.getYaw() < getRotations(target)[0]){
                                         float yaw = event.getYaw() + smoothnessX;
+                                        moveYaw = yaw;
                                         yaw(yaw, event);
                                     }
                                     if(event.getYaw() > getRotations(target)[0]){
                                         float yaw = event.getYaw() + smoothnessX;
+                                        moveYaw = yaw;
                                         yaw(yaw, event);
                                     }
                                     if(event.getPitch() < getRotations(target)[1]){
@@ -272,78 +251,66 @@ public class Killaura extends Module {
                                 break;
                             }
                             case "Legit":{
-                                /*
-                                if (this.mc.inGameHasFocus && flag)
-                                {
-                                    this.mc.mouseHelper.mouseXYChange();
-                                    float f = this.mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
-                                    float f1 = f * f * f * 8.0F;
-                                    float f2 = (float)this.mc.mouseHelper.deltaX * f1;
-                                    float f3 = (float)this.mc.mouseHelper.deltaY * f1;
-                                    this.smoothCamYaw = 0.0F;
-                                    this.smoothCamPitch = 0.0F;`
-                                    this.mc.thePlayer.setAngles(f2, f3);
-                                }
-                                 */
-                                //legitAim(target, event);
                                 float[] targetRot = getRotations(target);
                                 float targetYaw = targetRot[0];
                                 float targetPitch = targetRot[1];
 
                                 float[] gcd = applyGCD(targetYaw, targetPitch, event.getPrevYaw(), event.getPrevPitch());
-                                //event.setYaw(gcd[0]);
-                                //event.setPitch(gcd[1]);
-                                //if(!isLookingAtEntity(mc.thePlayer, target, reach.getValue(), event)){
-                                yaw(gcd[0], event);
-                                pitch(gcd[1], event);
-                                //}
 
-                                //yaw(targetYaw, event);
-                                //pitch(targetPitch, event);
+                                if(Math.abs(event.getYaw() - gcd[0]) > 2.3){
+                                    yaw(gcd[0], event);
+                                    moveYaw = gcd[0];
+                                }
+                                if(Math.abs(event.getPitch() - gcd[1]) > 4.3){
+                                    pitch(gcd[1], event);
+                                }
                                 break;
                             }
                             case "Instant":{
+                                moveYaw = getRotations(target)[0];
                                 yaw(getRotations(target)[0], event);
                                 pitch(getRotations(target)[1], event);
                                 break;
                             }
                         }
+                        double firstRandom = new Random().nextDouble();
+                        double secondRandom = new Random().nextDouble();
+                        float randomness = (float) Math.max(-3, Math.min(((firstRandom - (firstRandom/2)) * cps.getValue()) / (cps.getValue() * (secondRandom - (secondRandom/2))), 3));
+                        float msTime = (float) (1000f / (cps.getValue() + randomness));
                         long clicks = 0;
                         switch (cpsMode.getMode()){
-                            case "Data Set":{
-                                int index = (int)Math.ceil(Math.random() * 29);
-                                ArrayList<Long> allData = new ArrayList<>();
-                                allData.addAll(dataClickOne);
-                                allData.addAll(dataClickTwo);
-                                allData.addAll(dataClickThree);
-                                if(allData.size() <= 29 || CommandSetupCPS.runSetup){
-                                    Wrapper.instance.log("Please setup the cps correctly using the .cps command");
-                                    Wrapper.instance.log("Fallback to normal clicking");
-                                    cpsMode.setSelected("Normal");
-                                    return;
-                                }
-                                clicks = allData.get(index);
-                                break;
-                            }
                             case "Normal":{
                                 clicks = (long) (1000 / cps.getValue() + Math.random());
                                 break;
                             }
+                            case "ButterFly":{
+                                clicks = (long) (amountOfClicks > 2 ? msTime - (msTime / 2.5f - (new Random().nextDouble() * 4.5f)) : msTime * 1.1f);
+                                if(amountOfClicks2 % 10 == 0){
+                                    clicks += (long) (new Random().nextDouble() * 350);
+                                }
+
+                                break;
+                            }
                         }
                         if(timer.hasTimeElapsed(clicks, true)){
-
+                            clicksTotal++;
                             if (target instanceof EntityPlayer) { // idk i need to check if player bc it will crash and im to lazy to fix or find the error idc rn
                                 if (!mc.thePlayer.isInvisibleToPlayer((EntityPlayer) target) && !wall.isEnabled())
                                     return;
                             }else{
                                 targets.remove(target);
                             }
-                            if(type.is("Post")) attack(target, event);
-                            if(type.is("Pre") && event.isPre()) attack(target, event);
-                            if(type.is("Mix") && event.isPre() || event.isPost()) attack(target, event);
+                            //if(type.is("Post")) attack(target, event);
+                            //if(type.is("Pre") && event.isPre()) attack(target, event);
+                            //if(type.is("Mix") && event.isPre() || event.isPost())
+                            if(event.isPre()){
+                                attack(target, event);
+                            }
                             if(((EntityLivingBase)currentTarget).hurtTime > 3){
                                 attacked = System.currentTimeMillis();
                             }
+                            amountOfClicks++;
+                            amountOfClicks2++;
                         }else{
                             switch(autoblockMode.getMode()){
                                 case "Redesky":{
@@ -357,6 +324,9 @@ public class Killaura extends Module {
                                     break;
                                 }
                             }
+                        }
+                        if(amountOfClicks > 3){
+                            amountOfClicks = 0;
                         }
                     }else{
                         targets.remove(target);
@@ -524,17 +494,29 @@ public class Killaura extends Module {
     }
 
     public float[] applyGCD(float yaw, float pitch, float prevYaw, float prevPitch){
-        float d = ((this.mc.gameSettings.mouseSensitivity) * 0.6F + 0.2F) * 1.1f;
-        float e = d * d * d;
-        //float f2 = (float)this.mc.mouseHelper.deltaX * f1;
-        //float f3 = (float)this.mc.mouseHelper.deltaY * f1;
-        float f = e * 8.0F;
-
-        double yawSens = (yaw - prevYaw) * f;
-        double pitchSens = (pitch - prevPitch) * f;
-
-        return new float[]{(float) (prevYaw + yawSens), (float) (prevPitch + pitchSens)};
+        final float deltaPitch = MathHelper.wrapAngleTo180_float(pitch - prevPitch),
+                deltaYaw = MathHelper.wrapAngleTo180_float(yaw - prevYaw);
+        final double d = 0.5 * (double)0.6f + (double)0.2f, e = Math.pow(d, 3), f = e * 8.0;
+        final float cursorDeltaX = Math.round(deltaYaw / f / 0.15f * 8) / 8f,
+                cursorDeltaY = Math.round(deltaPitch / f / 0.15f * 8) / 8f;
+        final double i = cursorDeltaX * f, j = cursorDeltaY * f;
+        return new float[]{prevYaw + (float) (i * 0.15f), MathHelper.clamp_float(prevPitch + (float) (j * 0.15f), -90, 90)};
     }
+    /*
+    public Rotation fixed(final Rotation prev) {
+        final float deltaPitch = MathHelper.wrapDegrees(this.pitch - prev.pitch),
+                deltaYaw = MathHelper.wrapDegrees(this.yaw - prev.yaw);
+        final double d = 0.5 * (double)0.6f + (double)0.2f, e = Math.pow(d, 3), f = e * 8.0;
+        final float cursorDeltaX = Math.round(deltaYaw / f / 0.15f * 8) / 8f,
+                cursorDeltaY = Math.round(deltaPitch / f / 0.15f * 8) / 8f;
+        final double i = cursorDeltaX * f, j = cursorDeltaY * f;
+
+        return new Rotation(
+                prev.yaw + (float) (i * 0.15f),
+                Math.clamp(prev.pitch + (float) (j * 0.15f), -90, 90)
+        );
+    }
+     */
 
     private void hypixelBlock(Event ev){
 
@@ -544,6 +526,7 @@ public class Killaura extends Module {
     public void onDisable() {
         Killaura.fakeBlock = false;
         mc.gameSettings.keyBindUseItem.pressed = Mouse.isButtonDown(1);
+        Noctura.INSTANCE.getModuleManager().getModule(LegitSprint.class).setToggled(true);
     }
 
     public void yaw(float yaw, EventMotion e){
@@ -622,6 +605,7 @@ public class Killaura extends Module {
     public void onEnable() {
         int height = 52;
         int width = 130;
+        Noctura.INSTANCE.getModuleManager().getModule(LegitSprint.class).toggle();
         StarParticle starTemplate = new StarParticle(getMoveX(), getMoveY()).setSize(3f).setAlphaChangeRate(0.001f);
         RenderUtil.generateStars(80, stars, (int)getMoveX(), (int)getMoveY(), (int)getMoveX()+width, (int)getMoveX()+height, starTemplate, -0.125f, 0.125f, -0.125f, 0.125f);
     }

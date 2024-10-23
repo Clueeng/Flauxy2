@@ -69,6 +69,10 @@ public class Scaffold extends Module {
     public ModeSetting autoblock = new ModeSetting("Switch", "Slot", "None", "Slot", "Silent");
     public NumberSetting timer = new NumberSetting("Timer", 1, 0.5, 4, 0.1);
 
+
+
+    public BooleanSetting blockCounter = new BooleanSetting("Show Blocks", false);
+    public ModeSetting blockCounters = new ModeSetting("Design", "Classic", "Classic", "Modern").setCanShow(b -> blockCounter.isEnabled());
     public BooleanSetting jump = new BooleanSetting("Jump", false);
     public BooleanSetting raytrace = new BooleanSetting("Raytrace", false).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting roundRots = new BooleanSetting("Round Yaw", false).setCanShow(s -> mode.is("Godbridge"));
@@ -80,13 +84,15 @@ public class Scaffold extends Module {
 
 
     public Scaffold() {
-        addSettings(mode, raytrace, roundRots, sameY, towerGodbridge, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
+        addSettings(mode, blockCounter, blockCounters, raytrace, roundRots, sameY, towerGodbridge, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
     boolean hadSpeedEnabled;
     public void onEnable() {
         hadSpeedEnabled = Noctura.INSTANCE.getModuleManager().getModule(Speed.class).isToggled();
         if(hadSpeedEnabled){
             Noctura.INSTANCE.getModuleManager().getModule(Speed.class).setToggled(false);
+            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).onDisable();
+
         }
 
         if(mode.getMode().equalsIgnoreCase("Hypixel")){
@@ -161,7 +167,14 @@ public class Scaffold extends Module {
         }
 
         if(e instanceof EventRender2D){
+            if(blockCounter.isEnabled()){
+                switch (blockCounters.getMode()){
+                    case "Classic":{
 
+                        break;
+                    }
+                }
+            }
         }
 
 

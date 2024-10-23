@@ -320,7 +320,7 @@ public class GuiChat extends GuiScreen
         }
         for (Module hudMod : Noctura.INSTANCE.getModuleManager().getHudModules()) {
             boolean isTargethud = hudMod.getName().equals(Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).getName());
-            if (hudMod.isToggled() || isTargethud) {
+            if (hudMod.isToggled() ) {
                 ScaledResolution sr = new ScaledResolution(mc);
                 boolean isKeyStrokes = hudMod instanceof KeyStrokes;
                 double xpos = hudMod.getMoveX();

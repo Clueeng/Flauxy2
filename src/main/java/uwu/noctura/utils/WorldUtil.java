@@ -48,9 +48,7 @@ public class WorldUtil {
     }
 
     public static float wrappedHealth(EntityLivingBase entity){
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(2);
-        return Float.parseFloat(df.format(entity.getHealth()));
+        return Math.round(entity.getHealth() * 100.0f) / 100.0f;
     }
 
 
