@@ -16,4 +16,8 @@ public class GuiResourcePackAvailable extends GuiResourcePackList
     {
         return I18n.format("resourcePack.available.title", new Object[0]);
     }
+
+    public void updateResourcePacks(List<ResourcePackListEntry> packs) {
+        this.field_148204_l = packs;
+    }
 }

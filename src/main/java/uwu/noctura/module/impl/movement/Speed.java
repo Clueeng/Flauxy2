@@ -499,22 +499,17 @@ public class Speed extends Module {
         if(e instanceof EventMotion){
             EventMotion em = (EventMotion) e;
             if(mc.thePlayer.onGround && em.isPre()){
-                //mc.thePlayer.jump();
                 MoveUtils.jumpVanilla(false, em);
-                //mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.5, mc.thePlayer.posZ);
                 int amp = MoveUtils.getSpeedEffect();
-                MoveUtils.strafe((MoveUtils.getBaseSpeed() * 1.28f) + (amp * 0.15f));
+                MoveUtils.strafe((MoveUtils.getBaseSpeed() * 1.26f) + ((amp * 0.18f) + (amp > 0 ? 0.012f : 0)));
                 if(MoveUtils.standsOnIce()){
                     MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.7f);
                 }
                 mc.timer.timerSpeed = 1.0f;
                 funny = false;
             }
-            if(mc.thePlayer.fallDistance > 0.2 && mc.thePlayer.fallDistance < 0.3){
-                MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.0f);
-            }
             if(mc.thePlayer.motionY <= 0.35 && !funny){
-                mc.thePlayer.motionY = -0.03;
+                mc.thePlayer.motionY = -0.13;
                 funny = true;
             }
         }

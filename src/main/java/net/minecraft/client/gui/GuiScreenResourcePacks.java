@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.ResourcePackListEntry;
 import net.minecraft.client.resources.ResourcePackListEntryDefault;
@@ -25,6 +27,7 @@ public class GuiScreenResourcePacks extends GuiScreen
 
     /** List component that contains the available resource packs */
     private GuiResourcePackAvailable availableResourcePacksList;
+    private GuiTextField searchBar;
 
     /** List component that contains the selected resource packs */
     private GuiResourcePackSelected selectedResourcePacksList;
@@ -41,8 +44,11 @@ public class GuiScreenResourcePacks extends GuiScreen
      */
     public void initGui()
     {
+        searchBar = new GuiTextField(420, mc.fontRendererObj, this.width / 2 - 204, this.height - 24, 204, 20);
+        searchBar.setVisible(true);
         this.buttonList.add(new GuiOptionButton(2, this.width / 2 - 154, this.height - 48, I18n.format("resourcePack.openFolder", new Object[0])));
         this.buttonList.add(new GuiOptionButton(1, this.width / 2 + 4, this.height - 48, I18n.format("gui.done", new Object[0])));
+
 
         if (!this.changed)
         {
@@ -96,7 +102,7 @@ public class GuiScreenResourcePacks extends GuiScreen
 
     public List<ResourcePackListEntry> getAvailableResourcePacks()
     {
-        return this.availableResourcePacks;
+        return getResourcePacks(searchBar.getText());
     }
 
     public List<ResourcePackListEntry> getSelectedResourcePacks()
@@ -202,12 +208,26 @@ public class GuiScreenResourcePacks extends GuiScreen
         }
     }
 
+    private void refreshAvailableResourcePacks() {
+        String searchText = searchBar.getText();
+        List<ResourcePackListEntry> filteredPacks = getResourcePacks(searchText);
+        availableResourcePacksList.updateResourcePacks(filteredPacks);
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        super.keyTyped(typedChar, keyCode);
+        this.searchBar.textboxKeyTyped(typedChar, keyCode);
+        refreshAvailableResourcePacks();
+    }
+
     /**
      * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
      */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+        this.searchBar.mouseClicked(mouseX, mouseY, mouseButton);
         this.availableResourcePacksList.mouseClicked(mouseX, mouseY, mouseButton);
         this.selectedResourcePacksList.mouseClicked(mouseX, mouseY, mouseButton);
     }
@@ -228,9 +248,21 @@ public class GuiScreenResourcePacks extends GuiScreen
         this.drawBackground(0);
         this.availableResourcePacksList.drawScreen(mouseX, mouseY, partialTicks);
         this.selectedResourcePacksList.drawScreen(mouseX, mouseY, partialTicks);
+        searchBar.drawTextBox();
         this.drawCenteredString(this.fontRendererObj, I18n.format("resourcePack.title", new Object[0]), this.width / 2, 16, 16777215);
-        this.drawCenteredString(this.fontRendererObj, I18n.format("resourcePack.folderInfo", new Object[0]), this.width / 2 - 77, this.height - 26, 8421504);
+        //this.drawCenteredString(this.fontRendererObj, I18n.format("resourcePack.folderInfo", new Object[0]), this.width / 2 - 77, this.height - 26, 8421504);
+        if(searchBar.getText().isEmpty()){
+            this.drawCenteredString(this.fontRendererObj, "Filter packs...", this.width / 2 - 167, this.height - 18, 8421504);
+        }
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+
+    public List<ResourcePackListEntry> getResourcePacks(String contain) {
+        List<ResourcePackListEntry> availableResourcePacksList = this.availableResourcePacks;
+        return availableResourcePacksList.stream()
+                .filter(resourcePack -> resourcePack.func_148312_b().toLowerCase().contains(contain.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -58,6 +58,7 @@ import uwu.noctura.event.impl.packet.EventMove;
 import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.impl.player.Noslow;
+import uwu.noctura.module.impl.visuals.NotificationModule;
 import uwu.noctura.notification.Notification;
 import uwu.noctura.notification.NotificationType;
 import uwu.noctura.ui.dropdown.ClickGUI;
@@ -297,8 +298,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
         if(mc.thePlayer.ticksExisted % 6000 == 0){
             Noctura.INSTANCE.isUpToDate = Noctura.INSTANCE.upToDate();
-            if(!Noctura.INSTANCE.isUpToDate){
-                Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "You are using an outdated version of the client", "Please download the update from the installer", 9000));
+            if(!Noctura.INSTANCE.isUpToDate && Noctura.INSTANCE.getModuleManager().getModule(NotificationModule.class).outdatedNotification.isEnabled()){
+                Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "You are using an outdated version of the client", "Please download the update from the installer", 6000));
             }
         }
         double ghX = g ? this.posX : em.getX();

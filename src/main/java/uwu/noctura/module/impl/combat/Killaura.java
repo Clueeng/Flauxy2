@@ -84,7 +84,7 @@ public class Killaura extends Module {
     BooleanSetting wall = new BooleanSetting("Through Walls", true);
     public BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
     BooleanSetting movefix = new BooleanSetting("Move Fix", true);
-    public ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Noctura", "Noctura", "Star").setCanShow(m -> targethud.getValue());
+    public ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Noctura", "Noctura", "Star", "Classic").setCanShow(m -> targethud.getValue());
 
     Timer timer = new Timer();
 
@@ -166,6 +166,10 @@ public class Killaura extends Module {
                         }
                         case "Star":{
                             renderStarTargetHud(getMoveX(), getMoveY(), (EntityLivingBase) currentTarget);
+                            break;
+                        }
+                        case "Classic":{
+                            renderClassicTargetHud(getMoveX(), getMoveY(), (EntityLivingBase) currentTarget);
                             break;
                         }
                     }
@@ -344,6 +348,25 @@ public class Killaura extends Module {
         }
 
     }
+
+    private void renderClassicTargetHud(float x, float y, EntityLivingBase entity) {
+        setMoveX(x);
+        setMoveY(y);
+
+        int height = 52;
+        int width = 148;
+        setMoveH(height);
+        setMoveW(width);
+
+        int bg = new Color(0, 0, 0, 140).getRGB();
+        Gui.drawRect(x, y, x + width, y + height, bg);
+
+        GlStateManager.resetColor();
+        GlStateManager.color(1f,1f,1f,1f);
+        GuiInventory.drawEntityOnScreen((int) x + 12, (int) y + 36,  16, 0, 0, entity);
+        mc.fontRendererObj.drawString("Name: " + entity.getName(), (int) (x + 12 + 16), (int) (y + 6), -1);
+    }
+
     long attacked;
     private ArrayList<StarParticle> stars = new ArrayList<>();
     Color hurtTimeColor = new Color(-1);

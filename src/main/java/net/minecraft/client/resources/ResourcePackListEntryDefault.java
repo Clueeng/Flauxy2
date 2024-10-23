@@ -83,7 +83,7 @@ public class ResourcePackListEntryDefault extends ResourcePackListEntry
         return false;
     }
 
-    protected String func_148312_b()
+    public String func_148312_b()
     {
         return "Default";
     }

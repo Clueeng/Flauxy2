@@ -27,7 +27,7 @@ public class ResourcePackListEntryFound extends ResourcePackListEntry
         return this.field_148319_c.getTexturePackDescription();
     }
 
-    protected String func_148312_b()
+    public String func_148312_b()
     {
         return this.field_148319_c.getResourcePackName();
     }

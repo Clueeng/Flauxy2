@@ -9,7 +9,7 @@ import net.minecraft.util.EnumChatFormatting;
 public abstract class GuiResourcePackList extends GuiListExtended
 {
     protected final Minecraft mc;
-    protected final List<ResourcePackListEntry> field_148204_l;
+    protected List<ResourcePackListEntry> field_148204_l;
 
     public GuiResourcePackList(Minecraft mcIn, int p_i45055_2_, int p_i45055_3_, List<ResourcePackListEntry> p_i45055_4_)
     {

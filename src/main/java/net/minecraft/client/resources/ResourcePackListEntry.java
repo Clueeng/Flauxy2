@@ -133,7 +133,7 @@ public abstract class ResourcePackListEntry implements GuiListExtended.IGuiListE
 
     protected abstract String func_148311_a();
 
-    protected abstract String func_148312_b();
+    public abstract String func_148312_b();
 
     protected abstract void func_148313_c();
 
