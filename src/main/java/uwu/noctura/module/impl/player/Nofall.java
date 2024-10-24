@@ -6,6 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.noctura.event.Event;
@@ -31,12 +32,49 @@ public class Nofall extends Module {
     private Timer clutchTimer = new Timer();
     ArrayList<Packet> blinkPackets = new ArrayList<>();
     double fallY = 0;
+    int tick = 0;
 
     public Nofall() {
         this.addSettings(mode);
     }
 
     public void onEvent(Event e) {
+
+        if(mode.is("Test")){
+
+            if(e instanceof EventMotion){
+                EventMotion ev = (EventMotion) e;
+                if(MoveUtils.distToGround() > 238) return;
+                if(MoveUtils.distToGround() <= 3) return;
+                if(mc.thePlayer.fallDistance > 4.0f){
+                    if(mc.thePlayer.hurtTime > 0){
+                        mc.thePlayer.motionY = -2.95;
+                    }
+                    can = true;
+                }
+                if(mc.thePlayer.onGround){
+                    mc.timer.timerSpeed = 1f;
+                }
+                if(can){
+                    if(tick > 0){
+                        if(mc.thePlayer.motionY > -0.6){
+                            mc.thePlayer.motionY = -0.09800000190734863;
+                        }
+                        PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement());
+                        ev.setOnGround(true);
+                    }
+                    tick++;
+                    if(tick > 2){
+                        mc.timer.timerSpeed = 1f;
+                        tick = 0;
+                        can = false;
+                        mc.thePlayer.fallDistance = 0;
+                    }
+                }
+            }
+
+        } // 8
+
         if(e instanceof EventSendPacket){
             EventSendPacket event = (EventSendPacket) e;
             switch (mode.getMode()){

@@ -3,6 +3,7 @@ package uwu.noctura.module.impl.player;
 import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.C0BPacketEntityAction;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 import uwu.noctura.Noctura;
@@ -24,6 +25,7 @@ import net.minecraft.network.play.client.C0DPacketCloseWindow;
 import net.minecraft.util.DamageSource;
 import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
+import uwu.noctura.utils.WorldUtil;
 import uwu.noctura.utils.timer.Timer;
 
 import java.util.*;
@@ -48,6 +50,7 @@ public class InventoryManager extends Module {
     private final List<Integer> allPickaxes = new ArrayList<>();
     private final List<Integer>[] allArmors = new List[4];
     private final List<Integer> allBlocks = new ArrayList<>();
+    private final List<Integer> allOtherTrash = new ArrayList<>();
     private final List<Integer> trash = new ArrayList<>();
     private final Timer timer = new Timer();
     private Integer delay = null;
@@ -89,7 +92,7 @@ public class InventoryManager extends Module {
             EventMotion event = (EventMotion) e;
             closeInvServerSide();
 
-            if (Objects.requireNonNull(Noctura.INSTANCE.moduleManager.getModule(Scaffold.class).isToggled() || mc.currentScreen instanceof GuiChest))
+            if (Noctura.INSTANCE.moduleManager.getModule(Scaffold.class).isToggled() || mc.currentScreen instanceof GuiChest)
                 return;
 
             if (onlyStill.isEnabled() && (mc.gameSettings.keyBindJump.isKeyDown() || mc.gameSettings.keyBindForward.isKeyDown() || mc.gameSettings.keyBindLeft.isKeyDown() || mc.gameSettings.keyBindBack.isKeyDown() || mc.gameSettings.keyBindRight.isKeyDown()))
@@ -262,6 +265,7 @@ public class InventoryManager extends Module {
         allBows.stream().filter(slot -> slot != bestBowSlot).forEach(trash::add);
         allSwords.stream().filter(slot -> slot != bestSwordSlot).forEach(trash::add);
         allPickaxes.stream().filter(slot -> slot != bestPickaxeSlot).forEach(trash::add);
+        allOtherTrash.stream().forEach(trash::add);
 
         // Throw blocks after the limit is reached.
         int blockStacks = allBlocks.size();
@@ -335,6 +339,7 @@ public class InventoryManager extends Module {
         allBows.clear();
         allPickaxes.clear();
         allBlocks.clear();
+        allOtherTrash.clear();
 
         //Other Stats
         float bestSwordDamage = -1, bestSwordDurability = -1, bestPickaxeEfficiency = -1, bestPickaxeDurability = -1, bestBowDurability = -1;
@@ -422,6 +427,21 @@ public class InventoryManager extends Module {
                 if (gapStackSize < itemStack.stackSize) {
                     gapStackSize = itemStack.stackSize;
                     bestGapSlot = i;
+                }
+            }
+            if(itemStack.getItem() instanceof ItemFishingRod || itemStack.getItem() instanceof ItemEgg || itemStack.getItem() instanceof ItemSnowball
+            || itemStack.getItem() instanceof ItemBucket || itemStack.getItem() instanceof ItemBucketMilk || itemStack.getItem() instanceof ItemPotion){
+                if(itemStack.getItem() instanceof ItemBucket){
+                    ItemBucket bucket = (ItemBucket) itemStack.getItem();
+                    if(bucket.isLava() || (!bucket.isWater() && !bucket.isLava())){
+                        allOtherTrash.add(i);
+                    }
+                }else if(itemStack.getItem() instanceof ItemPotion){
+                    if(!WorldUtil.hasEffects(itemStack, Potion.moveSpeed, Potion.heal)){
+                        allOtherTrash.add(i);
+                    }
+                }else{
+                    allOtherTrash.add(i);
                 }
             }
         }

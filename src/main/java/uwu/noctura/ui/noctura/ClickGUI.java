@@ -39,6 +39,14 @@ public class ClickGUI extends GuiScreen {
     }
 
     @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        super.keyTyped(typedChar, keyCode);
+        for(CategoryFrame c : categories){
+            c.keyTyped(typedChar, keyCode);
+        }
+    }
+
+    @Override
     public void onGuiClosed() {
         super.onGuiClosed();
     }

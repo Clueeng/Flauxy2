@@ -183,9 +183,6 @@ public class ModuleFrame implements ColorHelper {
             for (Component component : this.components) {
                 if(!isHidden(component.getSetting()) && component.mouseClicked(mouseX, mouseY, mouseButton))
                     return true;
-
-
-
                 if(component.mouseClicked(mouseX, mouseY, mouseButton))
                     return true;
             }
@@ -254,5 +251,15 @@ public class ModuleFrame implements ColorHelper {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public void keyTyped(char c, int keycode) {
+        if(opened) {
+            for (Component component : this.components) {
+                if(component instanceof NumberComponent){
+                    component.keyTyped(c, keycode);
+                }
+            }
+        }
     }
 }

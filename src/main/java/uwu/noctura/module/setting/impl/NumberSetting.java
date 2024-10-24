@@ -46,5 +46,9 @@ public class NumberSetting extends Setting<Double> {
         double precision = 1.0 / this.increment;
         this.value = Math.round(Math.max(this.minimum, Math.min(this.maximum, value)) * precision) / precision;
     }
+    public void setValue2(double value) {
+        double precision = 1.0 / this.increment;
+        this.value = value;
+    }
 
 }

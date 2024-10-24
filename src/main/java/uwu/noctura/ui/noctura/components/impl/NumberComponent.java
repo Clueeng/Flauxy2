@@ -3,6 +3,7 @@ package uwu.noctura.ui.noctura.components.impl;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.MathHelper;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import uwu.noctura.module.setting.Setting;
 import uwu.noctura.module.setting.impl.NumberSetting;
@@ -26,10 +27,14 @@ public class NumberComponent extends Component implements ColorHelper {
     }
 
     private boolean drag;
+    private boolean inputMode;
+    private String inputText = "";
 
     @Override
     public void initGui() {
         drag = false;
+        inputMode = false;
+        inputText = "";
     }
 
     @Override
@@ -44,21 +49,16 @@ public class NumberComponent extends Component implements ColorHelper {
         double max = slide.getMaximum();
         double diff = Math.min(defaultWidth + 5, Math.max(0, mouseX - (this.x)));
         double renderWidth = defaultWidth * (slide.getValue() - min) / (max - min);
-
-        // Draw the hue scale if isColor is true
         if (isColor) {
             for (int i = 0; i < defaultWidth; i++) {
-                float hue = (float) i / (float) defaultWidth; // Calculate hue from position
-                int color = Color.HSBtoRGB(hue, 1.0f, 1.0f); // Convert hue to RGB color
+                float hue = (float) i / (float) defaultWidth;
+                int color = Color.HSBtoRGB(hue, 1.0f, 1.0f);
                 Gui.drawRect(x + i, y + 20, x + i + 1, y + getOffset() - 10 + 5 + 8, color);
             }
         } else {
-            // Draw normal color slider
             Gui.drawRect(x, y + 20, x + defaultWidth, y + getOffset() - 10 + 5 + 8, new Color(125, 125, 125).getRGB());
             Gui.drawRect(x, y + 20, x + (int) renderWidth, y + getOffset() - 10 + 5 + 8, nocturaGalaxyDark);
         }
-
-        // Handle dragging to adjust the slider value
         if (drag) {
             if (diff == 0) {
                 slide.setValue(min);
@@ -69,9 +69,12 @@ public class NumberComponent extends Component implements ColorHelper {
                 }
             }
         }
-
-        // Draw the setting label with its current value
-        getFont().drawString(getSetting().name + ": " + roundToPlace(slide.getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
+        if (inputMode) {
+            getFont().drawString(slide.getName() + ": " + inputText + " (Type Value)", (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
+        } else {
+            getFont().drawString(slide.getName() + ": " + roundToPlace(slide.getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
+        }
+        //getFont().drawString(getSetting().name + ": " + roundToPlace(slide.getValue(), 2), (float) (x + 5), (float) (y + (getOffset() / 2F - (getFont().getHeight("A") / 2F)) + 2), stringColor);
         GlStateManager.resetColor();
     }
 
@@ -94,22 +97,58 @@ public class NumberComponent extends Component implements ColorHelper {
 
     private void setValue(double value) {
         final NumberSetting set = (NumberSetting) getSetting();
-        set.setValue(MathHelper.clamp_double(snapToStep(value, set.getIncrement()), set.getMinimum(), set.getMaximum()));
+        if(inputMode){
+            set.setValue2(value);
+            System.out.println("a");
+        }else{
+            set.setValue(MathHelper.clamp_double(snapToStep(value, set.getIncrement()), set.getMinimum(), set.getMaximum()));
+        }
     }
 
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        return drag = RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, getOffset()) && mouseButton == 0;
+        if (mouseButton == 0 && (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL))) {
+            if (RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, getOffset()) && !((NumberSetting)getSetting()).colorDisplay) {
+                inputMode = true;
+                inputText = String.valueOf(((NumberSetting)getSetting()).getValue());
+                return true;
+            }
+        } else if (mouseButton == 0) {
+            if(inputMode){
+                double newValue = Double.parseDouble(inputText);
+                setValue(newValue);
+                inputMode = false;
+            }
+            return drag = RenderUtil.hover(x, y, mouseX, mouseY, defaultWidth, getOffset());
+        }
+        return false;
     }
+
 
     @Override
     public void onGuiClosed(int mouseX, int mouseY, int mouseButton) {
-
+        inputMode = false;
     }
 
     @Override
     public void keyTyped(char typedChar, int keyCode) {
-
+        if (inputMode) {
+            System.out.println("adding");
+            if (Character.isDigit(typedChar) || typedChar == '.' || typedChar == '-') {
+                inputText += typedChar;
+            } else if (keyCode == Keyboard.KEY_BACK && !inputText.isEmpty()) {
+                inputText = inputText.substring(0, inputText.length() - 1);
+            } else if (keyCode == Keyboard.KEY_RETURN) {
+                try {
+                    double newValue = Double.parseDouble(inputText);
+                    setValue(newValue);
+                } catch (NumberFormatException ignored) {
+                }
+                inputMode = false;
+            } else if (keyCode == Keyboard.KEY_ESCAPE) {
+                inputMode = false;
+            }
+        }
     }
 
     @Override

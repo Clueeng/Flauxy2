@@ -13,6 +13,7 @@ import uwu.noctura.module.Category;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
 import uwu.noctura.module.impl.combat.Killaura;
+import uwu.noctura.module.impl.player.Scaffold;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.MoveUtils;
@@ -498,19 +499,29 @@ public class Speed extends Module {
     public void vulcanoSped(Event e){
         if(e instanceof EventMotion){
             EventMotion em = (EventMotion) e;
-            if(mc.thePlayer.onGround && em.isPre()){
-                MoveUtils.jumpVanilla(false, em);
+            if(!MoveUtils.isWalking())return;
+            if(!mc.gameSettings.keyBindJump.pressed){
                 int amp = MoveUtils.getSpeedEffect();
-                MoveUtils.strafe((MoveUtils.getBaseSpeed() * 1.26f) + ((amp * 0.18f) + (amp > 0 ? 0.012f : 0)));
-                if(MoveUtils.standsOnIce()){
-                    MoveUtils.strafe(MoveUtils.getBaseSpeed() * 1.7f);
+                if(mc.thePlayer.onGround && em.isPre()){
+                    MoveUtils.jumpVanilla(false, em);
+                    float ds = (float) ((MoveUtils.getBaseSpeed() * 1.26f) + ((amp * 0.18f) + (amp > 0 ? 0.012f : 0)));
+                    MoveUtils.strafe(ds);
+                    if(MoveUtils.standsOnIce()){
+                        float baseSpeed = (float) MoveUtils.getBaseSpeed();
+                        float ampFactor = (amp * 0.18f) + (amp > 0 ? 0.012f : 0);
+                        float result = (baseSpeed * 1.26f + ampFactor) * (amp > 0 ? 1 + (amp / 3.5f) : 1.f);
+                        MoveUtils.strafe(result);
+                    }
+                    mc.timer.timerSpeed = 1.0f;
+                    funny = false;
                 }
-                mc.timer.timerSpeed = 1.0f;
-                funny = false;
-            }
-            if(mc.thePlayer.motionY <= 0.35 && !funny){
-                mc.thePlayer.motionY = -0.13;
-                funny = true;
+                if(!mc.thePlayer.onGround && !funny){
+                    if(amp > 0){
+                        MoveUtils.strafe(MoveUtils.getMotion() * 0.62);
+                    }
+                    mc.thePlayer.motionY = -0.13;
+                    funny = true;
+                }
             }
         }
     }

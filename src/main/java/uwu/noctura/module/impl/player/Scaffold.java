@@ -78,22 +78,19 @@ public class Scaffold extends Module {
     public BooleanSetting roundRots = new BooleanSetting("Round Yaw", false).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting sameY = new BooleanSetting("Telly", true).setCanShow(s -> mode.is("Godbridge"));
     public BooleanSetting towerGodbridge = new BooleanSetting("Tower", true).setCanShow(s -> mode.is("Godbridge"));
+    public ModeSetting towerGodbridgeMode = new ModeSetting("Tower Mode", "BlocksMC", "BlocksMC", "Vulcan").setCanShow(s -> mode.is("Godbridge") && towerGodbridge.isEnabled());
+    public BooleanSetting godbridgeMoveFix = new BooleanSetting("Move Fix", true).setCanShow(m -> mode.is("Godbridge"));
     public BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
     public NumberSetting vanillaTowerSpeed = new NumberSetting("Tower Speed", 0.42, 0.1, 1, 0.02).setCanShow(m -> tower.is("Vanilla"));
     public BooleanSetting redeskyTimer = new BooleanSetting("Redesky timer", true).setCanShow(m -> mode.is("Redesky"));
 
 
     public Scaffold() {
-        addSettings(mode, blockCounter, blockCounters, raytrace, roundRots, sameY, towerGodbridge, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
+        addSettings(mode, blockCounter, godbridgeMoveFix, blockCounters, raytrace, roundRots, sameY, towerGodbridge, towerGodbridgeMode, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
     boolean hadSpeedEnabled;
     public void onEnable() {
         hadSpeedEnabled = Noctura.INSTANCE.getModuleManager().getModule(Speed.class).isToggled();
-        if(hadSpeedEnabled){
-            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).setToggled(false);
-            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).onDisable();
-
-        }
 
         if(mode.getMode().equalsIgnoreCase("Hypixel")){
             mc.thePlayer.setSprinting(false);
@@ -132,9 +129,6 @@ public class Scaffold extends Module {
     }
 
     public void onDisable() {
-        if(hadSpeedEnabled){
-            Noctura.INSTANCE.getModuleManager().getModule(Speed.class).setToggled(true);
-        }
         placedBlocks = 0;
         mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindBack.getKeyCode());
         mc.gameSettings.keyBindForward.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
@@ -712,18 +706,20 @@ public class Scaffold extends Module {
         }
         if(event instanceof EventStrafe){
             EventStrafe e = (EventStrafe) event;
-            e.setYaw(godBridgeYaw);
-            mc.gameSettings.keyBindForward.pressed = false;
-            mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
-            if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){
-                mc.gameSettings.keyBindLeft.pressed = false;
-                mc.gameSettings.keyBindRight.pressed = true;
-            }else if(Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode())){
-                mc.gameSettings.keyBindRight.pressed = false;
-                mc.gameSettings.keyBindLeft.pressed = true;
-            }else{
-                mc.gameSettings.keyBindLeft.pressed = false;
-                mc.gameSettings.keyBindRight.pressed = false;
+            if(godbridgeMoveFix.isEnabled()){
+                e.setYaw(godBridgeYaw);
+                mc.gameSettings.keyBindForward.pressed = false;
+                mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
+                if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){
+                    mc.gameSettings.keyBindLeft.pressed = false;
+                    mc.gameSettings.keyBindRight.pressed = true;
+                }else if(Keyboard.isKeyDown(mc.gameSettings.keyBindRight.getKeyCode())){
+                    mc.gameSettings.keyBindRight.pressed = false;
+                    mc.gameSettings.keyBindLeft.pressed = true;
+                }else{
+                    mc.gameSettings.keyBindLeft.pressed = false;
+                    mc.gameSettings.keyBindRight.pressed = false;
+                }
             }
         }
         if(event instanceof EventMotion){
@@ -765,28 +761,60 @@ public class Scaffold extends Module {
                 if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
                     oldY = mc.thePlayer.posY;
                     if(towerGodbridge.isEnabled()){
-                        if(mc.thePlayer.onGround) {
-                            stillTick = 0;
-                            towerTicks = 0;
-                        }else{
-                            stillTick += 1;
-                        }
-                        if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)
-                        && (!MoveUtils.isWalking() && Math.abs(mc.thePlayer.motionZ) < 0.01 && Math.abs(mc.thePlayer.motionX) < 0.01)) {
-                            int possy = (int) mc.thePlayer.posY;
-                            mc.thePlayer.motionX *= 0.4f;
-                            mc.thePlayer.motionZ *= 0.4f;
+                        switch (towerGodbridgeMode.getMode()){
+                            case "BlocksMC":{
+                                if(mc.thePlayer.onGround) {
+                                    stillTick = 0;
+                                    towerTicks = 0;
+                                }else{
+                                    stillTick += 1;
+                                }
+                                if(mc.gameSettings.keyBindJump.isKeyDown() && !(mc.theWorld.getBlockState(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.1, mc.thePlayer.posZ)).getBlock() instanceof BlockAir)
+                                        && (!MoveUtils.isWalking() && Math.abs(mc.thePlayer.motionZ) < 0.01 && Math.abs(mc.thePlayer.motionX) < 0.01)) {
+                                    int possy = (int) mc.thePlayer.posY;
+                                    mc.thePlayer.motionX *= 0.4f;
+                                    mc.thePlayer.motionZ *= 0.4f;
 
-                            if (mc.thePlayer.posY - possy < 0.05) {
-                                mc.thePlayer.setPosition(mc.thePlayer.posX, possy, mc.thePlayer.posZ);
-                                mc.thePlayer.motionY = 0.42;
-                                towerTicks = 1;
-                            } else if (towerTicks == 1) {
-                                mc.thePlayer.motionY = 0.34;
-                                towerTicks++;
-                            } else if (towerTicks == 2) {
-                                mc.thePlayer.motionY = 0.25;
-                                towerTicks++;
+                                    if (mc.thePlayer.posY - possy < 0.05) {
+                                        mc.thePlayer.setPosition(mc.thePlayer.posX, possy, mc.thePlayer.posZ);
+                                        mc.thePlayer.motionY = 0.42;
+                                        towerTicks = 1;
+                                    } else if (towerTicks == 1) {
+                                        mc.thePlayer.motionY = 0.34;
+                                        towerTicks++;
+                                    } else if (towerTicks == 2) {
+                                        mc.thePlayer.motionY = 0.25;
+                                        towerTicks++;
+                                    }
+                                }
+                                break;
+                            }
+                            case "Vulcan":{
+                                if(mc.gameSettings.keyBindJump.isKeyDown()){
+                                    int possy = (int) mc.thePlayer.posY;
+                                    if(mc.thePlayer.motionY < 0.23 && mc.thePlayer.motionY > 0.1){
+                                        mc.thePlayer.motionY = -0.24;
+                                    }
+                                    Wrapper.instance.log((mc.thePlayer.onGround || mc.thePlayer.isCollidedVertically) + "");
+                                    if((mc.thePlayer.onGround || mc.thePlayer.isCollidedVertically)){
+                                        mc.thePlayer.motionY = 0.4199;
+                                        Wrapper.instance.log("a");
+                                    }
+                                    if(mc.thePlayer.getHorizontalFacing().equals(EnumFacing.EAST) || mc.thePlayer.getHorizontalFacing().equals(EnumFacing.WEST)){
+                                        if(mc.thePlayer.ticksExisted % 2 == 0){
+                                            mc.thePlayer.motionX = 0.11;
+                                        }else{
+                                            mc.thePlayer.motionX = -0.11;
+                                        }
+                                    }else{
+                                        if(mc.thePlayer.ticksExisted % 2 == 0){
+                                            mc.thePlayer.motionZ = 0.11;
+                                        }else{
+                                            mc.thePlayer.motionZ = -0.11;
+                                        }
+                                    }
+                                }
+                                break;
                             }
                         }
                     }
@@ -794,7 +822,8 @@ public class Scaffold extends Module {
                 godBridgeYaw = mc.thePlayer.rotationYaw;
                 if(mc.thePlayer.onGround){
                     mc.thePlayer.setSprinting(true);
-                    if(MoveUtils.getMotion() > 0.2){
+                    Speed speed = Noctura.INSTANCE.getModuleManager().getModule(Speed.class);
+                    if(MoveUtils.getMotion() > 0.2 && !speed.isToggled()){
                         mc.thePlayer.jump();
                     }
                 }

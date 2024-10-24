@@ -6,6 +6,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.item.EntityBoat;
+import net.minecraft.item.ItemPotion;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C0APacketAnimation;
 
@@ -21,12 +23,16 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 import com.google.common.base.Predicate;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.Vector3d;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.impl.visuals.Chams;
+
+import static uwu.noctura.utils.MoveUtils.mc;
 
 public class WorldUtil {
     public static List<EntityLivingBase> getLivingEntities(Predicate<EntityLivingBase> validator) {
@@ -41,6 +47,23 @@ public class WorldUtil {
             }
         }
         return entities;
+    }
+
+    public static boolean hasEffects(ItemStack potionStack, Potion... effectsToCheck) {
+        if(mc.thePlayer == null || mc.thePlayer.ticksExisted < 10) return false;
+        if (potionStack.getItem() instanceof ItemPotion) {
+            List<PotionEffect> effects = ((ItemPotion) potionStack.getItem()).getEffects(potionStack);
+            if(effects != null){
+                for (PotionEffect effect : effects) {
+                    for (Potion potion : effectsToCheck) {
+                        if (effect.getPotionID() == potion.id) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public static EnumChatFormatting quadColHealth(EntityLivingBase e){

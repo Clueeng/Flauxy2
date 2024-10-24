@@ -72,7 +72,7 @@ public class Killaura extends Module {
     NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
     BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Item Use", "Fake", "Redesky", "Hypixel", "1.9").setCanShow(m -> autoblock.getValue());
+    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Fake").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
     BooleanSetting raycast = new BooleanSetting("Raycast", true).setCanShow(m -> !rotations.is("None"));
@@ -87,6 +87,7 @@ public class Killaura extends Module {
     public ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Noctura", "Noctura", "Star", "Classic").setCanShow(m -> targethud.getValue());
 
     Timer timer = new Timer();
+    long lastAttack;
 
     int amountOfClicks = 0;
     int amountOfClicks2 = 0;
@@ -195,39 +196,17 @@ public class Killaura extends Module {
                         fakeBlock = autoblockMode.is("Fake") && autoblock.getValue();
                         if(autoblock.getValue()){
                             switch(autoblockMode.getMode()){
-                                case "Item Use":{
-                                    if(isHoldingSword()){
-                                        //mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getCurrentItem(), mc.thePlayer.inventory.getCurrentItem().getItem().getMaxItemUseDuration(mc.thePlayer.inventory.getCurrentItem()));
-                                    }
-                                    break;
-                                }
-                                case "1.9":{
-                                    Noctura.INSTANCE.getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Killaura", "1.9 Blocking is not working"));
-                                    autoblockMode.setSelected("Fake");
-                                    //modernBlock();
-                                    break;
-                                }
-                                case "Hypixel":{
-                                    //hypixelBlock(ev);
-                                    if(isHoldingSword()){
-                                        mc.gameSettings.keyBindUseItem.pressed = true;
-                                    }
-                                    break;
-                                }
                                 case "Hold":{
                                     if(isHoldingSword()){
                                         mc.gameSettings.keyBindUseItem.pressed = true;
                                     }
                                     break;
                                 }
-
-                                //mc.thePlayer.setItemInUse(mc.thePlayer.inventory.getItemStack(), 1);
                             }
                         }
 
                         switch(rotations.getMode()){
                             case "Verus":{
-                                //Wrapper.instance.log(String.valueOf(random));
                                 if(type.is("Pre") && event.isPre()){
                                     float smoothnessX = 30;
                                     float smoothnessY = 30;
@@ -297,16 +276,24 @@ public class Killaura extends Module {
                             }
                         }
                         if(timer.hasTimeElapsed(clicks, true)){
+                            if(autoblock.getValue()){
+                                switch(autoblockMode.getMode()){
+                                    case "Hold":{
+                                        if(isHoldingSword()){
+                                            mc.gameSettings.keyBindUseItem.pressed = false;
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                            lastAttack = System.currentTimeMillis();
                             clicksTotal++;
-                            if (target instanceof EntityPlayer) { // idk i need to check if player bc it will crash and im to lazy to fix or find the error idc rn
+                            if (target instanceof EntityPlayer) {
                                 if (!mc.thePlayer.isInvisibleToPlayer((EntityPlayer) target) && !wall.isEnabled())
                                     return;
                             }else{
                                 targets.remove(target);
                             }
-                            //if(type.is("Post")) attack(target, event);
-                            //if(type.is("Pre") && event.isPre()) attack(target, event);
-                            //if(type.is("Mix") && event.isPre() || event.isPost())
                             if(event.isPre()){
                                 attack(target, event);
                             }
@@ -315,19 +302,6 @@ public class Killaura extends Module {
                             }
                             amountOfClicks++;
                             amountOfClicks2++;
-                        }else{
-                            switch(autoblockMode.getMode()){
-                                case "Redesky":{
-                                    if(mc.thePlayer.getHeldItem() != null){
-                                        if(mc.thePlayer.getHeldItem().getItem() instanceof ItemSword){
-                                            if(mc.thePlayer.ticksExisted % 3 == 0){
-                                                mc.thePlayer.setItemInUse(mc.thePlayer.getHeldItem(), 1);
-                                            }
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
                         }
                         if(amountOfClicks > 3){
                             amountOfClicks = 0;
@@ -634,6 +608,12 @@ public class Killaura extends Module {
     }
 
     public void attack(Entity target, EventMotion em){
+        if(autoblock.isEnabled()){
+            if(autoblockMode.is("Hold") && mc.thePlayer.getItemInUseDuration() <= 1 && isHoldingSword()){
+                return;
+            }
+        }
+
         boolean ray = !raycast.isEnabled() || isLookingAtEntity(mc.thePlayer, target, reach.getValue(), em);
         mc.thePlayer.swingItem();
         mc.thePlayer.sendQueue.addToSendQueue(new C0APacketAnimation());

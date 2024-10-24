@@ -254,6 +254,12 @@ public class CategoryFrame implements ColorHelper {
         }
     }
 
+    public void keyTyped(char c, int keycode){
+        for(ModuleFrame m : modules){
+            m.keyTyped(c, keycode);
+        }
+    }
+
     public void handleModuleRendering(int mouseX, int mouseY){
         // draw modules on top of bg
         GlStateManager.color(1f,1f,1f,1f);

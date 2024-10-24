@@ -3,6 +3,7 @@ package uwu.noctura.module.impl.combat;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.EnumChatFormatting;
 import uwu.noctura.event.Event;
+import uwu.noctura.event.impl.EventMotion;
 import uwu.noctura.event.impl.EventReceivePacket;
 import uwu.noctura.event.impl.EventUpdate;
 import uwu.noctura.event.impl.packet.EventMove;
@@ -14,16 +15,17 @@ import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.MoveUtils;
 import uwu.noctura.utils.WorldUtil;
 import uwu.noctura.utils.Wrapper;
+import uwu.noctura.utils.timer.Timer;
 
 @ModuleInfo(name = "Velocity", displayName = "Velocity", key = -1, cat = Category.Combat)
 public class Velocity extends Module {
 
-    public ModeSetting mode = new ModeSetting("Mode", "Cancel", "Cancel", "Redesky", "Hypixel");
+    public ModeSetting mode = new ModeSetting("Mode", "Cancel", "Cancel", "Vulcan", "Hypixel");
     public NumberSetting x = new NumberSetting("X", 0, 0, 100, 1).setCanShow((m) -> mode.is("Cancel"));
     public NumberSetting y = new NumberSetting("Y", 0, 0, 100, 1).setCanShow((m) -> mode.is("Cancel"));
     public NumberSetting strength = new NumberSetting("DragClick amount", 5, 0, 20, 1).setCanShow(m -> mode.is("Redesky"));
     private boolean receivedVelocity;
-
+    Timer veloTimer = new Timer();
 
     public Velocity(){
         addSettings(mode, x, y);
@@ -31,7 +33,7 @@ public class Velocity extends Module {
 
     public void onEvent(Event ev){
         switch(mode.getMode()){
-            case "Redesky":{
+            case "Vulcan":{
 
                 Redesky(ev);
                 break;
@@ -111,8 +113,18 @@ public class Velocity extends Module {
             if(e.getPacket() instanceof S12PacketEntityVelocity) {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) e.getPacket();
                 if(packet.getEntityID() == mc.thePlayer.getEntityId()) {
+                    veloTimer.reset();
                     receivedVelocity = true;
-                    MoveUtils.strafe(MoveUtils.getMotion());
+                }
+            }
+        }
+        if(event instanceof EventMotion){
+            EventMotion e = (EventMotion) event;
+            if(receivedVelocity){
+                if(veloTimer.hasTimeElapsed(80, false)){
+                    mc.thePlayer.motionX *= -0.5;
+                    mc.thePlayer.motionZ *= -0.5;
+                    receivedVelocity = false;
                 }
             }
         }

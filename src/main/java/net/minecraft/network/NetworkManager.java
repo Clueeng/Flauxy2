@@ -231,7 +231,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
 
             try
             {
-                Wrapper.instance.log("Sent silent packet");
                 this.outboundPacketsQueue.add(new NetworkManager.InboundHandlerTuplePacketListener(packetIn, (GenericFutureListener[])null));
             }
             finally

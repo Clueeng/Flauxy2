@@ -181,15 +181,19 @@ public class Noslow extends Module {
     }
 
     public boolean isUsingSword() {
+        if(mc.thePlayer == null) return false;
         return mc.thePlayer.isUsingItem() && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
     }
     public boolean isUsingBow() {
+        if(mc.thePlayer == null) return false;
         return mc.thePlayer.isUsingItem() && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow;
     }
     public boolean isConsumingFood() {
+        if(mc.thePlayer == null) return false;
         return mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem().getItem() instanceof ItemFood || mc.thePlayer.getHeldItem().getItem() instanceof ItemPotion);
     }
     public boolean shouldBeNoslowing(){
+        if(mc.thePlayer == null) return false;
         return ( isUsingSword() || isConsumingFood() || isUsingBow() );
     }
 

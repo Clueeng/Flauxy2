@@ -359,19 +359,24 @@ public class Fly extends Module {
                 MoveUtils.enableMoveInputs();
                 flyTicks++;
                 shootBow(ev);
-                mc.thePlayer.motionY *= 0.95;
+                mc.thePlayer.motionY *= 0.999;
                 mc.timer.timerSpeed = 1.00f;
                 if(flyTicks < 2){
-                    MoveUtils.strafe(MoveUtils.getMotion() * 1.6f);
-                    mc.thePlayer.motionY += 0.01f;
+                    mc.thePlayer.motionY += 0.54f;
                 }
-                if(flyTicks > 1 && flyTicks < 35){
-                    MoveUtils.strafe(Math.min(MoveUtils.getMotion() * 1.100f, 2.8f));
+                if(flyTicks > 1 && flyTicks < 75){
                     if(mc.thePlayer.motionY < 0){
-                        mc.thePlayer.motionY *= 0.99f;
+                        Wrapper.instance.log("a");
                     }
                 }
                 if(flyTicks > 75 || (mc.thePlayer.onGround && flyTicks > 30)){
+                    //deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
+                    BlockPos tw = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
+                    double deltaX = Math.abs(tw.getX() - oldPos.getX());
+                    double deltaY = Math.abs(tw.getY() - oldPos.getY());
+                    double deltaZ = Math.abs(tw.getZ() - oldPos.getZ());
+                    double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+                    Wrapper.instance.log(dist + " blocks travelled");
                     this.onDisable();
                     toggle();
                 }
@@ -383,12 +388,12 @@ public class Fly extends Module {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) es.getPacket();
                 if (packet.getEntityID() == mc.thePlayer.getEntityId() && go) {
                     float yaw = mc.thePlayer.rotationYaw * ((float) Math.PI / 180F);
-                    double motionMultiplier = 2.5;
+                    double motionMultiplier = 9.5;
 
                     int motionX = (int) (-Math.sin(yaw) * motionMultiplier * 8000);
                     int motionZ = (int) (Math.cos(yaw) * motionMultiplier * 8000);
                     packet.setMotionX(motionX);
-                    packet.setMotionY((int) ((packet.getMotionY() / 100f) * (MoveUtils.standingOn(Blocks.slime_block) ? 4.5f : 2.99f)) * 100);
+                    packet.setMotionY((int) ((packet.getMotionY() / 100f) * (MoveUtils.standingOn(Blocks.slime_block) ? 4.5f : 3.5f)) * 100);
                     packet.setMotionZ(motionZ);
 
                     MoveUtils.strafe(0.2);
@@ -516,6 +521,7 @@ public class Fly extends Module {
 
     @Override
     public void onEnable() {
+        oldPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         exemptWebs = false;
         tempY = 0;
         go = false;

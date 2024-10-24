@@ -285,6 +285,20 @@ public class MoveUtils {
             mc.thePlayer.motionZ = forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f));
         }
     }
+    public static double distToGround() {
+        if (mc.thePlayer == null) return 0.0;
+        double posX = mc.thePlayer.posX;
+        double posY = mc.thePlayer.posY;
+        double posZ = mc.thePlayer.posZ;
+        for (double y = posY; y > 0; y--) {
+            BlockPos pos = new BlockPos(posX, y, posZ);
+            Block block = mc.theWorld.getBlockState(pos).getBlock();
+            if (block.getMaterial().isSolid()) {
+                return posY - y;
+            }
+        }
+        return posY;
+    }
     public static void teleport(final double[] startPos, final BlockPos endPos){
         double distx = startPos[0] - endPos.getX()+ 0.5;
         double disty = startPos[1] - endPos.getY();

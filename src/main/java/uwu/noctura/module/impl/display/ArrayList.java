@@ -38,7 +38,7 @@ public class ArrayList extends Module {
     public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
-    public GraphSetting sat2 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
+    public GraphSetting sat2 = new GraphSetting("Saturation 2",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
 
     public NumberSetting offset = new NumberSetting("Offset", 2, 0, 10, 1).setCanShow((m) -> color.is("Blend") || color.is("Theme"));
     BooleanSetting customfont = new BooleanSetting("Custom Font", true);

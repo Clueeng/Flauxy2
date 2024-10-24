@@ -99,6 +99,13 @@ public class ItemBucket extends Item
         }
     }
 
+    public boolean isLava(){
+        return this.isFull.getMaterial().equals(Material.lava);
+    }
+    public boolean isWater(){
+        return this.isFull.getMaterial().equals(Material.water);
+    }
+
     private ItemStack fillBucket(ItemStack emptyBuckets, EntityPlayer player, Item fullBucket)
     {
         if (player.capabilities.isCreativeMode)
