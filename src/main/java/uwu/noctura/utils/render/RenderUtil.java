@@ -16,6 +16,7 @@ import org.lwjgl.util.glu.GLU;
 import uwu.noctura.Noctura;
 import uwu.noctura.module.impl.other.Performance;
 import uwu.noctura.ui.star.StarParticle;
+import uwu.noctura.utils.font.TTFFontRenderer;
 import uwu.noctura.utils.render.shader.StencilUtil;
 
 import java.awt.*;
@@ -129,6 +130,23 @@ public class RenderUtil  {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
 
+    }
+
+    public static void drawGradientString(TTFFontRenderer fontRenderer, String text, float x, float y, Color color1, Color color2) {
+        int textLength = text.length();
+        for (int i = 0; i < textLength; i++) {
+            float factor = (float) i / (float) textLength;
+            int red = (int) (color1.getRed() * (1 - factor) + color2.getRed() * factor);
+            int green = (int) (color1.getGreen() * (1 - factor) + color2.getGreen() * factor);
+            int blue = (int) (color1.getBlue() * (1 - factor) + color2.getBlue() * factor);
+            int alpha = (int) (color1.getAlpha() * (1 - factor) + color2.getAlpha() * factor);
+            Color interpolatedColor = new Color(red, green, blue, alpha);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            fontRenderer.drawStringWithShadow(String.valueOf(text.charAt(i)), x, y, interpolatedColor.getRGB());
+            x += fontRenderer.getWidth(String.valueOf(text.charAt(i)))-2;
+        }
+        GL11.glDisable(GL11.GL_BLEND);
     }
 
     public static void drawCircle(double x, double y, double radius, int c) {
@@ -1104,6 +1122,146 @@ public class RenderUtil  {
         final Entity current = mc.getRenderViewEntity();
         frustum.setPosition(current.posX, current.posY, current.posZ);
         return frustum.isBoundingBoxInFrustum(bb);
+    }
+
+    public static void renderBox(double x, double y, double z, double width, double height, Color color, boolean outline) {
+        glEnable(GL_BLEND);
+        glEnable(GL_LINE_SMOOTH);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_TEXTURE_2D);
+        quads(width, height, color, x, y, z);
+        if (!outline) {
+            return;
+        }
+        glEnable(GL_BLEND);
+        glEnable(GL_LINE_SMOOTH);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_TEXTURE_2D);
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x + width, y + height, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y + height, z - width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x - width, y, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x - width, y, z - width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x + width, y + height, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x - width, y + height, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y + height, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glEnd();
+        glBegin(GL_LINE_LOOP);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glEnd();
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
+        glColor4f(1, 1, 1, 1);
+    }
+
+    private static void quads(double width, double height, Color color, double x, double y, double z) {
+        float alpha = (color.getRGB() >> 24 & 0xFF) / 255.0F;
+        float red = (color.getRGB() >> 16 & 0xFF) / 255.0F;
+        float green = (color.getRGB() >> 8 & 0xFF) / 255.0F;
+        float blue = (color.getRGB() & 0xFF) / 255.0F;
+        glColor4f(red, green, blue, alpha);
+        glBegin(GL_QUADS);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x + width, y + height, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glVertex3d(x + width, y + height, z + width);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x + width, y + height, z - width);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x + width, y + height, z + width);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x + width, y + height, z + width);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x - width, y + height, z + width);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x + width, y + height, z + width);
+        glVertex3d(x - width, y + height, z + width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x + width, y + height, z + width);
+        glVertex3d(x + width, y + height, z - width);
+        glVertex3d(x - width, y + height, z - width);
+        glVertex3d(x - width, y + height, z + width);
+        glEnd();
+        glBegin(GL_QUADS);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x - width, y, z + width);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x + width, y, z + width);
+        glVertex3d(x + width, y, z - width);
+        glVertex3d(x - width, y, z - width);
+        glVertex3d(x - width, y, z + width);
+        glEnd();
+        glDisable(GL_BLEND);
+        glDisable(GL_LINE_SMOOTH);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
     }
 
     public static void draw3DBox(AxisAlignedBB box, int color) {

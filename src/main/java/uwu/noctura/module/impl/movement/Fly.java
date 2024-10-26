@@ -310,10 +310,19 @@ public class Fly extends Module {
                 if (e instanceof EventCollide) {
                     EventCollide ec = (EventCollide) e;
                     if (mode.is("Collision") && !mc.thePlayer.isSneaking()) {
-                        if (mc.thePlayer.isSneaking())
-                            return;
-                        if (ec.getBlock() instanceof net.minecraft.block.BlockAir && ec.getPosY() < mc.thePlayer.posY)
-                            ec.setBoundingBox(AxisAlignedBB.fromBounds(ec.getPosX(), ec.getPosY(), ec.getPosZ(), ec.getPosX() + 1.0D, mc.thePlayer.posY, ec.getPosZ() + 1.0D));
+                        AxisAlignedBB air;
+                        BlockPos below = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY -1, mc.thePlayer.posZ);
+
+                        if(ec.getPosX() == below.getX() && ec.getPosY() == below.getY() && ec.getPosZ() == below.getZ()){
+                            air = AxisAlignedBB.fromBounds(
+                                    ec.getPosX(),
+                                    ec.getPosY(),
+                                    ec.getPosZ(),
+                                    ec.getPosX() + 1.0D,
+                                    ec.getPosY() + 1.0D,
+                                    ec.getPosZ() + 1.0D);
+                            ec.setBoundingBox(air);
+                        }
                     }
                 }
                 if(e instanceof EventMotion) {

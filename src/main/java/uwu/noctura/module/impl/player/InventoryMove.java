@@ -77,11 +77,11 @@ public class InventoryMove extends Module {
                 PacketUtil.sendSilentPacket(    delayed.get(0));
                 delayed.clear();
             }
+            if(mc.currentScreen instanceof net.minecraft.client.gui.GuiChat || mc.currentScreen == null || mc.currentScreen instanceof PacketTweaker) return;
             if(mode.is("Vulcan") && mc.currentScreen != null){
                 MoveUtils.enableMoveInputs();
             }
 
-            if(mc.currentScreen instanceof net.minecraft.client.gui.GuiChat || mc.currentScreen == null || mc.currentScreen instanceof PacketTweaker) return;
             if(mode.is("Vulcan")){
                 if(mc.thePlayer.onGround){
                     mc.thePlayer.motionZ *= 0.75;

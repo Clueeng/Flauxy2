@@ -8,6 +8,22 @@ import java.util.Random;
 
 public class ColorUtils {
 
+
+    public static int interpolateColor(int startColor, int endColor, float progress) {
+        int startR = (startColor >> 16) & 0xFF;
+        int startG = (startColor >> 8) & 0xFF;
+        int startB = startColor & 0xFF;
+
+        int endR = (endColor >> 16) & 0xFF;
+        int endG = (endColor >> 8) & 0xFF;
+        int endB = endColor & 0xFF;
+
+        int newR = (int)(startR + (endR - startR) * progress);
+        int newG = (int)(startG + (endG - startG) * progress);
+        int newB = (int)(startB + (endB - startB) * progress);
+
+        return (newR << 16) | (newG << 8) | newB;
+    }
     public static Color setAlpha(Color color, int alpha) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }

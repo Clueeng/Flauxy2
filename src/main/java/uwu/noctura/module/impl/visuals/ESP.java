@@ -1,11 +1,18 @@
 package uwu.noctura.module.impl.visuals;
 
 import com.google.common.base.Predicates;
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.opengl.GL11;
 import uwu.noctura.Noctura;
@@ -38,6 +45,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import static net.minecraft.client.renderer.RenderGlobal.drawBoxOverlay;
 import static org.lwjgl.opengl.GL11.*;
 
 @ModuleInfo(name = "ESP", displayName = "ESP", cat = Category.Visuals, key = -1)
@@ -49,18 +57,19 @@ public class ESP extends Module {
     public ModeSetting nametagsMode = new ModeSetting("Nametag Mode", "Blur", "Blur", "Classic").setCanShow(c -> nametags.isEnabled());
     public ModeSetting color = new ModeSetting("Color", "Astolfo", "Astolfo", "Rainbow", "Custom", "Blend");
 
-    //public NumberSetting red = new NumberSetting("Red", 194, 0, 255, 1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
-    //public NumberSetting green = new NumberSetting("Green", 82, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    //public NumberSetting blue = new NumberSetting("Blue", 226, 0, 255, 1).setCanShow((m) -> color.is("Custom") ||  color.is("Blend"));
-    //public NumberSetting red2 = new NumberSetting("Red 2", 228, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    //public NumberSetting green2 = new NumberSetting("Green 2", 139, 0, 255, 1).setCanShow((m) ->  color.is("Blend"));
-    //public NumberSetting blue2 = new NumberSetting("Blue 2", 243, 0, 255, 1).setCanShow((m) -> color.is("Blend"));
+    public BooleanSetting chestEsp = new BooleanSetting("Block ESP", true);
+    public NumberSetting opaChest = new NumberSetting("Block Opacity", 1, 0, 255, 1).setCanShow(m -> chestEsp.isEnabled());
+    public NumberSetting hueChest = new NumberSetting("Chest HUE",0,0,360,1).setCanShow((m) -> chestEsp.isEnabled());
+    public GraphSetting satChest = new GraphSetting("Chest Sat",0,0,0,100,0,100,1,1, hueChest).setCanShow((m) -> chestEsp.isEnabled());
+
+    public BooleanSetting showTiles = new BooleanSetting("Show Blocks", true).setCanShow(m -> chestEsp.isEnabled());
+    public BooleanSetting chests = new BooleanSetting("Chest", true).setCanShow(m -> chestEsp.isEnabled() && showTiles.isEnabled());
+    public BooleanSetting enderchests = new BooleanSetting("Ender Chest", true).setCanShow(m -> chestEsp.isEnabled() && showTiles.isEnabled());
+
     public NumberSetting hue1 = new NumberSetting("Col1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public GraphSetting sat1 = new GraphSetting("Sat",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting hue2 = new NumberSetting("Col2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
     public GraphSetting sat2 = new GraphSetting("Sat2",0,0,0,100,0,100,1,1, hue2).setCanShow((m) -> color.is("Blend"));
-
-
 
     BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
     BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
@@ -69,11 +78,13 @@ public class ESP extends Module {
     BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
 
     public ESP(){
-        addSettings(mode, nametags, nametagsMode, thickness, color, hue1, sat1, hue2, sat2, showTargets, players, mobs, animals, shop);
+        addSettings(mode, chestEsp, opaChest, hueChest, satChest, showTiles, chests, enderchests, nametags, nametagsMode, thickness, color, hue1, sat1, hue2, sat2, showTargets, players, mobs, animals, shop);
         hue1.setColorDisplay(true);
         sat1.setColorDisplay(true);
         hue2.setColorDisplay(true);
         sat2.setColorDisplay(true);
+        hueChest.setColorDisplay(true);
+        satChest.setColorDisplay(true);
     }
 
 
@@ -247,6 +258,7 @@ public class ESP extends Module {
                             glColor4f(0, 0, 0, 1);  // Black color for the outline
                             glLineWidth((float) (thickness.getValue() * 4f));  // Thicker outline
                             glBegin(GL_LINE_LOOP);
+                            float n = .5f;
 
                             glVertex2f(minX, minY);
                             glVertex2f(maxX, minY);
@@ -259,8 +271,8 @@ public class ESP extends Module {
                             glLineWidth((float) (thickness.getValue() * 0.25f));  // Slightly thinner than the outline
                             glBegin(GL_LINE_LOOP);
 
-                            glVertex2f(minX, minY);
-                            glVertex2f(maxX, minY);
+                            glVertex2f(minX, minY + n);
+                            glVertex2f(maxX, minY + n);
                             glVertex2f(maxX, maxY);
                             glVertex2f(minX, maxY);
                             glEnd();
@@ -288,7 +300,29 @@ public class ESP extends Module {
         }
 
         if(e instanceof EventRender3D){
+            EventRender3D ev = (EventRender3D) e;
+            if(!chestEsp.isEnabled())return;
+            for (TileEntity entity : mc.theWorld.loadedTileEntityList) {
+                boolean flag = false;
+                if(entity instanceof TileEntityChest){
+                    if(chests.isEnabled()) flag = true;
+                }else if(entity instanceof TileEntityEnderChest){
+                    if(enderchests.isEnabled()) flag = true;
+                }
+                if(flag){
+                    glColor4d(1, 1, 1, 1);
+                    final AxisAlignedBB aabb = mc.theWorld.getBlockState(entity.getPos()).getBlock().getBlockState().getBlock().getSelectedBoundingBox(mc.theWorld, entity.getPos());
 
+                    final double x = entity.getPos().getX() + 0.5 - RenderManager.renderPosX,
+                            y = entity.getPos().getY() + 0.5 - RenderManager.renderPosY,
+                            z = entity.getPos().getZ() + 0.5 - RenderManager.renderPosZ;
+                    Color c = getColorFromSettings(hueChest, satChest);
+                    RenderUtil.renderBox(x, y - 0.5, z, 0.44,
+                            0.875, new Color(c.getRed(), c.getGreen(), c.getBlue(), (int) opaChest.getValue()), false);
+                }
+            }
+            GlStateManager.resetColor();
+            GlStateManager.color(1f,1f,1f,1f);
         }
     }
 

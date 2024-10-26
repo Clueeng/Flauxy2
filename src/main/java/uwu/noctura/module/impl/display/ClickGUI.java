@@ -8,6 +8,7 @@ import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleInfo;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
+import uwu.noctura.ui.box.BoxGUI;
 import uwu.noctura.ui.discord.Discord;
 import uwu.noctura.ui.flat.FlatUi;
 
@@ -16,10 +17,11 @@ public class ClickGUI extends Module {
 
     uwu.noctura.ui.dropdown.ClickGUI clickgui;
     uwu.noctura.ui.noctura.ClickGUI clickguiNoctura;
+    public static uwu.noctura.ui.box.BoxGUI boxGUI;
     uwu.noctura.ui.astolfo.ClickGUI clickguiAs;
     Discord discordUi;
     FlatUi flatUi;
-    public ModeSetting mode = new ModeSetting("Mode", "Noctura", "Dropdown", "Astolfo", "Noctura");
+    public ModeSetting mode = new ModeSetting("Mode", "Noctura", "Dropdown", "Astolfo", "Noctura", "Box");
     public static NumberSetting red = new NumberSetting("R", 180, 1, 250, 1);
     public static NumberSetting green = new NumberSetting("G", 10, 1, 250, 1);
     public static NumberSetting blue = new NumberSetting("B", 120, 1, 250, 1);
@@ -41,6 +43,12 @@ public class ClickGUI extends Module {
             case "Noctura": {
                 mc.displayGuiScreen(clickguiNoctura == null ? clickguiNoctura = new uwu.noctura.ui.noctura.ClickGUI() : clickguiNoctura);
                 //mc.displayGuiScreen(new uwu.noctura.ui.noctura.ClickGUI());
+                break;
+            }
+            case "Box": {
+                mc.displayGuiScreen(boxGUI == null ? boxGUI = new uwu.noctura.ui.box.BoxGUI() : boxGUI);
+                //mc.displayGuiScreen(new uwu.noctura.ui.noctura.ClickGUI());
+                this.toggle();
                 break;
             }
         }

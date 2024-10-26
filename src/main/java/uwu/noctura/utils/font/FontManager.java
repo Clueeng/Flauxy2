@@ -46,14 +46,14 @@ public class FontManager {
                 fonts.put("Main " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
                 SplashScreen.set(6, "Loading Main (" + i + ") font");
             }
-            for(int i = 8; i < 49; i++){
-                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Japan.ttf");
+            for(int i = 8; i < 25; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/Poppins-Regular.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
-                fonts.put("Japan " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
-                SplashScreen.set(6, "Loading Japan (" + i + ") font");
+                fonts.put("Poppins " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Poppins (" + i + ") font");
             }
-            for(int i = 8; i < 49; i++){
+            for(int i = 8; i < 28; i++){
                 InputStream istream = getClass().getResourceAsStream("/assets/minecraft/iskpota.ttf");
                 Font myFont = Font.createFont(Font.PLAIN, istream);
                 myFont = myFont.deriveFont(Font.PLAIN, i);
@@ -66,6 +66,20 @@ public class FontManager {
                 myFont = myFont.deriveFont(Font.PLAIN, i);
                 fonts.put("Good " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
                 SplashScreen.set(6, "Loading Good (" + i + ") font");
+            }
+            for(int i = 8; i < 25; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/icons.otf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("icons " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Icons (" + i + ") font");
+            }
+            for(int i = 8; i < 25; i++){
+                InputStream istream = getClass().getResourceAsStream("/assets/minecraft/icons2.otf");
+                Font myFont = Font.createFont(Font.PLAIN, istream);
+                myFont = myFont.deriveFont(Font.PLAIN, i);
+                fonts.put("icons2 " + i, new TTFFontRenderer(executorService, textureQueue, myFont));
+                SplashScreen.set(6, "Loading Icons2 (" + i + ") font");
             }
 
 

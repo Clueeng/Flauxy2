@@ -1,10 +1,13 @@
 package uwu.noctura.module.impl.player;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.*;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.block.Block;
@@ -31,6 +34,7 @@ import uwu.noctura.module.setting.impl.BooleanSetting;
 import uwu.noctura.module.setting.impl.ModeSetting;
 import uwu.noctura.module.setting.impl.NumberSetting;
 import uwu.noctura.utils.*;
+import uwu.noctura.utils.render.RenderUtil;
 
 @ModuleInfo(name = "Scaffold", displayName = "Scaffold", key = Keyboard.KEY_Z, cat = Category.Player)
 public class Scaffold extends Module {
@@ -86,6 +90,9 @@ public class Scaffold extends Module {
 
 
     public Scaffold() {
+        setHudMoveable(true);
+        setMoveX(200);
+        setMoveY(200);
         addSettings(mode, blockCounter, godbridgeMoveFix, blockCounters, raytrace, roundRots, sameY, towerGodbridge, towerGodbridgeMode, tower, autoblock, vanillaTowerSpeed, timer, redeskyTimer, jump, nosprint);
     }
     boolean hadSpeedEnabled;
@@ -161,10 +168,22 @@ public class Scaffold extends Module {
         }
 
         if(e instanceof EventRender2D){
+            ScaledResolution sr = new ScaledResolution(mc);
+            int w = sr.getScaledWidth();
+            int h = sr.getScaledHeight();
             if(blockCounter.isEnabled()){
+                int blockCount = 0;
+                for(int i = 0; i < 9; i++){
+                    if(mc.thePlayer.inventory.getStackInSlot(i) != null){
+                        if(mc.thePlayer.inventory.getStackInSlot(i).getItem() instanceof ItemBlock){
+                            ItemStack is = mc.thePlayer.inventory.getStackInSlot(i);
+                            blockCount += is.stackSize;
+                        }
+                    }
+                }
                 switch (blockCounters.getMode()){
                     case "Classic":{
-
+                        drawClassic(String.valueOf(blockCount));
                         break;
                     }
                 }
@@ -218,6 +237,13 @@ public class Scaffold extends Module {
                 }
             }
         }
+    }
+
+    public void drawClassic(String blockCount){
+        setMoveH(12);
+        setMoveW(mc.fontRendererObj.getStringWidth(blockCount) + 2);
+        RenderUtil.drawRoundedRect2(getMoveX() - 2, getMoveY() - 2, getMoveX() + getMoveW() + 2, getMoveY() + getMoveH() + 2, 3, new Color(0, 0, 0, 110).getRGB());
+        mc.fontRendererObj.drawStringWithShadow(blockCount, getMoveX() + 1.5f, getMoveY() + 2, -1);
     }
 
     private void manageBlocks() {
@@ -823,7 +849,7 @@ public class Scaffold extends Module {
                 if(mc.thePlayer.onGround){
                     mc.thePlayer.setSprinting(true);
                     Speed speed = Noctura.INSTANCE.getModuleManager().getModule(Speed.class);
-                    if(MoveUtils.getMotion() > 0.2 && !speed.isToggled()){
+                    if(MoveUtils.getMotion() > 0.2 && !speed.isToggled() && !mc.gameSettings.keyBindJump.pressed){
                         mc.thePlayer.jump();
                     }
                 }

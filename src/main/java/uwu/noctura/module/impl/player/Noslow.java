@@ -95,12 +95,6 @@ public class Noslow extends Module {
                 if(e instanceof EventMotion){
                     if(shouldBeNoslowing()){
                         mc.thePlayer.moveForward = 1;
-                        if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){
-                            mc.thePlayer.moveStrafing = 1;
-                        }else{
-                            mc.thePlayer.moveStrafing = -1;
-
-                        }
                     }
                 }
                 break;

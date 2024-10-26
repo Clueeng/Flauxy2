@@ -11,6 +11,7 @@ If you need to install the client manually for any reason, you can do so by down
 ### Bypasses:
  * BlocksMC
  * Verus
+ * Vulcan
 
 ### Falsing Features:
  * Fast Math Hack (If you don't know what this is, you probably don't need it)

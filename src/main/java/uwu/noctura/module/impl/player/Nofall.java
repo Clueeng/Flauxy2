@@ -60,7 +60,7 @@ public class Nofall extends Module {
                         if(mc.thePlayer.motionY > -0.6){
                             mc.thePlayer.motionY = -0.09800000190734863;
                         }
-                        PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement());
+                        PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getItemStack()));
                         ev.setOnGround(true);
                     }
                     tick++;

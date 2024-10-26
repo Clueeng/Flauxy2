@@ -20,6 +20,7 @@ import uwu.noctura.Noctura;
 import uwu.noctura.module.Module;
 import uwu.noctura.module.impl.combat.Killaura;
 import uwu.noctura.module.impl.display.KeyStrokes;
+import uwu.noctura.module.impl.player.Scaffold;
 import uwu.noctura.utils.render.RenderUtil;
 
 import static uwu.noctura.utils.font.FontManager.getFont;
@@ -320,7 +321,9 @@ public class GuiChat extends GuiScreen
         }
         for (Module hudMod : Noctura.INSTANCE.getModuleManager().getHudModules()) {
             boolean isTargethud = hudMod.getName().equals(Noctura.INSTANCE.getModuleManager().getModule(Killaura.class).getName());
-            if (hudMod.isToggled() ) {
+            Scaffold scaffold = Noctura.INSTANCE.getModuleManager().getModule(Scaffold.class);
+            boolean isBlockCounter = hudMod.getName().equals(scaffold.getName()) && scaffold.blockCounter.isEnabled();
+            if (hudMod.isToggled() || isBlockCounter ) {
                 ScaledResolution sr = new ScaledResolution(mc);
                 boolean isKeyStrokes = hudMod instanceof KeyStrokes;
                 double xpos = hudMod.getMoveX();
@@ -377,6 +380,14 @@ public class GuiChat extends GuiScreen
                                     module.renderStarTargetHud(module.getMoveX(), module.getMoveY(), mc.thePlayer);
                                     break;
                                 }
+                            }
+                        }
+                    }
+                    if(isBlockCounter && !scaffold.isToggled()){
+                        switch (scaffold.blockCounters.getMode()){
+                            case "Classic":{
+                                scaffold.drawClassic("Blocks");
+                                break;
                             }
                         }
                     }

@@ -83,7 +83,6 @@ public class Waypoints extends Module {
     }
 
     private void renderBeaconBeam(double x, double y, double z, float partialTicks) {
-        // Translate to the waypoint position
         double xRender = x - mc.getRenderManager().viewerPosX;
         double yRender = y - mc.getRenderManager().viewerPosY;
         double zRender = z - mc.getRenderManager().viewerPosZ;
@@ -97,12 +96,8 @@ public class Waypoints extends Module {
 
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-
-        // Set the height and other properties of the beam
         double beamHeight = 256.0;
         float beamRotation = (float) (mc.theWorld.getTotalWorldTime() % 40L + partialTicks);
-
-        // Start drawing the beam
         worldrenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
         double d1 = -0.8D;
         double d2 = 0.8D;

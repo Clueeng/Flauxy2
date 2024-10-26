@@ -88,6 +88,10 @@ public class HUD extends Module {
 
                 TTFFontRenderer small = getFont("Good", 16);
                 small.drawStringWithShadow("BPS: " + getBPS(), 4, bottomScreen - small.getHeight("BPS") - 4, hudCol);
+
+
+                TTFFontRenderer icon = getFont("icons2", 16);
+                icon.drawString("a", 4, 24, -1);
             }
         }
     }

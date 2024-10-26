@@ -194,7 +194,6 @@ public enum Noctura implements MinecraftInstance {
         getConfigManager().save("Default");
         getModuleManager().saveHudPosition();
         KeyLoader.save(Arrays.asList(getModuleManager().getModules()));
-        getNotificationManager().addToQueue(new Notification(NotificationType.INFO, "Auto-Save", "Saved Settings"));
     }
 
     public boolean upToDate() {
