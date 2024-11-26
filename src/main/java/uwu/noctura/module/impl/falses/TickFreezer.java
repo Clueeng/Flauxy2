@@ -40,8 +40,7 @@ public class TickFreezer extends Module {
                     restartTime++;
                 }
                 enabledtime = System.currentTimeMillis();
-                Wrapper.instance.log("Starting freeze");
-                if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)){
+                if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) && mc.currentScreen == null){
                     this.toggle();
                 }
             }

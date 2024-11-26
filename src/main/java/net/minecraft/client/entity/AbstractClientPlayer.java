@@ -27,6 +27,7 @@ import optfine.Reflector;
 
 import org.apache.commons.io.FilenameUtils;
 import uwu.noctura.Noctura;
+import uwu.noctura.module.impl.other.NoFOV;
 import uwu.noctura.module.impl.other.RestoreSkin;
 
 public abstract class AbstractClientPlayer extends EntityPlayer
@@ -149,11 +150,16 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
         if (this.capabilities.isFlying)
         {
-            f *= 1.1F;
+            if(!NoFOV.stopFovChange()){
+                f *= NoFOV.getMultiplier();
+            }
         }
 
         IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.movementSpeed);
-        f = (float)((double)f * ((iattributeinstance.getAttributeValue() / (double)this.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
+        if(!NoFOV.stopFovChange()){
+            f = (float)((double)f * ((iattributeinstance.getAttributeValue() / (double)this.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
+            f *= NoFOV.getMultiplier();
+        }
 
         if (this.capabilities.getWalkSpeed() == 0.0F || Float.isNaN(f) || Float.isInfinite(f))
         {

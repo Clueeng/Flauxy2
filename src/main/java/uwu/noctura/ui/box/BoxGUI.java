@@ -153,15 +153,6 @@ public class BoxGUI extends GuiScreen {
 
         GL11.glDisable(3089);
         GL11.glPopMatrix();
-        GlStateManager.enableBlend();
-        if(scrollX < -1){
-            RenderUtil.drawGradientSideways(x + catPushOffset, y, x + catPushOffset + 48, y + 23, new Color(0, 0, 0).getRGB(), new Color(0, 0, 0, 29).getRGB());
-        }
-        if(scrollX >= totalCat-catPushOffset + 12){
-            RenderUtil.drawGradientSideways(guiWidth - 48, y, guiWidth, y + 23, new Color(0, 0, 0, 0).getRGB(), new Color(0, 0, 0).getRGB());
-
-        }
-        GlStateManager.disableBlend();
 
         GlStateManager.popMatrix();
     }

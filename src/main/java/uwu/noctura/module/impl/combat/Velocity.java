@@ -60,7 +60,6 @@ public class Velocity extends Module {
                                 double mx = (packet.getMotionX() / 8000.0 * x.getValue()) * 80.0;
                                 double my = (packet.getMotionY() / 8000.0 * y.getValue()) * 80.0;
                                 double mz = (packet.getMotionZ() / 8000.0 * x.getValue()) * 80.0;
-                                Wrapper.instance.log("applied " + mx + " " + my + " " + mz);
                                 packet.setMotionX((int) mx);
                                 packet.setMotionY((int) my);
                                 packet.setMotionZ((int) mz);
@@ -93,7 +92,6 @@ public class Velocity extends Module {
                     double mx = (packet.getMotionX() / 8000.0 * 0.0) * 80.0;
                     double my = (packet.getMotionY() / 8000.0 * 100.0) * 80.0;
                     double mz = (packet.getMotionZ() / 8000.0 * 0.0) * 80.0;
-                    Wrapper.instance.log("applied " + mx + " " + my + " " + mz);
                     packet.setMotionX((int) mx);
                     packet.setMotionY((int) my);
                     packet.setMotionZ((int) mz);

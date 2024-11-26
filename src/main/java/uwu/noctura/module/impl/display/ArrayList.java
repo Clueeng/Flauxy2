@@ -35,6 +35,7 @@ public class ArrayList extends Module {
     public ModeSetting fonts = new ModeSetting("Text Font","Iskpota","Iskpota", "Main", "Good");
     public ModeSetting animAlgo = new ModeSetting("Animation","Lerp","Lerp", "Quad");
     public NumberSetting animSpeed = new NumberSetting("Animation Speed", 7, 1, 10, 1); // divide by 20
+    public ModeSetting animMode = new ModeSetting("Animation Mode", "Default", "Default", "Test");
     public NumberSetting hue1 = new NumberSetting("Color 1",0,0,360,1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public GraphSetting sat1 = new GraphSetting("Saturation",0,0,0,100,0,100,1,1, hue1).setCanShow((m) -> color.is("Custom") || color.is("Blend"));
     public NumberSetting hue2 = new NumberSetting("Color 2",0,0,360,1).setCanShow((m) -> color.is("Blend"));
@@ -59,7 +60,7 @@ public class ArrayList extends Module {
         hue2.setColorDisplay(true);
         sat1.setColorDisplay(true);
         sat2.setColorDisplay(true);
-        addSettings(fonts, color, glow, bloom, hideSomeCategories, themes, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
+        addSettings(fonts, color, glow, bloom, hideSomeCategories, themes, animMode, animAlgo, animSpeed, line_width, padding, customfont, hue1, sat1, hue2, sat2, offset, barLeft, barRight, outline, background, background_opacity);
     }
 
     @Override
@@ -306,27 +307,40 @@ public class ArrayList extends Module {
                     // values changing
 
                     c+= (int) (m.ySlide - 0.12f);
-                    if(!m.isToggled()){
-                        switch (animAlgo.getMode()){
-                            case "Lerp":{
-                                m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,0);
-                                break;
+                    switch (animMode.getMode()){
+                        case "Test":{
+                            if(!m.isToggled()){
+                                m.ySlide = 0;
+                            }else{
+                                m.ySlide = font.getHeight(modName(m))+retarded+1;
                             }
-                            case "Quad":{
-                                m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,0);
-                                break;
-                            }
+                            break;
                         }
-                    }else{
-                        switch (animAlgo.getMode()){
-                            case "Lerp":{
-                                m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(modName(m))+retarded+1);
-                                break;
+                        case "Default":{
+                            if(!m.isToggled()){
+                                switch (animAlgo.getMode()){
+                                    case "Lerp":{
+                                        m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,0);
+                                        break;
+                                    }
+                                    case "Quad":{
+                                        m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,0);
+                                        break;
+                                    }
+                                }
+                            }else{
+                                switch (animAlgo.getMode()){
+                                    case "Lerp":{
+                                        m.ySlide = (float) MathHelper.lerp(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(modName(m))+retarded+1);
+                                        break;
+                                    }
+                                    case "Quad":{
+                                        m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(modName(m))+retarded+1);
+                                        break;
+                                    }
+                                }
                             }
-                            case "Quad":{
-                                m.ySlide = (float) MathHelper.easeInOutQuad(animSpeed.getValue() / animFactor, m.ySlide,font.getHeight(modName(m))+retarded+1);
-                                break;
-                            }
+                            break;
                         }
                     }
                     // X

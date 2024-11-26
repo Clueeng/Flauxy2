@@ -105,6 +105,7 @@ public class Scaffold extends Module {
         }
         sneakTicks = 0;
         placedBlocks = 0;
+        currentPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
         ticks = 0;
         for(int i = 0; i < 9; i++) {
             if (mc.thePlayer.inventory.getStackInSlot(i) == null)
@@ -145,7 +146,9 @@ public class Scaffold extends Module {
         if(sneakTicks > 0) {
             mc.gameSettings.keyBindSneak.pressed = false;
         }
-        Noctura.INSTANCE.moduleManager.getModule("Sprint").setToggled(true);
+        if(mode.getMode().equalsIgnoreCase("Hypixel")){
+            Noctura.INSTANCE.moduleManager.getModule("Sprint").toggle();
+        }
 
         mc.timer.timerSpeed = 1F;
         if(autoblock.is("Slot")) {
@@ -251,7 +254,7 @@ public class Scaffold extends Module {
             for(int i = 0; i < 9; i++) {
                 if (mc.thePlayer.inventory.getStackInSlot(i) == null)
                     continue;
-                List<Block> blockBlacklist = Arrays.asList(Blocks.air, Blocks.water, Blocks.tnt, Blocks.chest,
+                List<Block> blockBlacklist = Arrays.asList(Blocks.air, Blocks.water, Blocks.tnt, Blocks.chest, Blocks.pumpkin,
                         Blocks.flowing_water, Blocks.lava, Blocks.flowing_lava, Blocks.tnt, Blocks.enchanting_table, Blocks.carpet,
                         Blocks.glass_pane, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice,
                         Blocks.packed_ice, Blocks.coal_ore, Blocks.diamond_ore, Blocks.emerald_ore, Blocks.chest, Blocks.torch,
@@ -734,6 +737,10 @@ public class Scaffold extends Module {
             EventStrafe e = (EventStrafe) event;
             if(godbridgeMoveFix.isEnabled()){
                 e.setYaw(godBridgeYaw);
+            }
+        }
+        if(event instanceof EventFrame){
+            if(godbridgeMoveFix.isEnabled()){
                 mc.gameSettings.keyBindForward.pressed = false;
                 mc.gameSettings.keyBindBack.pressed = Keyboard.isKeyDown(mc.gameSettings.keyBindForward.getKeyCode());
                 if(Keyboard.isKeyDown(mc.gameSettings.keyBindLeft.getKeyCode())){

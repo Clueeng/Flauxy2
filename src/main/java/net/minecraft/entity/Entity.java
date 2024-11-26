@@ -166,6 +166,9 @@ public abstract class Entity implements ICommandSender
      */
     public double lastTickPosZ;
 
+    // NOCTURA: TEST
+    public float ySize;
+
     /**
      * How high this entity can step up when running into a block to try to get over it (currently make note the entity
      * will always step up this amount and not just the amount needed)
@@ -602,11 +605,16 @@ public abstract class Entity implements ICommandSender
         if (this.noClip)
         {
             this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
-            this.resetPositionToBB();
+
+            this.posX = (this.boundingBox.minX + this.boundingBox.maxX) / 2.0D;
+            this.posY = this.boundingBox.minY + (double)1.62 - (double)this.ySize;
+            this.posZ = (this.boundingBox.minZ + this.boundingBox.maxZ) / 2.0D;
+            //this.resetPositionToBB();
         }
         else
         {
             this.worldObj.theProfiler.startSection("move");
+            this.ySize *= 0.4F;
             double d0 = this.posX;
             double d1 = this.posY;
             double d2 = this.posZ;
@@ -731,7 +739,9 @@ public abstract class Entity implements ICommandSender
 
             this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
 
-            if (this.stepHeight > 0.0F && flag1 && (d3 != x || d5 != z))
+            // testing
+            boolean testing = flag || this.ySize < 0.05f;
+            if (this.stepHeight > 0.0F && (testing) && flag1 && (d3 != x || d5 != z))
             {
                 double d11 = x;
                 double d7 = y;
@@ -953,8 +963,10 @@ public abstract class Entity implements ICommandSender
      */
     private void resetPositionToBB()
     {
+        // TODO: NOCTURA
         this.posX = (this.getEntityBoundingBox().minX + this.getEntityBoundingBox().maxX) / 2.0D;
-        this.posY = this.getEntityBoundingBox().minY;
+        this.posY = this.getEntityBoundingBox().minY - this.ySize;
+        //this.posY = this.getEntityBoundingBox().minY;
         this.posZ = (this.getEntityBoundingBox().minZ + this.getEntityBoundingBox().maxZ) / 2.0D;
     }
 
@@ -1314,6 +1326,7 @@ public abstract class Entity implements ICommandSender
         this.prevPosZ = this.posZ = z;
         this.prevRotationYaw = this.rotationYaw = yaw;
         this.prevRotationPitch = this.rotationPitch = pitch;
+        this.ySize = 0.0F;
         double d0 = (double)(this.prevRotationYaw - yaw);
 
         if (d0 < -180.0D)

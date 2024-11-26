@@ -185,6 +185,7 @@ import uwu.noctura.module.Module;
 import uwu.noctura.module.ModuleManager;
 import uwu.noctura.module.impl.ghost.FastPlace;
 import uwu.noctura.module.impl.ghost.NoClickDelay;
+import uwu.noctura.module.impl.other.PlayBot;
 import uwu.noctura.ui.packet.PacketTweaker;
 import uwu.noctura.ui.splash.SplashScreen;
 import uwu.noctura.utils.DiscordPresenceUtil;
@@ -322,7 +323,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     private final DefaultResourcePack mcDefaultResourcePack;
     private ResourcePackRepository mcResourcePackRepository;
     private LanguageManager mcLanguageManager;
-    private Framebuffer framebufferMc;
+    public Framebuffer framebufferMc;
     private TextureMap textureMapBlocks;
     private SoundHandler mcSoundHandler;
     private MusicTicker mcMusicTicker;
@@ -1522,7 +1523,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         }
     }
 
-    private void clickMouse()
+    public void clickMouse()
     {
         if (this.leftClickCounter <= 0)
         {

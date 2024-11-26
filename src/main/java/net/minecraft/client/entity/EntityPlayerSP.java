@@ -30,15 +30,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C01PacketChatMessage;
-import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C07PacketPlayerDigging;
-import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.network.play.client.C0BPacketEntityAction;
-import net.minecraft.network.play.client.C0CPacketInput;
-import net.minecraft.network.play.client.C0DPacketCloseWindow;
-import net.minecraft.network.play.client.C13PacketPlayerAbilities;
-import net.minecraft.network.play.client.C16PacketClientStatus;
+import net.minecraft.network.play.client.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatFileWriter;
@@ -68,6 +60,8 @@ import uwu.noctura.utils.PacketUtil;
 import uwu.noctura.utils.ViaUtil;
 import uwu.noctura.utils.Wrapper;
 import uwu.noctura.utils.timer.Timer;
+
+import java.security.SignatureException;
 
 public class EntityPlayerSP extends AbstractClientPlayer
 {
@@ -178,7 +172,6 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void mountEntity(Entity entityIn)
     {
-        Wrapper.instance.log("Mounted speed " + moveForward);
         super.mountEntity(entityIn);
 
         if (entityIn instanceof EntityMinecart)
@@ -213,7 +206,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
                     ghostJustToggled = true;
                 }
                 for (Category c : Category.values()) {
-                    if (!(c.equals(Category.Ghost) || c.equals(Category.Visuals)  || c.equals(Category.False) || c.equals(Category.Display))) {
+                    if (!(c.equals(Category.Ghost) || c.equals(Category.Visuals)  || c.equals(Category.False) || c.equals(Category.Display) || c.equals(Category.Other))) {
                         for (Module m : Noctura.INSTANCE.getModuleManager().getModules(c)) {
                             if (m.isToggled()) {
                                 if (!ghostJustToggled) {
@@ -431,8 +424,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         if(message.startsWith(CommandManager.getCommandPrefix()))
             CommandManager.onMessageSent(message);
-        else
+        else{
             this.sendQueue.addToSendQueue(new C01PacketChatMessage(message));
+        }
     }
 
     /**
@@ -936,6 +930,12 @@ public class EntityPlayerSP extends AbstractClientPlayer
             this.movementInput.moveStrafe *= 0.2F;
             this.movementInput.moveForward *= 0.2F;
             this.sprintToggleTimer = 0;
+        }
+
+        // TODO: NOCTURA TEST REPEATERR BUG
+        if (this.movementInput.sneak && this.ySize < 0.2F)
+        {
+            this.ySize = 0.2F;
         }
 
         this.pushOutOfBlocks(this.posX - (double)this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double)this.width * 0.35D);

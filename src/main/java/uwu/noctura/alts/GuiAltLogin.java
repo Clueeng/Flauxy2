@@ -105,6 +105,9 @@ public final class GuiAltLogin extends GuiScreen {
         drawNocturaScreen();
         this.username.drawTextBox();
         this.password.drawTextBox();
+
+        password.setMaxStringLength(1000);
+        username.setMaxStringLength(1000);
         drawCenteredString(this.mc.fontRendererObj, "Alt Login", this.width / 2, 20, -1);
         drawCenteredString(this.mc.fontRendererObj, (this.thread == null) ? (EnumChatFormatting.GRAY + status) : this.thread.getStatus(), this.width / 2, 29, -1);
         if (this.username.getText().isEmpty())

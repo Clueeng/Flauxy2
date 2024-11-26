@@ -174,6 +174,12 @@ public class MoveUtils {
         return 0;
     }
 
+    public static int getRealSpeedEffect() {
+        if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+            return mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1;
+        }
+        return 0;
+    }
     public static void strafe(EventMove e, double speed){
         Minecraft mc = Minecraft.getMinecraft();
         if(!mc.thePlayer.isMoving()) return;
@@ -285,6 +291,23 @@ public class MoveUtils {
             mc.thePlayer.motionZ = forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f));
         }
     }
+
+    public static double distToGround(int accuracy) {
+        if (mc.thePlayer == null || accuracy < 0) return 0.0;
+        double posX = mc.thePlayer.posX;
+        double posY = mc.thePlayer.posY;
+        double posZ = mc.thePlayer.posZ;
+        double decrement = Math.pow(10, -accuracy);
+        for (double y = posY; y > 0; y -= decrement) {
+            BlockPos pos = new BlockPos(posX, y, posZ);
+            Block block = mc.theWorld.getBlockState(pos).getBlock();
+            if (block.getMaterial().isSolid()) {
+                return Math.round((posY - y) * Math.pow(10, accuracy)) / Math.pow(10, accuracy);
+            }
+        }
+        return Math.round(posY * Math.pow(10, accuracy)) / Math.pow(10, accuracy);
+    }
+
     public static double distToGround() {
         if (mc.thePlayer == null) return 0.0;
         double posX = mc.thePlayer.posX;
@@ -362,11 +385,11 @@ public class MoveUtils {
             mc.thePlayer.motionY += (double)((float)(mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
         }
 
-        float f = 0;
+        float f;
         f = e.getYaw() * 0.017453292F;
         mc.thePlayer.motionY = 0.42f;
-        mc.thePlayer.motionX -= (double)(MathHelper.sin(f) * 0.2F);
-        mc.thePlayer.motionZ += (double)(MathHelper.cos(f) * 0.2F);
+        mc.thePlayer.motionX -= MathHelper.sin(f) * 0.2F;
+        mc.thePlayer.motionZ += MathHelper.cos(f) * 0.2F;
         mc.thePlayer.isAirBorne = true;
     }
     public static void jump(double motion) {

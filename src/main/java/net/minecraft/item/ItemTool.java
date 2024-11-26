@@ -16,7 +16,7 @@ public class ItemTool extends Item
     protected float efficiencyOnProperMaterial = 4.0F;
 
     /** Damage versus entities. */
-    private float damageVsEntity;
+    public float damageVsEntity;
 
     /** The material this tool is made from. */
     protected Item.ToolMaterial toolMaterial;

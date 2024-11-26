@@ -43,6 +43,18 @@ public class AxisAlignedBB {
         return this;
     }
 
+
+    public AxisAlignedBB setBounds(double p_72324_1_, double p_72324_3_, double p_72324_5_, double p_72324_7_, double p_72324_9_, double p_72324_11_)
+    {
+        this.minX = p_72324_1_;
+        this.minY = p_72324_3_;
+        this.minZ = p_72324_5_;
+        this.maxX = p_72324_7_;
+        this.maxY = p_72324_9_;
+        this.maxZ = p_72324_11_;
+        return this;
+    }
+
     /**
      * Adds the coordinates to the bounding box extending it if the point lies
      * outside the current ranges. Args: x, y, z

@@ -1,9 +1,11 @@
 package uwu.noctura.module.impl.movement;
 
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.input.Keyboard;
 import uwu.noctura.Noctura;
@@ -151,11 +153,23 @@ public class Longjump extends Module {
         switch(mode.getMode()){
             case "Test":{
                 ticks++;
-                mc.timer.timerSpeed = .7f;
-                if(ticks < 5){
-                    mc.thePlayer.motionY += .8f;
-                }else{
-                    this.toggle();
+
+                if(ev instanceof EventMotion){
+                    BlockPos below = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - .3, mc.thePlayer.posZ);
+                    boolean aboveWater = mc.theWorld.getBlockState(below).getBlock() instanceof BlockLiquid;
+
+                    if(aboveWater){
+                        if(mc.thePlayer.isInWater()){
+                            mc.thePlayer.motionY += 0.92f;
+                        }else{
+                            if(mc.thePlayer.ticksExisted % 2 == 0){
+                                mc.thePlayer.motionY = -0.0971f;
+                            }else{
+                                mc.thePlayer.motionY = -0.148;
+                            }
+                        }
+                    }else{
+                    }
                 }
                 break;
             }

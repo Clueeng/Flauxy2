@@ -520,7 +520,6 @@ public class GuiTextField extends Gui
 
     public void mouseClicked(int p_146192_1_, int p_146192_2_, int p_146192_3_)
     {
-        System.out.println("clicked");
         boolean flag = p_146192_1_ >= this.xPosition && p_146192_1_ < this.xPosition + this.width && p_146192_2_ >= this.yPosition && p_146192_2_ < this.yPosition + this.height;
 
         TTFFontRenderer font = Noctura.INSTANCE.getFontManager().getFont("Good 18");

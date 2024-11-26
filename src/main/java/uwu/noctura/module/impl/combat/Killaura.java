@@ -59,35 +59,36 @@ import static uwu.noctura.utils.render.ColorUtils.getHealthColor;
 @ModuleInfo(name = "Killaura", displayName = "Killaura", key = Keyboard.KEY_R, cat = Category.Combat)
 public class Killaura extends Module {
 
-    ModeSetting cpsMode = new ModeSetting("CPS Mode", "Normal","Normal", "ButterFly");
-    NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001).setCanShow(m -> cpsMode.is("Normal"));
+    private final ModeSetting cpsMode = new ModeSetting("CPS Mode", "Normal","Normal", "ButterFly");
+    private final NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 0.001);
     public NumberSetting reach = new NumberSetting("Reach", 4.2, 2.5, 6, 0.1);
+    private final BooleanSetting lockView = new BooleanSetting("Lock View", false);
 
 
-    ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None", "Legit");
+    private final ModeSetting rotations = new ModeSetting("Rotations", "Instant", "Instant", "Verus", "None", "Legit");
     //ModeSetting autoblock = new ModeSetting("Autoblock", "Hold", "Hold", "Item Use");
-    ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post", "Mix");
+    private final  ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post", "Mix");
 
-    BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
-    NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
+    private final BooleanSetting nosprint = new BooleanSetting("No Sprint", false);
+    private final NumberSetting noSprintDelay = new NumberSetting("Delay", 1, 1, 10, 1).setCanShow(m -> nosprint.getValue());
 
-    BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
-    ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Fake").setCanShow(m -> autoblock.getValue());
+    private final BooleanSetting autoblock = new BooleanSetting("Autoblock", true);
+    private final ModeSetting autoblockMode = new ModeSetting("Mode", "Hold", "Hold", "Fake").setCanShow(m -> autoblock.getValue());
     //ModeSetting type = new ModeSetting("Type", "Pre", "Pre", "Post");
-    BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
-    BooleanSetting raycast = new BooleanSetting("Raycast", true).setCanShow(m -> !rotations.is("None"));
+    private final BooleanSetting showTargets = new BooleanSetting("Show Targets", true);
+    private final BooleanSetting raycast = new BooleanSetting("Raycast", true).setCanShow(m -> !rotations.is("None"));
 
-    BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
-    BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
-    BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
-    BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
-    BooleanSetting wall = new BooleanSetting("Through Walls", true);
+    private final BooleanSetting players = new BooleanSetting("Players", true).setCanShow(m -> showTargets.getValue());
+    private final BooleanSetting mobs = new BooleanSetting("Mobs", true).setCanShow(m -> showTargets.getValue());
+    private final BooleanSetting animals = new BooleanSetting("Animals", true).setCanShow(m -> showTargets.getValue());
+    private final BooleanSetting shop = new BooleanSetting("NCP's", false).setCanShow(m -> showTargets.getValue());
+    private final BooleanSetting wall = new BooleanSetting("Through Walls", true);
     public BooleanSetting targethud = new BooleanSetting("TargetHUD", true);
     BooleanSetting movefix = new BooleanSetting("Move Fix", true);
     public ModeSetting targetHudMode = new ModeSetting("TargetHUD Mode", "Noctura", "Noctura", "Star", "Classic").setCanShow(m -> targethud.getValue());
 
     Timer timer = new Timer();
-    long lastAttack;
+    public long lastAttack;
 
     int amountOfClicks = 0;
     int amountOfClicks2 = 0;
@@ -99,7 +100,7 @@ public class Killaura extends Module {
         setMoveY(100);
         setMoveH(72);
         setMoveW(145);
-        addSettings(autoblockMode, type, rotations, raycast, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
+        addSettings(autoblockMode, type, rotations, lockView, raycast, cpsMode, cps, reach, autoblock, nosprint, noSprintDelay, movefix, wall, showTargets, players, mobs, animals, shop, targethud, targetHudMode);
     }
 
     public static boolean fakeBlock = false;
@@ -530,10 +531,16 @@ public class Killaura extends Module {
         mc.thePlayer.rotationYawHead = yaw;
         mc.thePlayer.renderYawOffset = yaw;
         e.setYaw(yaw);
+        if(lockView.isEnabled()){
+            mc.thePlayer.rotationYaw = yaw;
+        }
     }
     public void pitch(float pitch, EventMotion e){
         mc.thePlayer.rotationPitchHead = pitch;
         e.setPitch(pitch);
+        if(lockView.isEnabled()){
+            mc.thePlayer.rotationPitch = pitch;
+        }
     }
 
     public boolean shouldRun(){
@@ -602,7 +609,10 @@ public class Killaura extends Module {
     public void onEnable() {
         int height = 52;
         int width = 130;
-        Noctura.INSTANCE.getModuleManager().getModule(LegitSprint.class).toggle();
+        if(
+        Noctura.INSTANCE.getModuleManager().getModule(LegitSprint.class).isToggled() && nosprint.isEnabled()){
+            Noctura.INSTANCE.getModuleManager().getModule(LegitSprint.class).toggle();
+        }
         StarParticle starTemplate = new StarParticle(getMoveX(), getMoveY()).setSize(3f).setAlphaChangeRate(0.001f);
         RenderUtil.generateStars(80, stars, (int)getMoveX(), (int)getMoveY(), (int)getMoveX()+width, (int)getMoveX()+height, starTemplate, -0.125f, 0.125f, -0.125f, 0.125f);
     }

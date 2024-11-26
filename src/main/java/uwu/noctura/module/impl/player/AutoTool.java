@@ -19,7 +19,7 @@ public class AutoTool extends Module {
         if (e instanceof EventMotion) {
             if (this.mc.currentScreen == null && this.mc.thePlayer != null && this.mc.theWorld != null && this.mc.objectMouseOver != null && this.mc.objectMouseOver
                     .getBlockPos() != null && this.mc.objectMouseOver.entityHit == null &&
-                    Mouse.isButtonDown(0)) {
+                    mc.gameSettings.keyBindAttack.pressed) {
                 float bestSpeed = 1.0F;
                 int bestSlot = -1;
                 Block block = this.mc.theWorld.getBlockState(this.mc.objectMouseOver.getBlockPos()).getBlock();

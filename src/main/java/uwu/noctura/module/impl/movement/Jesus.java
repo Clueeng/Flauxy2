@@ -27,6 +27,7 @@ public class Jesus extends Module {
     boolean test;
     AxisAlignedBB liquid;
     boolean nextTick;
+    int waterTick;
 
     @Override
     public void onEvent(Event event){
@@ -51,38 +52,27 @@ public class Jesus extends Module {
                 break;
             }
             case "NCP":{
-                if(event instanceof EventCollide){
-                    if(mc.thePlayer == null)return;
-                    EventCollide ec = (EventCollide) event;
-                    if (!mc.thePlayer.isSneaking()) {
-                        if (ec.getBlock() instanceof net.minecraft.block.BlockLiquid && ec.getPosY() < mc.thePlayer.posY){
-                            test = true;
-                            liquid = AxisAlignedBB.fromBounds(
-                                    ec.getPosX(),
-                                    ec.getPosY(),
-                                    ec.getPosZ(),
-                                    ec.getPosX() + 1.0D,
-                                    ec.getPosY() + 1.0D,
-                                    ec.getPosZ() + 1.0D);
-                            ec.setBoundingBox(liquid);
+                if(event instanceof EventMotion){
+                    BlockPos below = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - .3, mc.thePlayer.posZ);
+                    boolean aboveWater = mc.theWorld.getBlockState(below).getBlock() instanceof BlockLiquid;
+
+                    if(aboveWater){
+                        test = true;
+                        mc.thePlayer.motionX = 0;
+                        mc.thePlayer.motionZ = 0;
+                        if(mc.thePlayer.isInWater()){
+                            mc.thePlayer.motionY = 0.17f;
+                            waterTick = 0;
                         }else{
-                            test = false;
                         }
                     }
-                }
-                if(event instanceof EventSendPacket){
-                    EventSendPacket es = (EventSendPacket) event;
-                    if(test && liquid != null){
-                        if(es.getPacket() instanceof C03PacketPlayer){
-                            if(mc.thePlayer.boundingBox.intersectsWith(liquid)){
-                                C03PacketPlayer pack = (C03PacketPlayer) es.getPacket();
-                                nextTick = !nextTick;
-                                if(nextTick){
-                                    pack.y -= 0.001;
-                                }
-                            }
+                    if(test){
+                        waterTick++;
+                        if(waterTick == 1){
+                            MoveUtils.strafe(0.15);
                         }
                     }
+                    if(mc.thePlayer.onGround) test = false;
                 }
                 break;
             }

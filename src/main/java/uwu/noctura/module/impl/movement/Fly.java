@@ -41,7 +41,7 @@ public class Fly extends Module {
     private LinkedList<Packet> packetsLinked = new LinkedList<>();
     public ConcurrentLinkedQueue<Packet> blinkpackets = new ConcurrentLinkedQueue<>();
 
-    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP Bow", "Collision", "Test", "Funcraft", "ClueAC", "Glide", "Hypixel", "Godseye");
+    public ModeSetting mode = new ModeSetting("Mode", "Vanilla", "Vanilla", "Verus", "NCP Bow", "Collision", "Test", "Funcraft", "Vulcan", "Glide", "Hypixel", "Godseye");
     public ModeSetting glideMode = new ModeSetting("Mode","Chunk","Chunk", "Web");
     public BooleanSetting CollisionNotSpeed = new BooleanSetting("Keep Speed", true).setCanShow(m -> mode.is("Collision"));
     public NumberSetting Collisionspeed = new NumberSetting("Speed", 0.4, 0.1, 3, 0.05).setCanShow(m -> mode.is("Collision") && !CollisionNotSpeed.getValue());
@@ -70,6 +70,7 @@ public class Fly extends Module {
     public static boolean exemptWebs = false;
     
     public void onEvent(Event e) {
+        if(mc.thePlayer == null)return;
         if(e instanceof EventUpdate){
 
             this.setArrayListName("Flight " + EnumChatFormatting.WHITE + mode.getMode());
@@ -134,15 +135,56 @@ public class Fly extends Module {
 
                 break;
             }
-            case "ClueAC": {
-                if(e instanceof EventMotion){
-                    if(flyTicks <= 1 && !mc.thePlayer.isCollidedVertically) this.toggle();
-                    if(mc.thePlayer.onGround) {
-                        mc.thePlayer.motionY = 0.42f;
-                    }else{
-                        mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 0.23214d, mc.thePlayer.posZ);
+            case "Vulcan": {
+                int waitInAir = 12;
+                if(e instanceof EventSendPacket){
+                    EventSendPacket es = (EventSendPacket) e;
+                    if(flyTicks % waitInAir > 0 && flyTicks % waitInAir < 10 && (PacketUtil.isPacketBlinkPacket(es.getPacket()) || PacketUtil.isPacketPingSpoof(es.getPacket()))){
+                        packets.add(es.getPacket());
+                        if(packets.size() < 12){
+                            es.setCancelled(true);
+                        }
                     }
-                    flyTicks++;
+                }
+
+                if (e instanceof EventCollide) {
+                    EventCollide ec = (EventCollide) e;
+                    AxisAlignedBB air;
+                    BlockPos below = new BlockPos(mc.thePlayer.posX, tempY - 1, mc.thePlayer.posZ);
+
+                    if(ec.getPosX() == below.getX() && ec.getPosY() == below.getY() && ec.getPosZ() == below.getZ()){
+                        air = AxisAlignedBB.fromBounds(
+                                ec.getPosX(),
+                                ec.getPosY(),
+                                ec.getPosZ(),
+                                ec.getPosX() + 1.0D,
+                                ec.getPosY() + 1.0D,
+                                ec.getPosZ() + 1.0D);
+                        ec.setBoundingBox(air);
+                    }
+                }
+
+                if(e instanceof EventMotion){
+                    EventMotion ev = (EventMotion)e;
+                    if(ev.isPre()){
+                        flyTicks++;
+                        dist += (float) MoveUtils.getMotion();
+                    }
+                    if(flyTicks % 10 == 0 && ev.isPre()){
+                        mc.thePlayer.swingItem();
+                        PacketUtil.sendSilentPacket(new
+                                C08PacketPlayerBlockPlacement(new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.22d, mc.thePlayer.posZ), 1, mc.thePlayer.getHeldItem(),
+                                0,0,0));
+                    }
+                    if(mc.gameSettings.keyBindJump.pressed){
+                        tempY = mc.thePlayer.posY;
+                    }
+                    if(mc.thePlayer.onGround && ev.isPre()){
+                        mc.thePlayer.jump();
+                        //mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY - 0.22d, mc.thePlayer.posZ);
+                        //mc.thePlayer.getHeldItem()
+                        MoveUtils.strafe(MoveUtils.getMotion() * 0.98f);
+                    }
                 }
                 break;
             }
@@ -309,7 +351,7 @@ public class Fly extends Module {
             case "Collision":{
                 if (e instanceof EventCollide) {
                     EventCollide ec = (EventCollide) e;
-                    if (mode.is("Collision") && !mc.thePlayer.isSneaking()) {
+                    if (!mc.thePlayer.isSneaking()) {
                         AxisAlignedBB air;
                         BlockPos below = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY -1, mc.thePlayer.posZ);
 
@@ -380,12 +422,7 @@ public class Fly extends Module {
                 }
                 if(flyTicks > 75 || (mc.thePlayer.onGround && flyTicks > 30)){
                     //deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
-                    BlockPos tw = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
-                    double deltaX = Math.abs(tw.getX() - oldPos.getX());
-                    double deltaY = Math.abs(tw.getY() - oldPos.getY());
-                    double deltaZ = Math.abs(tw.getZ() - oldPos.getZ());
-                    double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-                    Wrapper.instance.log(dist + " blocks travelled");
+                    Wrapper.instance.log(Math.round(dist) + " blocks traveled");
                     this.onDisable();
                     toggle();
                 }
@@ -533,6 +570,10 @@ public class Fly extends Module {
         oldPos = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
         exemptWebs = false;
         tempY = 0;
+        dist = 0.0f;
+        if(mode.is("Vulcan")){
+            tempY = mc.thePlayer.posY;
+        }
         go = false;
         bowTick = 0;
         godseyePackets.clear();
@@ -554,7 +595,7 @@ public class Fly extends Module {
 
     }
 
-
+    float dist = 0.0f;
     @Override
     public void onDisable() {
         wasHit = false;
@@ -563,6 +604,14 @@ public class Fly extends Module {
         resetBlocks();
         decreaseTicks = 0;
         hypixelTicks = 0;
+        if(mode.is("Vulcan")){
+
+            //deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ
+            if(oldPos != null){
+                Wrapper.instance.log((Math.round(dist * 100f) / 100f) + " blocks traveled");
+            }
+        }
+
         switch(mode.getMode()){
 
             case "Test": {

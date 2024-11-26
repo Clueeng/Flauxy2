@@ -4,6 +4,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
@@ -60,7 +61,12 @@ public class Nofall extends Module {
                         if(mc.thePlayer.motionY > -0.6){
                             mc.thePlayer.motionY = -0.09800000190734863;
                         }
-                        PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getItemStack()));
+                        //BlockPos positionIn, int placedBlockDirectionIn, ItemStack stackIn, float facingXIn, float facingYIn, float facingZIn
+                        BlockPos positionin = new BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1, mc.thePlayer.posZ);
+                        ItemStack held = mc.thePlayer.inventory.getItemStack();
+                        if(ev.isPre())
+                            PacketUtil.sendSilentPacket(new C08PacketPlayerBlockPlacement(positionin, 255, held, 0, 0, 0));
+
                         ev.setOnGround(true);
                     }
                     tick++;

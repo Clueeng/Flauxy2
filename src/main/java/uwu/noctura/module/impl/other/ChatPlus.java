@@ -19,9 +19,10 @@ public class ChatPlus extends Module {
     public BooleanSetting pingUser = new BooleanSetting("Ping on mention",true);
     public BooleanSetting smoothChat = new BooleanSetting("Smooth Scroll",true);
     public BooleanSetting stackMessage = new BooleanSetting("Stack Messages",true);
+    public BooleanSetting noKick = new BooleanSetting("Anti Spam Kick",true);
 
     public ChatPlus(){
-        addSettings(infiniteChat, pingUser, stackMessage);
+        addSettings(infiniteChat, pingUser, stackMessage, noKick);
     }
 
     int tickToNotPing;
